@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:pawfect_find/class/answer.dart';
 import 'package:pawfect_find/class/question.dart';
 
 class QuizPage extends StatefulWidget {
@@ -12,47 +14,65 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPage extends State<QuizPage> {
+  double margin = 0;
+
   List<Question> listQuestions = [];
   int currentPage = 0;
   Map<int, int?> selectedMap = {};
 
+  List<Answer> userAnswers = [];
+
+  // GET QUESTIONS AND THEIR CHOICES FROM DB
   Future<List<Question>> fetchQuestions() async {
     final response =
         await http.get(Uri.parse("http://localhost/ta/api/question.php"));
 
     if (response.statusCode == 200) {
       Map<String, dynamic> json = jsonDecode(response.body);
-      List<Question> questions = List<Question>.from(json['data'].map((que) => Question.fromJson(que)));
+      List<Question> questions = List<Question>.from(
+          json['data'].map((que) => Question.fromJson(que)));
       return questions;
-      // return response.body;
     } else {
       throw Exception("Failed to read API");
     }
   }
 
-  // readQuestions() {
-  //   Future<String> data = fetchQuestions();
-  //   data.then((value) {
-  //     Map json = jsonDecode(value);
-  //     for (var que in json['data']) {
-  //       Question q = Question.fromJson(que);
-  //       listQuestions.add(q);
-  //     }
-  //   });
-  // }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchQuestions().then((questions) {
-      setState(() {
-        listQuestions = questions;
-      });
+  // POST USER ANSWERS
+  void postAnswers(List<Answer> answers) async {
+    final response = await http
+        .post(Uri.parse("http://localhost/ta/api/question.php"), body: {
+      'answers': jsonEncode(answers.map((answer) => answer.convert()).toList())
     });
-    // readQuestions();
+
+    if (response.statusCode == 200) {
+      Navigator.pushNamed(context, "result");
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error')));
+      throw Exception('Failed to read API');
+    }
   }
 
-  Widget ListOfQuestions(Question question) {
+  // LINEAR SCALE CF
+  String cfLabel(double cf) {
+    switch (cf.toDouble()) {
+      case 0:
+        return 'Sangat Tidak Yakin';
+      case 0.25:
+        return 'Tidak Yakin';
+      case 0.5:
+        return 'Cukup Yakin';
+      case 0.75:
+        return 'Yakin';
+      case 1:
+        return 'Sangat Yakin';
+      default:
+        return '';
+    }
+  }
+
+  // BUILD THE UI FOR QUIZ
+  Widget ListOfQuestions(Question question, int index) {
     int? selected = selectedMap[question.id];
 
     return Container(
@@ -79,6 +99,62 @@ class _QuizPage extends State<QuizPage> {
                       });
                     },
                   ),
+                Text('Seberapa yakin Anda atas jawaban Anda?'),
+                Slider(
+                  value: cfValues[question.id] ?? 0.0,
+                  onChanged: (value) {
+                    setState(() {
+                      cfValues[question.id] = value;
+                    });
+                  },
+                  min: 0.0,
+                  max: 1.0,
+                  divisions: 4,
+                  label: cfLabel(cfValues[question.id] ?? 0.0),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Sangat Tidak Yakin'),
+                    Text('Sangat Yakin'),
+                  ],
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Hapus data saat tombol "Back" diklik
+                    if (index > 0) {
+                      setState(() {
+                        selectedMap.remove(question.id);
+                        cfValues.remove(question.id);
+                        userAnswers.removeWhere(
+                            (answer) => answer.questionId == question.id);
+                      });
+                      _pageController.previousPage(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.easeInOut);
+                    }
+                  },
+                  child: Text('Back'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (selectedMap.containsKey(question.id)) {
+                      setState(() {
+                        userAnswers.add(Answer(
+                            questionId: question.id,
+                            choiceId: selectedMap[question.id]!,
+                            cf: cfValues[question.id] ?? 0.0));
+                      });
+                    }
+                    if (index < listQuestions.length - 1) {
+                      _pageController.nextPage(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.easeInOut);
+                    } else {}
+                  },
+                  child: Text(
+                      index < listQuestions.length - 1 ? 'Next' : 'Submit'),
+                )
               ],
             ),
         ],
@@ -86,10 +162,28 @@ class _QuizPage extends State<QuizPage> {
     );
   }
 
+  // PAGE VIEW CONTROLLER LATE VAR
+  late PageController _pageController;
+  Map<int, double> cfValues = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // PAGE VIEW CONTROLLER INITIALISATION
+    _pageController = PageController();
+    fetchQuestions().then((questions) {
+      setState(() {
+        listQuestions = questions;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: PageView.builder(
+        physics: NeverScrollableScrollPhysics(),
+        controller: _pageController,
         itemCount: listQuestions.length,
         onPageChanged: (int page) {
           setState(() {
@@ -97,9 +191,15 @@ class _QuizPage extends State<QuizPage> {
           });
         },
         itemBuilder: (BuildContext ctxt, int index) {
-          return ListOfQuestions(listQuestions[index]);
+          return ListOfQuestions(listQuestions[index], index);
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 }
