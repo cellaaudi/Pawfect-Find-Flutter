@@ -1,5 +1,5 @@
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -22,10 +22,12 @@ class _QuizPage extends State<QuizPage> {
 
   List<Answer> userAnswers = [];
 
+  Map<int, bool?> isRadioSelected = {};
+
   // GET QUESTIONS AND THEIR CHOICES FROM DB
   Future<List<Question>> fetchQuestions() async {
-    final response =
-        await http.get(Uri.parse("http://localhost/ta/api/question.php"));
+    final response = await http
+        .get(Uri.parse("http://localhost/ta/Pawfect-Find-PHP/question.php"));
 
     if (response.statusCode == 200) {
       Map<String, dynamic> json = jsonDecode(response.body);
@@ -39,18 +41,19 @@ class _QuizPage extends State<QuizPage> {
 
   // POST USER ANSWERS
   void postAnswers(List<Answer> answers) async {
-    final response = await http
-        .post(Uri.parse("http://localhost/ta/api/question.php"), body: {
-      'answers': jsonEncode(answers.map((answer) => answer.convert()).toList())
-    });
+    final response = await http.post(
+        Uri.parse("http://localhost/ta/Pawfect-Find-PHP/answer.php"),
+        body: {'answers': jsonEncode(answers)});
 
-    if (response.statusCode == 200) {
-      Navigator.pushNamed(context, "result");
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error')));
-      throw Exception('Failed to read API');
-    }
+    debugPrint(response.body);
+    // if (response.statusCode == 200) {
+    //   Map<String, dynamic> result = jsonDecode(response.body);
+    //   Navigator.pushNamed(context, "result", arguments: result);
+    // } else {
+    //   ScaffoldMessenger.of(context)
+    //       .showSnackBar(SnackBar(content: Text('Error')));
+    //   throw Exception('Failed to read API');
+    // }
   }
 
   // LINEAR SCALE CF
@@ -96,6 +99,7 @@ class _QuizPage extends State<QuizPage> {
                     onChanged: (value) {
                       setState(() {
                         selectedMap[question.id] = value;
+                        isRadioSelected[question.id] = true;
                       });
                     },
                   ),
@@ -125,6 +129,7 @@ class _QuizPage extends State<QuizPage> {
                     if (index > 0) {
                       setState(() {
                         selectedMap.remove(question.id);
+                        isRadioSelected.remove(question.id);
                         cfValues.remove(question.id);
                         userAnswers.removeWhere(
                             (answer) => answer.questionId == question.id);
@@ -137,21 +142,30 @@ class _QuizPage extends State<QuizPage> {
                   child: Text('Back'),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    if (selectedMap.containsKey(question.id)) {
-                      setState(() {
-                        userAnswers.add(Answer(
-                            questionId: question.id,
-                            choiceId: selectedMap[question.id]!,
-                            cf: cfValues[question.id] ?? 0.0));
-                      });
-                    }
-                    if (index < listQuestions.length - 1) {
-                      _pageController.nextPage(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.easeInOut);
-                    } else {}
-                  },
+                  // Periksa apakah user sudah memilih 1 jawaban
+                  onPressed: (isRadioSelected[question.id] ?? false)
+                      ? () {
+                          if (selectedMap.containsKey(question.id)) {
+                            setState(() {
+                              userAnswers.add(Answer(
+                                  questionId: question.id,
+                                  choiceId: selectedMap[question.id]!,
+                                  cf: cfValues[question.id] ?? 0.0));
+                            });
+                          }
+                          if (index < listQuestions.length - 1) {
+                            _pageController.nextPage(
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.easeInOut);
+                          } else {
+                            postAnswers(userAnswers);
+                            // for (var answer in userAnswers) {
+                            //   debugPrint(answer.toString());
+                            // }
+                          }
+                        }
+                      // Button Next tidak bisa diklik karena user belum memilih jawaban
+                      : null,
                   child: Text(
                       index < listQuestions.length - 1 ? 'Next' : 'Submit'),
                 )

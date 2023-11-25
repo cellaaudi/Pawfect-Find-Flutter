@@ -5,6 +5,7 @@ import 'package:pawfect_find/screen/navbar/settings.dart';
 import 'package:pawfect_find/screen/navbar/story.dart';
 import 'package:pawfect_find/screen/quiz/quiz.dart';
 import 'package:pawfect_find/screen/quiz/result.dart';
+import 'package:pawfect_find/screen/quiz/see.dart';
 import 'package:pawfect_find/screen/quiz/starter.dart';
 
 void main() {
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         'starter': (context) => QuizStarterPage(),
         'quiz': (context) => QuizPage(),
         'result': (context) => ResultPage(),
+        'see': (context) => SeePage(),
       },
     );
   }

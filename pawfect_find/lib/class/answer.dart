@@ -1,7 +1,7 @@
 class Answer {
-  int questionId;
-  int choiceId;
-  double cf;
+  final int questionId;
+  final int choiceId;
+  final double cf;
 
   Answer({
     required this.questionId,
@@ -9,11 +9,24 @@ class Answer {
     required this.cf,
   });
 
-  Map<String, dynamic> convert() {
+  factory Answer.fromJson(Map<String, dynamic> json) {
+    return Answer(
+      questionId: json['questionId'] as int,
+      choiceId: json['choiceId'] as int,
+      cf: json['cf'] as double,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
     return {
       'questionId': questionId,
       'choiceId': choiceId,
       'cf': cf,
     };
   }
+
+  // @override
+  // String toString() {
+  //   return 'Question ID: $questionId, Choice ID: $choiceId, Confidence: $cf';
+  // }
 }
