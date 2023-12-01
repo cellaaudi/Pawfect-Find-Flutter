@@ -17,6 +17,20 @@ class _ResultPage extends State<ResultPage> {
       resultText += '${entry.key}: ${entry.value}\n';
     }
 
+    List<Widget> listResults() {
+      List<Widget> temp = [];
+      
+      for (var r in result.entries) {
+        Widget w = Card(
+          child: Text("${r.value}"),
+        );
+
+        temp.add(w);
+      }
+
+      return temp;
+    }
+
     return Scaffold(
       body: Center(
         child: Text(
@@ -26,5 +40,20 @@ class _ResultPage extends State<ResultPage> {
         ),
       ),
     );
+
+    // return Scaffold(
+    //     body: SingleChildScrollView(
+    //   child: Column(children: [
+    //     Text("Your result :"),
+    //     ListView(
+    //       shrinkWrap: true,
+    //       physics: NeverScrollableScrollPhysics(),
+    //       children: listResults(),
+    //     ),
+    //     Divider(
+    //       height: 100,
+    //     )
+    //   ]),
+    // ));
   }
 }

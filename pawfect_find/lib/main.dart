@@ -5,7 +5,6 @@ import 'package:pawfect_find/screen/navbar/settings.dart';
 import 'package:pawfect_find/screen/navbar/story.dart';
 import 'package:pawfect_find/screen/quiz/quiz.dart';
 import 'package:pawfect_find/screen/quiz/result.dart';
-import 'package:pawfect_find/screen/quiz/see.dart';
 import 'package:pawfect_find/screen/quiz/starter.dart';
 
 void main() {
@@ -21,16 +20,30 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)))),
+          ),
+          outlinedButtonTheme: OutlinedButtonThemeData(
+            style: OutlinedButton.styleFrom(
+                side: const BorderSide(
+                  color: Colors.blue,
+                  width: 1.3,
+                ),
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)))),
+          )),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
       routes: {
         'breed': (context) => BreedPage(),
         'starter': (context) => QuizStarterPage(),
         'quiz': (context) => QuizPage(),
         'result': (context) => ResultPage(),
-        'see': (context) => SeePage(),
       },
     );
   }
@@ -47,7 +60,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
-  final List<Widget> _screens = [HomePage(), BreedPage(), StoryPage(), SettingsPage()];
+  final List<Widget> _screens = [
+    HomePage(),
+    BreedPage(),
+    StoryPage(),
+    SettingsPage()
+  ];
 
   Widget navbar() {
     return BottomNavigationBar(
@@ -56,21 +74,15 @@ class _MyHomePageState extends State<MyHomePage> {
       fixedColor: Colors.blue,
       items: [
         BottomNavigationBarItem(
-          label: "Beranda",
-          icon: Icon(Icons.home_rounded)
-        ),
+            label: "Beranda", icon: Icon(Icons.home_rounded)),
         BottomNavigationBarItem(
           label: "Ras Anjing",
           icon: Icon(Icons.pets_rounded),
         ),
         BottomNavigationBarItem(
-          label: "Cerita",
-          icon: Icon(Icons.dashboard_rounded)
-        ),
+            label: "Cerita", icon: Icon(Icons.dashboard_rounded)),
         BottomNavigationBarItem(
-          label: "Pengaturan",
-          icon: Icon(Icons.settings_rounded)
-        ),
+            label: "Pengaturan", icon: Icon(Icons.settings_rounded)),
       ],
       onTap: (int index) {
         setState(() {

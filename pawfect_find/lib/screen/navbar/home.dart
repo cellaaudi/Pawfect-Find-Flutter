@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
+  
+  Widget mainCard() {
+    return Card(
+      child: Column(
+        children: [
+          Text("text"),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

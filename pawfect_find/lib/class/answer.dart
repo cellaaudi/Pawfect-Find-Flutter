@@ -24,9 +24,4 @@ class Answer {
       'cf': cf,
     };
   }
-
-  // @override
-  // String toString() {
-  //   return 'Question ID: $questionId, Choice ID: $choiceId, Confidence: $cf';
-  // }
 }
