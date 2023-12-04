@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import 'package:pawfect_find/class/answer.dart';
 import 'package:pawfect_find/class/question.dart';
 
@@ -14,20 +16,26 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPage extends State<QuizPage> {
-  // list untuk menampung pertanyaan dari database
-  List<Question> listQuestions = [];
-
   // variable untuk menentukan sampai di pertanyaan halaman berapa user saat itu
   int currentPage = 0;
-
-  // map untuk rdo
-  Map<int, int?> selectedMap = {};
-
+  // list untuk menampung pertanyaan dari database
+  List<Question> listQuestions = [];
   // list untuk menampung jawaban user dari setiap pertanyaan
   List<Answer> userAnswers = [];
-
+  // map untuk rdo
+  Map<int, int?> selectedMap = {};
   // map untuk cek setidaknya 1 rdo telah dipilih sebelum lanjut ke halaman selanjutnya
   Map<int, bool?> isRadioSelected = {};
+  // map untuk nilai dari cf
+  Map<int, double> cfValues = {};
+  // late inisialisation untuk page controller
+  late PageController _pageController;
+
+  // method untuk generate uuid
+  String generateUUID() {
+    var uuid = Uuid();
+    return uuid.v4();
+  }
 
   // method untuk fetch questions dari db
   Future<List<Question>> fetchQuestions() async {
@@ -45,14 +53,22 @@ class _QuizPage extends State<QuizPage> {
   }
 
   // method untuk kirim post jawaban user ke api
-  void postAnswers(List<Answer> answers) async {
+  void postAnswers(String uuid, List<Answer> answers) async {
     final response = await http.post(
         Uri.parse("http://localhost/ta/Pawfect-Find-PHP/answer.php"),
-        body: {'answers': jsonEncode(answers)});
+        body: {'uuid': uuid, 'answers': jsonEncode(answers)});
 
     if (response.statusCode == 200) {
       Map<String, dynamic> result = jsonDecode(response.body);
-      Navigator.pushNamed(context, "result", arguments: result);
+
+      if (result['result'] == 'Success') {
+        String uuid = result['uuid'];
+
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setString('quiz_uuid', uuid);
+
+        Navigator.pushNamed(context, "result");
+      }
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Error')));
@@ -60,7 +76,7 @@ class _QuizPage extends State<QuizPage> {
     }
   }
 
-  // skala linear cf
+  // method untuk label skala linear cf
   String cfLabel(double cf) {
     switch (cf.toDouble()) {
       case 0:
@@ -78,17 +94,18 @@ class _QuizPage extends State<QuizPage> {
     }
   }
 
-  // UI quiz
-  Widget ListOfQuestions(Question question, int index) {
+  // method untuk build UI quiz
+  Widget displayQuestions(Question question, int index) {
     int? selected = selectedMap[question.id];
 
     return Container(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 question.question,
@@ -112,7 +129,7 @@ class _QuizPage extends State<QuizPage> {
                       ),
                   ],
                 ),
-              const SizedBox(height: 32.0),
+              const SizedBox(height: 48.0),
               const Text('Seberapa yakin Anda atas jawaban Anda?'),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -133,8 +150,10 @@ class _QuizPage extends State<QuizPage> {
                     divisions: 4,
                     label: cfLabel(cfValues[question.id] ?? 0.0),
                   ),
-                  const Text('Sangat yakin',
-                  style: TextStyle(fontSize: 12.0),),
+                  const Text(
+                    'Sangat yakin',
+                    style: TextStyle(fontSize: 12.0),
+                  ),
                 ],
               ),
             ],
@@ -144,29 +163,28 @@ class _QuizPage extends State<QuizPage> {
               Row(
                 children: [
                   if (index > 0)
-                  Expanded(
-                    child: 
-                    OutlinedButton(
-                      onPressed: () {
-                        // hapus data yang sudah masuk pada list saat button "Kembali" diklik
-                        if (index > 0) {
-                          setState(() {
-                            selectedMap.remove(question.id);
-                            isRadioSelected.remove(question.id);
-                            cfValues.remove(question.id);
-                            userAnswers.removeWhere(
-                                (answer) => answer.questionId == question.id);
-                          });
-                          _pageController.previousPage(
-                              duration: Duration(milliseconds: 300),
-                              curve: Curves.easeInOut);
-                        }
-                      },
-                      child: const Text('Kembali'),
-                    ),
-                  )
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          // hapus data yang sudah masuk pada list saat button "Kembali" diklik
+                          if (index > 0) {
+                            setState(() {
+                              selectedMap.remove(question.id);
+                              isRadioSelected.remove(question.id);
+                              cfValues.remove(question.id);
+                              userAnswers.removeWhere(
+                                  (answer) => answer.questionId == question.id);
+                            });
+                            _pageController.previousPage(
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.easeInOut);
+                          }
+                        },
+                        child: const Text('Kembali'),
+                      ),
+                    )
                   else
-                  const Expanded(child: SizedBox.shrink()),
+                    const Expanded(child: SizedBox.shrink()),
                   // jarak antara button "Kembali" dan "Berikutnya"
                   const SizedBox(width: 8.0),
                   Expanded(
@@ -187,7 +205,8 @@ class _QuizPage extends State<QuizPage> {
                                   duration: Duration(milliseconds: 300),
                                   curve: Curves.easeInOut);
                             } else {
-                              postAnswers(userAnswers);
+                              String uuid = generateUUID();
+                              postAnswers(uuid, userAnswers);
                             }
                           }
                         // button "Berikutnya" tidak bisa diklik karena user belum memilih jawaban
@@ -207,13 +226,10 @@ class _QuizPage extends State<QuizPage> {
     );
   }
 
-  late PageController _pageController;
-  Map<int, double> cfValues = {};
-
   @override
   void initState() {
     super.initState();
-    // PAGE VIEW CONTROLLER INITIALISATION
+    // inisialisation untuk page controller
     _pageController = PageController();
     fetchQuestions().then((questions) {
       setState(() {
@@ -235,7 +251,7 @@ class _QuizPage extends State<QuizPage> {
           });
         },
         itemBuilder: (BuildContext ctxt, int index) {
-          return ListOfQuestions(listQuestions[index], index);
+          return displayQuestions(listQuestions[index], index);
         },
       ),
     );
