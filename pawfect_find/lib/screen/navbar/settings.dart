@@ -4,7 +4,10 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: Text('This is Settings Page')),
+      body: Center(
+          child: ElevatedButton(
+              onPressed: () {Navigator.pushNamed(context, 'login');},
+              child: Text('Login Page'))),
     );
   }
 }

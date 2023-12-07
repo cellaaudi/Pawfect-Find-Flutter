@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "961868821442",
+    "project_id": "pawfect-find-firebase",
+    "storage_bucket": "pawfect-find-firebase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:961868821442:android:f70a818fcbf753944e1c5b",
+        "android_client_info": {
+          "package_name": "com.example.pawfect_find"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9jjdbYNAcUzT8JPDNI1AlsRHau2jKZPc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

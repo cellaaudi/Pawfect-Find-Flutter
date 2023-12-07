@@ -1,4 +1,7 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pawfect_find/screen/auth/login.dart';
 import 'package:pawfect_find/screen/navbar/breed.dart';
 import 'package:pawfect_find/screen/navbar/home.dart';
 import 'package:pawfect_find/screen/navbar/settings.dart';
@@ -7,7 +10,20 @@ import 'package:pawfect_find/screen/quiz/quiz.dart';
 import 'package:pawfect_find/screen/quiz/result.dart';
 import 'package:pawfect_find/screen/quiz/starter.dart';
 
-void main() {
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+        options: FirebaseOptions(
+            apiKey: "AIzaSyD0diqklhO6VR6_VUNkGaaSdcCRkRDfOyk",
+            appId: "1:961868821442:web:5b4e57ed0f7e7a564e1c5b",
+            messagingSenderId: "961868821442",
+            projectId: "pawfect-find-firebase"));
+  }
+
+  await Firebase.initializeApp();
+
   runApp(const MyApp());
 }
 
@@ -40,6 +56,7 @@ class MyApp extends StatelessWidget {
           )),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
       routes: {
+        'login': (context) => LoginPage(),
         'breed': (context) => BreedPage(),
         'starter': (context) => QuizStarterPage(),
         'quiz': (context) => QuizPage(),

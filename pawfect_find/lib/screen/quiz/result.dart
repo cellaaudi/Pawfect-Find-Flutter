@@ -13,9 +13,6 @@ class ResultPage extends StatefulWidget {
 }
 
 class _ResultPage extends State<ResultPage> {
-  // // variable untuk quizUUID
-  // String quizUUID = "";
-
   // variable untuk result quiz
   List<History> listHistory = [];
 
@@ -25,24 +22,6 @@ class _ResultPage extends State<ResultPage> {
     String quizUUID = prefs.getString("quiz_uuid") ?? '';
     return quizUUID;
   }
-
-  // // method untuk fetch quiz_uuid
-  // Future<void> getUUID() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   String savedUUID = prefs.getString("quiz_uuid") ?? '';
-
-  //   setState(() {
-  //     quizUUID = savedUUID;
-  //   });
-
-  //   if (quizUUID.isNotEmpty) {
-  //     fetchResult();
-  //   } else {
-  //     ScaffoldMessenger.of(context)
-  //         .showSnackBar(SnackBar(content: Text('Error')));
-  //     throw Exception('Gagal mendapatkan hasil');
-  //   }
-  // }
 
   // method untuk fetch result dari table histories di db
   Future<List<History>> fetchResult(String uuid) async {
@@ -60,20 +39,29 @@ class _ResultPage extends State<ResultPage> {
     }
   }
 
-  List<Widget> widResults() {
-    List<Widget> temp = [];
-    int i = 0;
-    
-    while (i < listHistory.length) {
-      Widget w = Card(
-        child: Text(listHistory[i].breed),
-      );
-      temp.add(w);
-      i++;
-    }
-
-    return temp;
-  }
+  // method untuk display list tile hasil rekomendasi
+  Widget displayResult() => SingleChildScrollView(
+    padding: EdgeInsets.all(16.0),
+    child: Column(
+      children: [
+        Text('Berikut adalah rekomendasi ras anjing yang sesuai dengan jawaban kamu...'),
+        SizedBox(height: 32.0,),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: listHistory.length,
+          itemBuilder: (BuildContext ctxt, int index) {
+            return Card(
+              child: ListTile(
+                title: Text(listHistory[index].breed),
+                trailing: Text("${listHistory[index].cf.toStringAsFixed(2)}%"),
+              ),
+            );
+          },
+        ),
+      ],
+    ),
+  );
 
   @override
   void initState() {
@@ -94,27 +82,12 @@ class _ResultPage extends State<ResultPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
+        leading: Icon(Icons.arrow_back_ios_new_rounded),
         title: const Text('Hasil Rekomendasi'),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Text(
-                'Berikut adalah rekomendasi ras anjing yang sesuai dengan jawaban kamu...'),
-            ListView(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              children: widResults(),
-            ),
-            Divider(
-              height: 100,
-            )
-          ],
-        ),
-      ),
+      body: displayResult(),
     );
   }
 }
