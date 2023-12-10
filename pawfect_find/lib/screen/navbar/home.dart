@@ -15,6 +15,8 @@ class HomePage extends StatelessWidget {
               },
               child: Card(
                 clipBehavior: Clip.antiAlias,
+                elevation: 8,
+                shadowColor: Colors.grey.shade50,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0)),
                 child: Stack(
@@ -66,6 +68,64 @@ class HomePage extends StatelessWidget {
                 ),
               )));
 
+  Widget displayBody(ctxt) => Padding(
+        padding: EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text('Temukan ras anjing yang \'pawfect\' untukmu.'),
+                ],
+              ),
+              SizedBox(
+                height: 16.0,
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                Expanded(
+                    child: Card(
+                        elevation: 8,
+                        shadowColor: Colors.grey.shade50,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Column(children: [
+                            Row(children: [
+                              Text(
+                                  'Pilih salah satu yang sesuai dengan kondisimu:'),
+                            ]),
+                            SizedBox(
+                              height: 8.0,
+                            ),
+                            Row(children: [
+                              displayCard(
+                                  ctxt,
+                                  'quiz',
+                                  'assets/images/card_1.jpg',
+                                  cardHeight,
+                                  'Aku belum tahu ras anjing yang aku inginkan'),
+                            ]),
+                            SizedBox(
+                              height: 8.0,
+                            ),
+                            Row(children: [
+                              displayCard(
+                                  ctxt,
+                                  'starter',
+                                  'assets/images/card_2.jpg',
+                                  cardHeight,
+                                  'Aku sudah tahu ras anjing yang aku inginkan'),
+                            ]),
+                          ]),
+                        )))
+              ]),
+            ],
+          ),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,91 +139,6 @@ class HomePage extends StatelessWidget {
                 onPressed: () {}, icon: Icon(Icons.bookmark_border_rounded))
           ],
         ),
-        body: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text('Temukan ras anjing yang \'pawfect\' untukmu.'),
-                  ],
-                ),
-                SizedBox(
-                  height: 16.0,
-                ),
-                Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                  Expanded(
-                      child: Card(
-                          elevation: 3,
-                          shadowColor: Colors.grey.shade50,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Column(children: [
-                              Row(children: [
-                                Text(
-                                    'Pilih salah satu yang sesuai dengan kondisimu:'),
-                              ]),
-                              SizedBox(
-                                height: 8.0,
-                              ),
-                              Row(children: [
-                                displayCard(
-                                    context,
-                                    'quiz',
-                                    'assets/images/card_1.jpg',
-                                    cardHeight,
-                                    'Aku belum tahu ras anjing yang aku inginkan'),
-                              ]),
-                              SizedBox(
-                                height: 8.0,
-                              ),
-                              Row(children: [
-                                displayCard(
-                                    context,
-                                    'starter',
-                                    'assets/images/card_2.jpg',
-                                    cardHeight,
-                                    'Aku sudah tahu ras anjing yang aku inginkan'),
-                              ]),
-                            ]),
-                          )))
-                ]),
-              ],
-            ),
-          ),
-        )
-        // Column(children: <Widget>[
-        //   Row(
-        //       mainAxisAlignment: MainAxisAlignment.start,
-        //       crossAxisAlignment: CrossAxisAlignment.start,
-        //       children: <Widget>[
-        //         Expanded(
-        //             child: Container(
-        //           margin: EdgeInsets.only(left: 8.0, top: 24.0, right: 8.0),
-        //           decoration: BoxDecoration(
-        //             color: Colors.blue,
-        //             borderRadius: BorderRadius.circular(12.0),
-        //           ),
-        //           alignment: Alignment.topCenter,
-        //           width: 300.0,
-        //           height: 200.0,
-        //           child: Column(
-        //             mainAxisAlignment: MainAxisAlignment.end,
-        //             children: <Widget>[
-        //               ElevatedButton(
-        //                   onPressed: () {
-        //                     Navigator.pushNamed(context, "starter");
-        //                   },
-        //                   child: Text('Ambil Kuis'))
-        //             ],
-        //           ),
-        //         ))
-        //       ])
-        // ]),
-        );
+        body: displayBody(context));
   }
 }
