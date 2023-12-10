@@ -112,7 +112,11 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: Center(
+          child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 500.0),
+        child: _screens[_currentIndex],
+      )),
       bottomNavigationBar: navbar(),
     );
   }

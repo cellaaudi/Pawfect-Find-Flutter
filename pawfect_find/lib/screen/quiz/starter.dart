@@ -13,22 +13,22 @@ class QuizStarterPage extends StatelessWidget {
             SizedBox(
               height: 16.0,
             ),
-            Card(
-                clipBehavior: Clip.antiAlias,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Ink.image(
-                      image: NetworkImage(
-                          'https://images.pexels.com/photos/2071555/pexels-photo-2071555.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'),
-                      height: 240.0,
-                      fit: BoxFit.cover,
-                    ),
-                    Text("gsd")
-                  ],
-                ))
+            // Card(
+            //     clipBehavior: Clip.antiAlias,
+            //     shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(8)),
+            //     child: Stack(
+            //       alignment: Alignment.center,
+            //       children: [
+            //         Ink.image(
+            //           image: NetworkImage(
+            //               'https://images.pexels.com/photos/2071555/pexels-photo-2071555.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'),
+            //           height: 240.0,
+            //           fit: BoxFit.cover,
+            //         ),
+            //         Text("gsd")
+            //       ],
+            //     ))
             // Expanded(
             //     child: Container(
             //   decoration: BoxDecoration(
