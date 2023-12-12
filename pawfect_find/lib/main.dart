@@ -9,7 +9,7 @@ import 'package:pawfect_find/screen/navbar/story.dart';
 import 'package:pawfect_find/screen/quiz/choose.dart';
 import 'package:pawfect_find/screen/quiz/quiz.dart';
 import 'package:pawfect_find/screen/quiz/result.dart';
-import 'package:pawfect_find/screen/quiz/starter.dart';
+import 'package:pawfect_find/screen/quiz/quiz_afchoose.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,9 +59,9 @@ class MyApp extends StatelessWidget {
       routes: {
         'login': (context) => LoginPage(),
         'breed': (context) => BreedPage(),
-        'starter': (context) => QuizStarterPage(),
         'quiz': (context) => QuizPage(),
         'choose': (context) => ChoosePage(),
+        'quiz_choices': (context) => QuizChoosePage(),
         'result': (context) => ResultPage(),
       },
     );
