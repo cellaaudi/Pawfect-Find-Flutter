@@ -10,31 +10,80 @@ class BreedPage extends StatefulWidget {
 }
 
 class _BreedPage extends State<BreedPage> {
-  Future<List<Breed>> fetchBreeds(String search) async {
+  // variable buat kata yang diketik user di search box
+  String _searchText = '';
+
+  // method untuk fetch data breeds dari database
+  Future<List<Breed>> fetchBreeds() async {
     final response = await http.post(
         Uri.parse('http://localhost/ta/Pawfect-Find-PHP/breed.php'),
-        body: {'search': search});
+        body: {'search': _searchText});
 
     if (response.statusCode == 200) {
       Map<String, dynamic> json = jsonDecode(response.body);
 
-      // if (json['result'] == 'Success') {
-      List<Breed> breeds =
-          List<Breed>.from(json['data'].map((breed) => Breed.fromJson(breed)));
+      List<Breed> breeds = List<Breed>.from(
+        json['data'].map((breed) => Breed.fromJson(breed)),
+      );
 
       return breeds;
-      // }
     } else {
-      throw Exception("Failed to read API");
+      throw Exception("Gagal membaca API");
     }
   }
 
+  // method untuk UI card per breed
+  Widget cardBreed(breedData) => ListView.builder(
+      itemCount: breedData.length,
+      itemBuilder: (BuildContext ctxt, int index) {
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: FittedBox(
+                  fit: BoxFit.cover,
+                  child: Container(
+                    height: 128.0,
+                    width: 128.0,
+                    child: Image.asset(
+                      'assets/images/card_1.jpg',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                title: Text(breedData[index].breed),
+              )
+            ],
+          ),
+        );
+      });
+
+  // method untuk body scaffold
   Widget displayBody() => Padding(
-      padding: EdgeInsets.all(16.0),
-      child: ListView(
-        padding: EdgeInsets.all(16.0),
-        children: [Text('Test')],
-      ));
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: FutureBuilder<List<Breed>>(
+          future: fetchBreeds(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error: ${snapshot.error}'),
+                );
+              } else if (snapshot.hasData) {
+                return cardBreed(snapshot.data!);
+              } else {
+                return const Center(
+                  child: Text('Tidak ada hasil ditemukan'),
+                );
+              }
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          }));
 
   @override
   Widget build(BuildContext context) {
@@ -45,13 +94,20 @@ class _BreedPage extends State<BreedPage> {
               padding: EdgeInsets.all(16.0),
               child: SearchBar(
                 leading: Icon(Icons.search_rounded),
-                hintText: 'Cari',
+                hintText: 'Cari ras anjing',
                 backgroundColor: MaterialStateProperty.all(Colors.white),
                 shadowColor: MaterialStateProperty.all(Colors.grey.shade50),
                 elevation: MaterialStateProperty.all(8.0),
                 shape: MaterialStateProperty.all(RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0))),
+                onChanged: (value) {
+                  setState(() {
+                    _searchText = value;
+                  });
+                  fetchBreeds();
+                },
               ))),
+      body: displayBody(),
     );
   }
 }

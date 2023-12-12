@@ -31,6 +31,37 @@ class _QuizPage extends State<QuizPage> {
   // late inisialisation untuk page controller
   late PageController _pageController;
 
+  // method untuk confirmation message sebelum keluar quiz
+  void _backMessage() {
+    showDialog<void>(
+        context: context,
+        builder: (BuildContext ctxt) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0)
+            ),
+            title: const Text('Konfirmasi Keluar'),
+            content: const Text('Jika kamu keluar, maka jawaban kamu akan hilang.'),
+            actions: <Widget>[
+              TextButton(
+                  style: TextButton.styleFrom(
+                      textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Tidak')),
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  style: TextButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                  child: const Text('Keluar'))
+            ],
+          );
+        });
+  }
+
   // method untuk generate uuid
   String generateUUID() {
     var uuid = Uuid();
@@ -240,19 +271,35 @@ class _QuizPage extends State<QuizPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: PageView.builder(
-        physics: NeverScrollableScrollPhysics(),
-        controller: _pageController,
-        itemCount: listQuestions.length,
-        onPageChanged: (int page) {
-          setState(() {
-            currentPage = page;
-          });
-        },
-        itemBuilder: (BuildContext ctxt, int index) {
-          return displayQuestions(listQuestions[index], index);
-        },
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) {
+        if (didPop) {
+          return;
+        }
+        _backMessage();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_new_rounded),
+            onPressed: () => _backMessage(),
+          ),
+          title: Text('Kuis Pawfect Find'),
+        ),
+        body: PageView.builder(
+          physics: NeverScrollableScrollPhysics(),
+          controller: _pageController,
+          itemCount: listQuestions.length,
+          onPageChanged: (int page) {
+            setState(() {
+              currentPage = page;
+            });
+          },
+          itemBuilder: (BuildContext ctxt, int index) {
+            return displayQuestions(listQuestions[index], index);
+          },
+        ),
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 class HomePage extends StatelessWidget {
   double cardHeight = 130.0;
 
+  // method untuk UI card
   Widget displayCard(
           ctxt, String route, String imagePath, double cardH, String txt) =>
       Expanded(
@@ -68,6 +69,7 @@ class HomePage extends StatelessWidget {
                 ),
               )));
 
+  // method untuk body scaffold
   Widget displayBody(ctxt) => Padding(
         padding: EdgeInsets.all(16.0),
         child: SingleChildScrollView(
