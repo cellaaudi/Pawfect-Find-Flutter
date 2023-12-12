@@ -6,6 +6,7 @@ import 'package:pawfect_find/screen/navbar/breed.dart';
 import 'package:pawfect_find/screen/navbar/home.dart';
 import 'package:pawfect_find/screen/navbar/settings.dart';
 import 'package:pawfect_find/screen/navbar/story.dart';
+import 'package:pawfect_find/screen/quiz/choose.dart';
 import 'package:pawfect_find/screen/quiz/quiz.dart';
 import 'package:pawfect_find/screen/quiz/result.dart';
 import 'package:pawfect_find/screen/quiz/starter.dart';
@@ -60,6 +61,7 @@ class MyApp extends StatelessWidget {
         'breed': (context) => BreedPage(),
         'starter': (context) => QuizStarterPage(),
         'quiz': (context) => QuizPage(),
+        'choose': (context) => ChoosePage(),
         'result': (context) => ResultPage(),
       },
     );

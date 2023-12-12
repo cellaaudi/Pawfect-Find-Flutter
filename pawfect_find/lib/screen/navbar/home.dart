@@ -115,7 +115,7 @@ class HomePage extends StatelessWidget {
                             Row(children: [
                               displayCard(
                                   ctxt,
-                                  'starter',
+                                  'choose',
                                   'assets/images/card_2.jpg',
                                   cardHeight,
                                   'Aku sudah tahu ras anjing yang aku inginkan'),
