@@ -193,6 +193,7 @@ class _ChoosePage extends State<ChoosePage> {
                                     await SharedPreferences.getInstance();
                                 prefs.setStringList(
                                     'quiz_selectedbreeds', strSelectedBreeds);
+                                Navigator.pushNamed(context, 'quiz_choices');
                               }
                             : null,
                         child: Text('Berikutnya (${selectedBreeds.length}/5)')))

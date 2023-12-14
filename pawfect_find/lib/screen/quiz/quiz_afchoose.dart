@@ -105,8 +105,8 @@ class _QuizChoosePage extends State<QuizChoosePage> {
   // method untuk kirim post jawaban user ke api
   void postAnswers(String uuid, List<Answer> answers, List<int> selBreeds) async {
     final response = await http.post(
-        Uri.parse("http://localhost/ta/Pawfect-Find-PHP/answer.php"),
-        body: {'uuid': uuid, 'answers': jsonEncode(answers), 'selBreeds': selBreeds});
+        Uri.parse("http://localhost/ta/Pawfect-Find-PHP/answer_afchoose.php"),
+        body: {'uuid': uuid, 'answers': jsonEncode(answers), 'selBreeds': jsonEncode(selBreeds)});
 
     if (response.statusCode == 200) {
       Map<String, dynamic> result = jsonDecode(response.body);
@@ -279,6 +279,7 @@ class _QuizChoosePage extends State<QuizChoosePage> {
   @override
   void initState() {
     super.initState();
+    getSelectedBreeds();
     // inisialisation untuk page controller
     _pageController = PageController();
     fetchQuestions().then((questions) {
