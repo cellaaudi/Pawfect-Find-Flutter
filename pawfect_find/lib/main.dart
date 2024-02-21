@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pawfect_find/screen/auth/login.dart';
+import 'package:pawfect_find/screen/detail/detail.dart';
 import 'package:pawfect_find/screen/navbar/breed.dart';
 import 'package:pawfect_find/screen/navbar/home.dart';
 import 'package:pawfect_find/screen/navbar/settings.dart';
@@ -59,6 +60,7 @@ class MyApp extends StatelessWidget {
       routes: {
         'login': (context) => LoginPage(),
         'breed': (context) => BreedPage(),
+        'detail': (context) => DetailPage(),
         'quiz': (context) => QuizPage(),
         'choose': (context) => ChoosePage(),
         'quiz_choices': (context) => QuizChoosePage(),

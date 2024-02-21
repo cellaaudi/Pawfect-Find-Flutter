@@ -30,6 +30,8 @@ class _QuizPage extends State<QuizPage> {
   Map<int, double> cfValues = {};
   // late inisialisation untuk page controller
   late PageController _pageController;
+  // progress bar
+  double progress = 0.0;
 
   // method untuk confirmation message sebelum keluar quiz
   void _backMessage() {
@@ -38,10 +40,10 @@ class _QuizPage extends State<QuizPage> {
         builder: (BuildContext ctxt) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0)
-            ),
+                borderRadius: BorderRadius.circular(8.0)),
             title: const Text('Konfirmasi Keluar'),
-            content: const Text('Jika kamu keluar, maka jawaban kamu akan hilang.'),
+            content:
+                const Text('Jika kamu keluar, maka jawaban kamu akan hilang.'),
             actions: <Widget>[
               TextButton(
                   style: TextButton.styleFrom(
@@ -93,6 +95,8 @@ class _QuizPage extends State<QuizPage> {
       Map<String, dynamic> result = jsonDecode(response.body);
 
       if (result['result'] == 'Success') {
+        // print(result['test']);
+        
         String uuid = result['uuid'];
 
         final prefs = await SharedPreferences.getInstance();
@@ -123,6 +127,13 @@ class _QuizPage extends State<QuizPage> {
       default:
         return '';
     }
+  }
+
+  // progress bar
+  void updateProgress(int currentIndex, int totalQuestions) {
+    setState(() {
+      progress = (currentIndex + 1) / totalQuestions;
+    });
   }
 
   // method untuk build UI quiz
@@ -161,7 +172,7 @@ class _QuizPage extends State<QuizPage> {
                   ],
                 ),
               const SizedBox(height: 48.0),
-              const Text('Seberapa yakin Anda atas jawaban Anda?'),
+              const Text('Seberapa yakin kamu atas jawabanmu?'),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -280,27 +291,62 @@ class _QuizPage extends State<QuizPage> {
         _backMessage();
       },
       child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_rounded),
-            onPressed: () => _backMessage(),
+          appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios_new_rounded),
+              onPressed: () => _backMessage(),
+            ),
+            title: Text('Kuis Pawfect Find'),
           ),
-          title: Text('Kuis Pawfect Find'),
-        ),
-        body: PageView.builder(
-          physics: NeverScrollableScrollPhysics(),
-          controller: _pageController,
-          itemCount: listQuestions.length,
-          onPageChanged: (int page) {
-            setState(() {
-              currentPage = page;
-            });
-          },
-          itemBuilder: (BuildContext ctxt, int index) {
-            return displayQuestions(listQuestions[index], index);
-          },
-        ),
-      ),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: PageView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  controller: _pageController,
+                  itemCount: listQuestions.length,
+                  onPageChanged: (int page) {
+                    setState(() {
+                      currentPage = page;
+                    });
+                    updateProgress(page, listQuestions.length);
+                  },
+                  itemBuilder: (BuildContext ctxt, int index) {
+                    return displayQuestions(listQuestions[index], index);
+                  },
+                ),
+              ),
+              Container(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          '${currentPage + 1} dari ${listQuestions.length} pertanyaan',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 8.0,
+                      ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(16.0),
+                            bottom: Radius.circular(16.0)),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 10,
+                          backgroundColor: Colors.grey,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.blue),
+                        ),
+                      ),
+                    ],
+                  )),
+            ],
+          )),
     );
   }
 

@@ -1,15 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:pawfect_find/class/breed.dart';
 import 'package:pawfect_find/class/history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ResultPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    return _ResultPage();
-  }
+  State<StatefulWidget> createState() => _ResultPage();
 }
 
 class _ResultPage extends State<ResultPage> {
@@ -39,55 +39,122 @@ class _ResultPage extends State<ResultPage> {
     }
   }
 
-  // method untuk display list tile hasil rekomendasi
-  Widget displayResult() => SingleChildScrollView(
-    padding: EdgeInsets.all(16.0),
-    child: Column(
-      children: [
-        Text('Berikut adalah rekomendasi ras anjing yang sesuai dengan jawaban kamu...'),
-        SizedBox(height: 32.0,),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: listHistory.length,
-          itemBuilder: (BuildContext ctxt, int index) {
-            return Card(
-              child: ListTile(
-                title: Text(listHistory[index].breed),
-                trailing: Text("${listHistory[index].cf.toStringAsFixed(2)}%"),
+  // method untuk UI card result
+  Widget cardResult(History history) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 6.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ListTile(
+            leading: FittedBox(
+              fit: BoxFit.cover,
+              child: Container(
+                height: 128.0,
+                width: 128.0,
+                child: Image.asset(
+                  'assets/images/card_1.jpg',
+                  fit: BoxFit.cover,
+                ),
               ),
+            ),
+            title: Text(
+              history.breed,
+              style: GoogleFonts.nunito(
+                  fontSize: 18.0, fontWeight: FontWeight.bold),
+            ),
+            trailing: Text(
+              "${history.cf.toStringAsFixed(2)}%",
+              style: GoogleFonts.nunito(
+                fontSize: 16.0,
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  // method untuk display body
+  Widget displayResult() => FutureBuilder<String>(
+      future: checkQuizUUID(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
             );
-          },
-        ),
-      ],
-    ),
-  );
+          } else {
+            String uuid = snapshot.data!;
+
+            if (uuid.isNotEmpty) {
+              return FutureBuilder(
+                  future: fetchResult(uuid),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text('Error: ${snapshot.error}'),
+                        );
+                      } else if (snapshot.hasData) {
+                        listHistory = snapshot.data!;
+
+                        return ListView.builder(
+                            itemBuilder: (BuildContext ctxt, int index) {
+                              return cardResult(listHistory[index]);
+                            },
+                            itemCount: listHistory.length);
+                      } else {
+                        return const Center(
+                          child: Text('Tidak ada hasil ditemukan'),
+                        );
+                      }
+                    } else {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  });
+            } else {
+              return const Center(
+                child: Text('ID tidak valid'),
+              );
+            }
+          }
+        } else {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      });
 
   @override
   void initState() {
     super.initState();
-    // getUUID();
-    checkQuizUUID().then((uuid) {
-      if (uuid != '') {
-        fetchResult(uuid).then((results) {
-          setState(() {
-            listHistory = results;
-          });
-        });
-      } else {
-        throw Exception('Gagal mendapatkan hasil');
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: Icon(Icons.arrow_back_ios_new_rounded),
-        title: const Text('Hasil Rekomendasi'),
-      ),
-      body: displayResult(),
-    );
+        appBar: AppBar(
+          leading: Icon(Icons.arrow_back_ios_new_rounded),
+          title: const Text('Hasil Rekomendasi'),
+        ),
+        body: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Text(
+                'Berdasarkan jawabanmu, ras anjing yang kami rekomendasikan adalah ...',
+                style: GoogleFonts.nunito(fontSize: 16.0),
+              ),
+              SizedBox(
+                height: 8.0,
+              ),
+              Expanded(child: displayResult())
+            ],
+          ),
+        ));
   }
 }
