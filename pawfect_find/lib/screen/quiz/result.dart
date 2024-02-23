@@ -43,35 +43,40 @@ class _ResultPage extends State<ResultPage> {
   Widget cardResult(History history) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ListTile(
-            leading: FittedBox(
-              fit: BoxFit.cover,
-              child: Container(
-                height: 128.0,
-                width: 128.0,
-                child: Image.asset(
-                  'assets/images/card_1.jpg',
-                  fit: BoxFit.cover,
+      child: InkWell(
+        onTap: () {
+          Navigator.pushNamed(context, 'detail', arguments: { 'breed_id' : history.breed_id });
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ListTile(
+              leading: FittedBox(
+                fit: BoxFit.cover,
+                child: Container(
+                  height: 128.0,
+                  width: 128.0,
+                  child: Image.asset(
+                    'assets/images/card_1.jpg',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            title: Text(
-              history.breed,
-              style: GoogleFonts.nunito(
-                  fontSize: 18.0, fontWeight: FontWeight.bold),
-            ),
-            trailing: Text(
-              "${history.cf.toStringAsFixed(2)}%",
-              style: GoogleFonts.nunito(
-                fontSize: 16.0,
+              title: Text(
+                history.breed,
+                style: GoogleFonts.nunito(
+                    fontSize: 18.0, fontWeight: FontWeight.bold),
               ),
-            ),
-          )
-        ],
+              trailing: Text(
+                "${history.cf.toStringAsFixed(2)}%",
+                style: GoogleFonts.nunito(
+                  fontSize: 16.0,
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

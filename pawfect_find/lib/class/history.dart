@@ -1,5 +1,6 @@
 class History {
   final String uuid;
+  final int breed_id;
   final String breed;
   final double cf;
   final int is_saved;
@@ -9,6 +10,7 @@ class History {
 
   History({
     required this.uuid,
+    required this.breed_id,
     required this.breed,
     required this.cf,
     required this.is_saved,
@@ -20,6 +22,7 @@ class History {
   factory History.fromJson(Map<String, dynamic> json) {
     return History(
         uuid: json['uuid'] as String,
+        breed_id: json['breed_id'] as int,
         breed: json['breed'] as String,
         cf: json['cf'] as double,
         is_saved: json['is_saved'] as int,
