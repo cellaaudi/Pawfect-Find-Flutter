@@ -78,7 +78,10 @@ class HomePage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text('Temukan ras anjing yang \'pawfect\' untukmu.'),
+                  Text(
+                    'Temukan ras anjing yang \'pawfect\' untukmu.',
+                    style: GoogleFonts.nunito(fontSize: 16.0),
+                  ),
                 ],
               ),
               SizedBox(
@@ -96,7 +99,9 @@ class HomePage extends StatelessWidget {
                           child: Column(children: [
                             Row(children: [
                               Text(
-                                  'Pilih salah satu yang sesuai dengan kondisimu:'),
+                                'Pilih salah satu yang sesuai dengan kondisimu:',
+                                style: GoogleFonts.nunito(fontSize: 16.0),
+                              ),
                             ]),
                             SizedBox(
                               height: 8.0,

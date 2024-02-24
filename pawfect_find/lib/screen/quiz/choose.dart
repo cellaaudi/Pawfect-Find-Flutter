@@ -21,6 +21,40 @@ class _ChoosePage extends State<ChoosePage> {
   // variable buat menampung selected breeds
   List<int> selectedBreeds = [];
 
+  // search otomatis
+  TextEditingController _searchController = TextEditingController();
+
+  // method untuk confirmation message sebelum keluar quiz
+  void _backMessage() {
+    showDialog<void>(
+        context: context,
+        builder: (BuildContext ctxt) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0)),
+            title: const Text('Konfirmasi Keluar'),
+            content:
+                const Text('Jika kamu keluar, maka jawaban kamu akan hilang.'),
+            actions: <Widget>[
+              TextButton(
+                  style: TextButton.styleFrom(
+                      textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Tidak')),
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  style: TextButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                  child: const Text('Keluar'))
+            ],
+          );
+        });
+  }
+
   // method untuk fetch data breeds dari database
   Future<List<Breed>> fetchBreeds() async {
     final response = await http.post(
@@ -62,7 +96,10 @@ class _ChoosePage extends State<ChoosePage> {
                 ),
               ),
             ),
-            title: Text(breed.breed),
+            title: Text(
+              breed.breed,
+              style: GoogleFonts.nunito(),
+            ),
             trailing: TextButton.icon(
               onPressed: () {
                 setState(() {
@@ -129,79 +166,109 @@ class _ChoosePage extends State<ChoosePage> {
     super.initState();
 
     btnNext = false;
+
+    _searchController.addListener(() {
+      setState(() {
+        _searchText = _searchController.text;
+      });
+    });
+
+    fetchBreeds();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-          toolbarHeight: 80.0,
-          flexibleSpace: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: SearchBar(
-                leading: Icon(Icons.search_rounded),
-                hintText: 'Cari ras anjing',
-                backgroundColor: MaterialStateProperty.all(Colors.white),
-                shadowColor: MaterialStateProperty.all(Colors.grey.shade50),
-                elevation: MaterialStateProperty.all(8.0),
-                shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0))),
-                onChanged: (value) {
-                  setState(() {
-                    _searchText = value;
-                  });
-                  fetchBreeds();
-                },
-              ))),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            RichText(
-              text: TextSpan(children: [
-                TextSpan(
-                    text:
-                        'Pilih maksimal 5 ras anjing yang kamu inginkan. Pawfect Find akan membantu memberitahumu seberapa cocok ras tersebut dengan kamu.')
-              ]),
-            ),
-            SizedBox(
-              height: 16.0,
-            ),
-            Text(
-              'Daftar Ras Anjing',
+    return PopScope(
+        canPop: false,
+        onPopInvoked: (bool didPop) {
+          if (didPop) {
+            return;
+          }
+          _backMessage();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
+                onPressed: () => _backMessage()),
+            title: Text(
+              'Pilih Ras Anjing',
               style: GoogleFonts.nunito(
-                  fontWeight: FontWeight.w800, fontSize: 18.0),
+                  fontSize: 24.0, fontWeight: FontWeight.bold),
             ),
-            SizedBox(
-              height: 8.0,
-            ),
-            Expanded(child: displayBreeds()),
-            SizedBox(
-              height: 16.0,
-            ),
-            Row(
+          ),
+          body: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                    child: ElevatedButton(
-                        onPressed: btnNext
-                            ? () async {
-                                List<String> strSelectedBreeds = selectedBreeds
-                                    .map((i) => i.toString())
-                                    .toList();
-                                final prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setStringList(
-                                    'quiz_selectedbreeds', strSelectedBreeds);
-                                Navigator.pushNamed(context, 'quiz_choices');
-                              }
-                            : null,
-                        child: Text('Berikutnya (${selectedBreeds.length}/5)')))
+                RichText(
+                  text: TextSpan(children: [
+                    TextSpan(
+                        text:
+                            'Pilih maksimal 5 ras anjing yang kamu inginkan. Pawfect Find akan membantu memberitahumu seberapa cocok ras tersebut dengan kamu.',
+                        style: GoogleFonts.nunito())
+                  ]),
+                ),
+                SizedBox(
+                  height: 16.0,
+                ),
+                Text(
+                  'Daftar Ras Anjing',
+                  style: GoogleFonts.nunito(
+                      fontWeight: FontWeight.w800, fontSize: 18.0),
+                ),
+                SizedBox(
+                  height: 8.0,
+                ),
+                Container(
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.search),
+                            hintText: 'Cari ras anjing ...',
+                            border: OutlineInputBorder()),
+                      ))
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 8.0,
+                ),
+                Expanded(child: displayBreeds()),
+                SizedBox(
+                  height: 16.0,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                        child: ElevatedButton(
+                            onPressed: btnNext
+                                ? () async {
+                                    List<String> strSelectedBreeds =
+                                        selectedBreeds
+                                            .map((i) => i.toString())
+                                            .toList();
+                                    final prefs =
+                                        await SharedPreferences.getInstance();
+                                    prefs.setStringList('quiz_selectedbreeds',
+                                        strSelectedBreeds);
+                                    Navigator.pushNamed(
+                                        context, 'quiz_choices');
+                                  }
+                                : null,
+                            child: Text(
+                              'Berikutnya (${selectedBreeds.length}/5)',
+                              style: GoogleFonts.nunito(),
+                            )))
+                  ],
+                )
               ],
-            )
-          ],
-        ),
-      ),
-    );
+            ),
+          ),
+        ));
   }
 }

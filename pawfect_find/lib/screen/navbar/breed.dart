@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:pawfect_find/class/breed.dart';
 
@@ -37,32 +38,40 @@ class _BreedPage extends State<BreedPage> {
       itemCount: breedData.length,
       itemBuilder: (BuildContext ctxt, int index) {
         return Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: FittedBox(
-                  fit: BoxFit.cover,
-                  child: Container(
-                    height: 128.0,
-                    width: 128.0,
-                    child: Image.asset(
-                      'assets/images/card_1.jpg',
+            padding: EdgeInsets.symmetric(vertical: 6.0),
+            child: InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, 'detail',
+                    arguments: {'breed_id': breedData[index].id as int});
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    leading: FittedBox(
                       fit: BoxFit.cover,
+                      child: Container(
+                        height: 128.0,
+                        width: 128.0,
+                        child: Image.asset(
+                          'assets/images/card_1.jpg',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                title: Text(breedData[index].breed),
-              )
-            ],
-          ),
-        );
+                    title: Text(
+                      breedData[index].breed,
+                      style: GoogleFonts.nunito(fontSize: 18.0),
+                    ),
+                  )
+                ],
+              ),
+            ));
       });
 
   // method untuk body scaffold
   Widget displayBody() => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: FutureBuilder<List<Breed>>(
           future: fetchBreeds(),
           builder: (context, snapshot) {
@@ -97,7 +106,7 @@ class _BreedPage extends State<BreedPage> {
                 hintText: 'Cari ras anjing',
                 backgroundColor: MaterialStateProperty.all(Colors.white),
                 shadowColor: MaterialStateProperty.all(Colors.grey.shade50),
-                elevation: MaterialStateProperty.all(8.0),
+                elevation: MaterialStateProperty.all(0.0),
                 shape: MaterialStateProperty.all(RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0))),
                 onChanged: (value) {

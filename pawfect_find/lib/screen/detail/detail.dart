@@ -15,7 +15,7 @@ class _DetailPage extends State<DetailPage> {
   Future<Breed> fetchBreed(int breed_id) async {
     final response = await http.post(
         Uri.parse("http://localhost/ta/Pawfect-Find-PHP/detail.php"),
-        body: {'breed_id': breed_id});
+        body: {'breed_id': breed_id.toString()});
 
     if (response.statusCode == 200) {
       Map<String, dynamic> json = jsonDecode(response.body);
@@ -27,43 +27,53 @@ class _DetailPage extends State<DetailPage> {
   }
 
   // method untuk build body
-  Widget displayBody(int breed_id) => Padding(
-        padding: EdgeInsets.all(16.0),
-        child: FutureBuilder<Breed>(
-            future: fetchBreed(breed_id),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
-                } else if (snapshot.hasData) {
-                  Breed breed = snapshot.data!;
+  Widget displayBody(int breed_id) => SingleChildScrollView(
+      child: FutureBuilder<Breed>(
+          future: fetchBreed(breed_id),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error: ${snapshot.error}'),
+                );
+              } else if (snapshot.hasData) {
+                Breed breed = snapshot.data!;
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        breed.breed,
-                        style: GoogleFonts.nunito(
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.bold
-                        ),
-                      )
-                    ],
-                  );
-                } else {
-                  return const Center(
-                    child: Text('Tidak ada hasil ditemukan'),
-                  );
-                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 300.0,
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: AssetImage('assets/images/card_1.jpg'),
+                              fit: BoxFit.cover)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            breed.breed.toString(),
+                            style: GoogleFonts.nunito(
+                                fontSize: 24.0, fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                );
               } else {
                 return const Center(
-                  child: CircularProgressIndicator(),
+                  child: Text('Tidak ada hasil ditemukan'),
                 );
               }
-            }),
-      );
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          }));
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +81,11 @@ class _DetailPage extends State<DetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(Icons.arrow_back_ios_new_rounded),
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            onPressed: () {
+              Navigator.pop(context);
+            }),
         title: const Text('Detail'),
       ),
       body: Center(
