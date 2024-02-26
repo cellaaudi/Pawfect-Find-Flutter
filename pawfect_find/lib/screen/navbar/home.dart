@@ -139,7 +139,8 @@ class HomePage extends StatelessWidget {
         appBar: AppBar(
           title: Text(
             'Pawfect Find',
-            style: GoogleFonts.nunito(fontWeight: FontWeight.w700),
+            style:
+                GoogleFonts.nunito(fontSize: 20.0, fontWeight: FontWeight.w800),
           ),
           actions: [
             IconButton(

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -41,24 +42,32 @@ class _QuizPage extends State<QuizPage> {
           return AlertDialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0)),
-            title: const Text('Konfirmasi Keluar'),
-            content:
-                const Text('Jika kamu keluar, maka jawaban kamu akan hilang.'),
+            title: Text(
+              'Konfirmasi Keluar',
+              style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+            ),
+            content: Text(
+              'Jika kamu keluar, maka jawaban kamu akan hilang.',
+              style: GoogleFonts.nunito(fontSize: 16.0),
+            ),
             actions: <Widget>[
               TextButton(
                   style: TextButton.styleFrom(
-                      textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                      textStyle: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Tidak')),
+                  child: Text(
+                    'Batal',
+                    style: GoogleFonts.nunito(),
+                  )),
               TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  },
+                  onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
                   style: TextButton.styleFrom(
                       foregroundColor: Colors.red,
-                      textStyle: TextStyle(fontWeight: FontWeight.w600)),
-                  child: const Text('Keluar'))
+                      textStyle: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
+                  child: Text(
+                    'Keluar',
+                    style: GoogleFonts.nunito(),
+                  ))
             ],
           );
         });
@@ -95,8 +104,6 @@ class _QuizPage extends State<QuizPage> {
       Map<String, dynamic> result = jsonDecode(response.body);
 
       if (result['result'] == 'Success') {
-        // print(result['test']);
-        
         String uuid = result['uuid'];
 
         final prefs = await SharedPreferences.getInstance();
@@ -151,7 +158,7 @@ class _QuizPage extends State<QuizPage> {
             children: [
               Text(
                 question.question,
-                style: const TextStyle(fontSize: 18.0),
+                style: GoogleFonts.nunito(fontSize: 18.0),
               ),
               const SizedBox(height: 8.0),
               if (question.choices != null)
@@ -159,7 +166,10 @@ class _QuizPage extends State<QuizPage> {
                   children: [
                     for (var choice in question.choices!)
                       RadioListTile(
-                        title: Text(choice['choice'].toString()),
+                        title: Text(
+                          choice['choice'].toString(),
+                          style: GoogleFonts.nunito(fontSize: 16.0),
+                        ),
                         value: choice['id'],
                         groupValue: selected,
                         onChanged: (value) {
@@ -172,13 +182,16 @@ class _QuizPage extends State<QuizPage> {
                   ],
                 ),
               const SizedBox(height: 48.0),
-              const Text('Seberapa yakin kamu atas jawabanmu?'),
+              Text(
+                'Seberapa yakin kamu atas jawabanmu?',
+                style: GoogleFonts.nunito(fontSize: 16.0),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Sangat tidak yakin',
-                    style: TextStyle(fontSize: 12.0),
+                    style: GoogleFonts.nunito(fontSize: 12.0),
                   ),
                   Slider(
                     value: cfValues[question.id] ?? 0.0,
@@ -192,9 +205,9 @@ class _QuizPage extends State<QuizPage> {
                     divisions: 4,
                     label: cfLabel(cfValues[question.id] ?? 0.0),
                   ),
-                  const Text(
+                  Text(
                     'Sangat yakin',
-                    style: TextStyle(fontSize: 12.0),
+                    style: GoogleFonts.nunito(fontSize: 12.0),
                   ),
                 ],
               ),
@@ -222,7 +235,10 @@ class _QuizPage extends State<QuizPage> {
                                 curve: Curves.easeInOut);
                           }
                         },
-                        child: const Text('Kembali'),
+                        child: Text(
+                          'Kembali',
+                          style: GoogleFonts.nunito(fontSize: 16.0),
+                        ),
                       ),
                     )
                   else
@@ -254,10 +270,12 @@ class _QuizPage extends State<QuizPage> {
                         // button "Berikutnya" tidak bisa diklik karena user belum memilih jawaban
                         : null,
                     child: Text(
-                        // inline if untuk ganti teks di button tergantung halaman berapa
-                        index < listQuestions.length - 1
-                            ? 'Berikutnya'
-                            : 'Selesai'),
+                      // inline if untuk ganti teks di button tergantung halaman berapa
+                      index < listQuestions.length - 1
+                          ? 'Berikutnya'
+                          : 'Selesai',
+                      style: GoogleFonts.nunito(fontSize: 16.0),
+                    ),
                   ))
                 ],
               ),
@@ -296,7 +314,11 @@ class _QuizPage extends State<QuizPage> {
               icon: Icon(Icons.arrow_back_ios_new_rounded),
               onPressed: () => _backMessage(),
             ),
-            title: Text('Kuis Pawfect Find'),
+            title: Text(
+              'Kuis Pawfect Find',
+              style: GoogleFonts.nunito(
+                  fontSize: 20.0, fontWeight: FontWeight.w800),
+            ),
           ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -325,7 +347,7 @@ class _QuizPage extends State<QuizPage> {
                         alignment: Alignment.center,
                         child: Text(
                           '${currentPage + 1} dari ${listQuestions.length} pertanyaan',
-                          style: TextStyle(fontSize: 16.0),
+                          style: GoogleFonts.nunito(fontSize: 16.0),
                         ),
                       ),
                       SizedBox(

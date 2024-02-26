@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -42,9 +43,10 @@ class _QuizChoosePage extends State<QuizChoosePage> {
   void getSelectedBreeds() async {
     // inisialisasi shared preferences
     final prefs = await SharedPreferences.getInstance();
-    
+
     // ambil list string
-    List<String> strSelectedBreeds = prefs.getStringList("quiz_selectedbreeds") ?? [];
+    List<String> strSelectedBreeds =
+        prefs.getStringList("quiz_selectedbreeds") ?? [];
 
     // convert list string jadi list int
     selectedBreeds = strSelectedBreeds.map((i) => int.parse(i)).toList();
@@ -57,25 +59,29 @@ class _QuizChoosePage extends State<QuizChoosePage> {
         builder: (BuildContext ctxt) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0)
-            ),
+                borderRadius: BorderRadius.circular(8.0)),
             title: const Text('Konfirmasi Keluar'),
-            content: const Text('Jika kamu keluar, maka jawaban kamu akan hilang.'),
+            content:
+                const Text('Jika kamu keluar, maka jawaban kamu akan hilang.'),
             actions: <Widget>[
               TextButton(
                   style: TextButton.styleFrom(
                       textStyle: TextStyle(fontWeight: FontWeight.w600)),
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Tidak')),
+                  child: Text(
+                    'Batal',
+                    style: GoogleFonts.nunito(),
+                  )),
               TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  },
+                  onPressed: () =>
+                      Navigator.of(context).popUntil((route) => route.isFirst),
                   style: TextButton.styleFrom(
                       foregroundColor: Colors.red,
                       textStyle: TextStyle(fontWeight: FontWeight.w600)),
-                  child: const Text('Keluar'))
+                  child: Text(
+                    'Keluar',
+                    style: GoogleFonts.nunito(),
+                  ))
             ],
           );
         });
@@ -103,10 +109,15 @@ class _QuizChoosePage extends State<QuizChoosePage> {
   }
 
   // method untuk kirim post jawaban user ke api
-  void postAnswers(String uuid, List<Answer> answers, List<int> selBreeds) async {
+  void postAnswers(
+      String uuid, List<Answer> answers, List<int> selBreeds) async {
     final response = await http.post(
         Uri.parse("http://localhost/ta/Pawfect-Find-PHP/answer_afchoose.php"),
-        body: {'uuid': uuid, 'answers': jsonEncode(answers), 'selBreeds': jsonEncode(selBreeds)});
+        body: {
+          'uuid': uuid,
+          'answers': jsonEncode(answers),
+          'selBreeds': jsonEncode(selBreeds)
+        });
 
     if (response.statusCode == 200) {
       Map<String, dynamic> result = jsonDecode(response.body);

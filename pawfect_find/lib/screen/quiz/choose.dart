@@ -32,24 +32,32 @@ class _ChoosePage extends State<ChoosePage> {
           return AlertDialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0)),
-            title: const Text('Konfirmasi Keluar'),
-            content:
-                const Text('Jika kamu keluar, maka jawaban kamu akan hilang.'),
+            title: Text(
+              'Konfirmasi Keluar',
+              style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+            ),
+            content: Text(
+              'Jika kamu keluar, maka jawaban kamu akan hilang.',
+              style: GoogleFonts.nunito(fontSize: 16.0),
+            ),
             actions: <Widget>[
               TextButton(
                   style: TextButton.styleFrom(
                       textStyle: TextStyle(fontWeight: FontWeight.w600)),
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Tidak')),
+                  child: Text(
+                    'Batal',
+                    style: GoogleFonts.nunito(),
+                  )),
               TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  },
+                  onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
                   style: TextButton.styleFrom(
                       foregroundColor: Colors.red,
                       textStyle: TextStyle(fontWeight: FontWeight.w600)),
-                  child: const Text('Keluar'))
+                  child: Text(
+                    'Keluar',
+                    style: GoogleFonts.nunito(),
+                  ))
             ],
           );
         });
