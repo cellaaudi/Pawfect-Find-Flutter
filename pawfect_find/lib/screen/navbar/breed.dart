@@ -34,44 +34,61 @@ class _BreedPage extends State<BreedPage> {
   }
 
   // method untuk UI card per breed
-  Widget cardBreed(breedData) => ListView.builder(
-      itemCount: breedData.length,
-      itemBuilder: (BuildContext ctxt, int index) {
-        return Padding(
-            padding: EdgeInsets.symmetric(vertical: 6.0),
-            child: InkWell(
-              onTap: () {
-                Navigator.pushNamed(context, 'detail',
-                    arguments: {'breed_id': breedData[index].id as int});
-              },
+  Widget cardBreed(Breed breed) => InkWell(
+      onTap: () {
+        Navigator.pushNamed(context, 'detail',
+            arguments: {'breed_id': breed.id});
+      },
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        elevation: 8.0,
+        shadowColor: Colors.grey.shade50,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+        child: Stack(
+          alignment: Alignment.centerLeft,
+          children: [
+            Ink.image(
+              image: AssetImage('assets/images/card_1.jpg'),
+              fit: BoxFit.cover,
+            ),
+            Container(
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                    Colors.black,
+                    Colors.black.withOpacity(0.8),
+                    Colors.black.withOpacity(0.5),
+                    Colors.transparent,
+                    Colors.transparent,
+                    Colors.transparent,
+                    Colors.transparent,
+                  ])),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ListTile(
-                    leading: FittedBox(
-                      fit: BoxFit.cover,
-                      child: Container(
-                        height: 128.0,
-                        width: 128.0,
-                        child: Image.asset(
-                          'assets/images/card_1.jpg',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    title: Text(
-                      breedData[index].breed,
-                      style: GoogleFonts.nunito(fontSize: 18.0),
-                    ),
+                  Text(
+                    breed.breed,
+                    style: GoogleFonts.nunito(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                   )
                 ],
               ),
-            ));
-      });
+            )
+          ],
+        ),
+      ));
 
   // method untuk body scaffold
   Widget displayBody() => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: FutureBuilder<List<Breed>>(
           future: fetchBreeds(),
           builder: (context, snapshot) {
@@ -81,7 +98,17 @@ class _BreedPage extends State<BreedPage> {
                   child: Text('Error: ${snapshot.error}'),
                 );
               } else if (snapshot.hasData) {
-                return cardBreed(snapshot.data!);
+                // return cardBreed(snapshot.data!);
+                return GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 1.3,
+                        crossAxisSpacing: 8.0,
+                        mainAxisSpacing: 8.0),
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (BuildContext ctxt, int index) {
+                      return cardBreed(snapshot.data![index]);
+                    });
               } else {
                 return const Center(
                   child: Text('Tidak ada hasil ditemukan'),
