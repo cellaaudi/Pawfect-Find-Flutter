@@ -36,6 +36,9 @@ class _QuizChoosePage extends State<QuizChoosePage> {
   // late inisialisation untuk page controller
   late PageController _pageController;
 
+  // progress bar
+  double progress = 0.0;
+
   // list untuk menampung selected breeds from previous step
   List<int> selectedBreeds = [];
 
@@ -60,13 +63,19 @@ class _QuizChoosePage extends State<QuizChoosePage> {
           return AlertDialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0)),
-            title: const Text('Konfirmasi Keluar'),
-            content:
-                const Text('Jika kamu keluar, maka jawaban kamu akan hilang.'),
+            title: Text(
+              'Konfirmasi Keluar',
+              style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+            ),
+            content: Text(
+              'Jika kamu keluar, maka jawaban kamu akan hilang.',
+              style: GoogleFonts.nunito(fontSize: 16.0),
+            ),
             actions: <Widget>[
               TextButton(
                   style: TextButton.styleFrom(
-                      textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                      textStyle:
+                          GoogleFonts.nunito(fontWeight: FontWeight.w600)),
                   onPressed: () => Navigator.pop(context),
                   child: Text(
                     'Batal',
@@ -77,7 +86,8 @@ class _QuizChoosePage extends State<QuizChoosePage> {
                       Navigator.of(context).popUntil((route) => route.isFirst),
                   style: TextButton.styleFrom(
                       foregroundColor: Colors.red,
-                      textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                      textStyle:
+                          GoogleFonts.nunito(fontWeight: FontWeight.w600)),
                   child: Text(
                     'Keluar',
                     style: GoogleFonts.nunito(),
@@ -155,6 +165,13 @@ class _QuizChoosePage extends State<QuizChoosePage> {
     }
   }
 
+  // progress bar
+  void updateProgress(int currentIndex, int totalQuestions) {
+    setState(() {
+      progress = (currentIndex + 1) / totalQuestions;
+    });
+  }
+
   // method untuk build UI quiz
   Widget displayQuestions(Question question, int index) {
     int? selected = selectedMap[question.id];
@@ -178,7 +195,10 @@ class _QuizChoosePage extends State<QuizChoosePage> {
                   children: [
                     for (var choice in question.choices!)
                       RadioListTile(
-                        title: Text(choice['choice'].toString()),
+                        title: Text(
+                          choice['choice'].toString(),
+                          style: GoogleFonts.nunito(fontSize: 16.0),
+                        ),
                         value: choice['id'],
                         groupValue: selected,
                         onChanged: (value) {
@@ -191,13 +211,16 @@ class _QuizChoosePage extends State<QuizChoosePage> {
                   ],
                 ),
               const SizedBox(height: 48.0),
-              const Text('Seberapa yakin Anda atas jawaban Anda?'),
+              Text(
+                'Seberapa yakin Anda atas jawaban Anda?',
+                style: GoogleFonts.nunito(fontSize: 16.0),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Sangat tidak yakin',
-                    style: TextStyle(fontSize: 12.0),
+                    style: GoogleFonts.nunito(fontSize: 12.0),
                   ),
                   Slider(
                     value: cfValues[question.id] ?? 0.0,
@@ -211,9 +234,9 @@ class _QuizChoosePage extends State<QuizChoosePage> {
                     divisions: 4,
                     label: cfLabel(cfValues[question.id] ?? 0.0),
                   ),
-                  const Text(
+                  Text(
                     'Sangat yakin',
-                    style: TextStyle(fontSize: 12.0),
+                    style: GoogleFonts.nunito(fontSize: 12.0),
                   ),
                 ],
               ),
@@ -241,7 +264,10 @@ class _QuizChoosePage extends State<QuizChoosePage> {
                                 curve: Curves.easeInOut);
                           }
                         },
-                        child: const Text('Kembali'),
+                        child: Text(
+                          'Kembali',
+                          style: GoogleFonts.nunito(fontSize: 16.0),
+                        ),
                       ),
                     )
                   else
@@ -273,10 +299,12 @@ class _QuizChoosePage extends State<QuizChoosePage> {
                         // button "Berikutnya" tidak bisa diklik karena user belum memilih jawaban
                         : null,
                     child: Text(
-                        // inline if untuk ganti teks di button tergantung halaman berapa
-                        index < listQuestions.length - 1
-                            ? 'Berikutnya'
-                            : 'Selesai'),
+                      // inline if untuk ganti teks di button tergantung halaman berapa
+                      index < listQuestions.length - 1
+                          ? 'Berikutnya'
+                          : 'Selesai',
+                      style: GoogleFonts.nunito(fontSize: 16.0),
+                    ),
                   ))
                 ],
               ),
@@ -316,20 +344,59 @@ class _QuizChoosePage extends State<QuizChoosePage> {
             icon: Icon(Icons.arrow_back_ios_new_rounded),
             onPressed: () => _backMessage(),
           ),
-          title: Text('Kuis Pawfect Find'),
+          title: Text(
+            'Kuis Pawfect Find',
+            style:
+                GoogleFonts.nunito(fontSize: 20.0, fontWeight: FontWeight.w800),
+          ),
         ),
-        body: PageView.builder(
-          physics: NeverScrollableScrollPhysics(),
-          controller: _pageController,
-          itemCount: listQuestions.length,
-          onPageChanged: (int page) {
-            setState(() {
-              currentPage = page;
-            });
-          },
-          itemBuilder: (BuildContext ctxt, int index) {
-            return displayQuestions(listQuestions[index], index);
-          },
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: PageView.builder(
+                physics: NeverScrollableScrollPhysics(),
+                controller: _pageController,
+                itemCount: listQuestions.length,
+                onPageChanged: (int page) {
+                  setState(() {
+                    currentPage = page;
+                  });
+                  updateProgress(page, listQuestions.length);
+                },
+                itemBuilder: (BuildContext ctxt, int index) {
+                  return displayQuestions(listQuestions[index], index);
+                },
+              ),
+            ),
+            Container(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        '${currentPage + 1} dari ${listQuestions.length} pertanyaan',
+                        style: GoogleFonts.nunito(fontSize: 16.0),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 8.0,
+                    ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(16.0),
+                          bottom: Radius.circular(16.0)),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        minHeight: 10,
+                        backgroundColor: Colors.grey,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                      ),
+                    ),
+                  ],
+                )),
+          ],
         ),
       ),
     );

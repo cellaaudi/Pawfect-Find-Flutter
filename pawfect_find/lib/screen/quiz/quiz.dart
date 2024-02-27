@@ -11,26 +11,31 @@ import 'package:pawfect_find/class/question.dart';
 
 class QuizPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    return _QuizPage();
-  }
+  State<StatefulWidget> createState() => _QuizPage();
 }
 
 class _QuizPage extends State<QuizPage> {
   // variable untuk menentukan sampai di pertanyaan halaman berapa user saat itu
   int currentPage = 0;
+
   // list untuk menampung pertanyaan dari database
   List<Question> listQuestions = [];
+
   // list untuk menampung jawaban user dari setiap pertanyaan
   List<Answer> userAnswers = [];
+
   // map untuk rdo
   Map<int, int?> selectedMap = {};
+
   // map untuk cek setidaknya 1 rdo telah dipilih sebelum lanjut ke halaman selanjutnya
   Map<int, bool?> isRadioSelected = {};
+
   // map untuk nilai dari cf
   Map<int, double> cfValues = {};
+
   // late inisialisation untuk page controller
   late PageController _pageController;
+
   // progress bar
   double progress = 0.0;
 
@@ -53,17 +58,20 @@ class _QuizPage extends State<QuizPage> {
             actions: <Widget>[
               TextButton(
                   style: TextButton.styleFrom(
-                      textStyle: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
+                      textStyle:
+                          GoogleFonts.nunito(fontWeight: FontWeight.w600)),
                   onPressed: () => Navigator.pop(context),
                   child: Text(
                     'Batal',
                     style: GoogleFonts.nunito(),
                   )),
               TextButton(
-                  onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                  onPressed: () =>
+                      Navigator.of(context).popUntil((route) => route.isFirst),
                   style: TextButton.styleFrom(
                       foregroundColor: Colors.red,
-                      textStyle: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
+                      textStyle:
+                          GoogleFonts.nunito(fontWeight: FontWeight.w600)),
                   child: Text(
                     'Keluar',
                     style: GoogleFonts.nunito(),
