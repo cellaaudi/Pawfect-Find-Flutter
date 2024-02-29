@@ -48,7 +48,7 @@ class _BreedPage extends State<BreedPage> {
           alignment: Alignment.centerLeft,
           children: [
             Ink.image(
-              image: AssetImage('assets/images/card_1.jpg'),
+              image: NetworkImage("http://localhost/ta/Pawfect-Find-PHP/${breed.imgAdult}"),
               fit: BoxFit.cover,
             ),
             Container(
@@ -102,7 +102,7 @@ class _BreedPage extends State<BreedPage> {
                 return GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        childAspectRatio: 1.3,
+                        childAspectRatio: 1,
                         crossAxisSpacing: 8.0,
                         mainAxisSpacing: 8.0),
                     itemCount: snapshot.data!.length,
