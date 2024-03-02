@@ -57,10 +57,8 @@ class _BreedPage extends State<BreedPage> {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                    Colors.black,
                     Colors.black.withOpacity(0.8),
-                    Colors.black.withOpacity(0.5),
-                    Colors.transparent,
+                    Colors.black.withOpacity(0.6),
                     Colors.transparent,
                     Colors.transparent,
                     Colors.transparent,

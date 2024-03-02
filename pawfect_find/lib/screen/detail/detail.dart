@@ -27,11 +27,53 @@ class _DetailPage extends State<DetailPage> {
   }
 
   // method untuk foto anjing
-  Widget imgDog(String path) => Container(
-        height: 200.0,
-        width: 200.0,
-        decoration: BoxDecoration(
-            image: DecorationImage(image: AssetImage(path), fit: BoxFit.cover)),
+  Widget imgDog(String path, String age, String name) => Card(
+      clipBehavior: Clip.antiAlias,
+      elevation: 8.0,
+      shadowColor: Colors.grey.shade50,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+      child: Stack(
+        alignment: Alignment.centerLeft,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: NetworkImage(
+                        "http://localhost/ta/Pawfect-Find-PHP/$path"),
+                    fit: BoxFit.cover)),
+          ),
+          Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                  Colors.black.withOpacity(0.8),
+                  Colors.black.withOpacity(0.6),
+                  Colors.transparent,
+                  Colors.transparent,
+                  Colors.transparent,
+                  Colors.transparent,
+                  Colors.transparent,
+                  Colors.transparent,
+                ])),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "$name $age",
+                  style:
+                      GoogleFonts.nunito(fontSize: 12.0, color: Colors.white),
+                ),
+              ],
+            ),
+          )
+        ],
+      )
       );
 
   // method untuk build body
@@ -53,16 +95,20 @@ class _DetailPage extends State<DetailPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      GridView(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2, childAspectRatio: 1),
+                        shrinkWrap: true,
                         children: [
-                          imgDog('assets/${breed.imgPuppy}'),
-                          // imgDog('assets/${breed.imgAdult}')
+                          imgDog(breed.imgPuppy, "muda", breed.breed),
+                          imgDog(breed.imgAdult, "dewasa", breed.breed)
                         ],
                       ),
+                      const SizedBox(height: 16.0,),
                       Text(
                         breed.breed.toString(),
                         style: GoogleFonts.nunito(
-                            fontSize: 24.0, fontWeight: FontWeight.bold),
+                            fontSize: 24.0, fontWeight: FontWeight.w800),
                       ),
                       const SizedBox(height: 16.0),
                       Text(
@@ -163,11 +209,16 @@ class _DetailPage extends State<DetailPage> {
         title: Text(
           'Informasi Ras Anjing',
           style:
-              GoogleFonts.nunito(fontSize: 24.0, fontWeight: FontWeight.bold),
+              GoogleFonts.nunito(fontSize: 20.0, fontWeight: FontWeight.w800),
         ),
       ),
       body: Center(
         child: displayBody(args['breed_id']!),
+        // child: args != null
+        //     ? displayBody(args['breed_id']!)
+        //     : Center(
+        //         child: Text('Terjadi kesalahan, silahkan coba lagi'),
+        //       ),
       ),
     );
   }
