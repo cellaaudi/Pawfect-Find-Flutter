@@ -1,11 +1,11 @@
-class User {
+class UserDart {
   final int id;
   final String uid;
   final String name;
   final String email;
   final int isAdmin;
 
-  User({
+  UserDart({
     required this.id,
     required this.uid,
     required this.name,
@@ -13,8 +13,8 @@ class User {
     required this.isAdmin,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
+  factory UserDart.fromJson(Map<String, dynamic> json) {
+    return UserDart(
         id: json['id'] as int,
         uid: json['uid'] as String,
         name: json['name'] as String,

@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+import 'package:pawfect_find/class/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,6 +18,29 @@ class LoginPage extends StatefulWidget {
 class _LoginPage extends State<LoginPage> {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
+  // method ke database user
+  Future afterLogin(String? uid, String? name, String? email) async {
+    final response = await http.post(
+        Uri.parse("http://localhost/ta/Pawfect-Find-PHP/login.php"),
+        body: {'uid': uid, 'name': name, 'email': email});
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> result = jsonDecode(response.body);
+
+      if (result['result'] == "Success") {
+        UserDart user = UserDart.fromJson(result['data']);
+
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setInt('is_admin', user.isAdmin);
+      }
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error')));
+      throw Exception('Gagal login');
+    }
+  }
+
+  // method login
   login() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
@@ -32,7 +60,7 @@ class _LoginPage extends State<LoginPage> {
             await firebaseAuth.signInWithCredential(credential);
 
         if (userCred.user != null) {
-          Navigator.pushNamed(context, 'home');
+          afterLogin(userCred.user?.uid, userCred.user?.displayName, userCred.user?.email);
         }
       }
     } catch (e) {
@@ -40,12 +68,20 @@ class _LoginPage extends State<LoginPage> {
     }
   }
 
-  Widget buildBody() => SafeArea(
+  Widget buildBody() => Center(
       child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 500.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height * 1.3 / 5,
+                child: Center(
+                  child: Image.asset("assets/logos/logo-white.png"),
+                ),
+              ),
+              SizedBox(height: 32.0),
               Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 3 / 5,
@@ -70,7 +106,7 @@ class _LoginPage extends State<LoginPage> {
                     ),
                     const SizedBox(height: 32.0),
                     Text(
-                      "Login dengan Google untuk menikmati fitur yang tersedia",
+                      "Masuk dengan Google untuk menikmati fitur yang tersedia",
                       style: GoogleFonts.nunito(fontSize: 16.0),
                     ),
                     const SizedBox(

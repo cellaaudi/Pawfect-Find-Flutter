@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +57,28 @@ class MyApp extends StatelessWidget {
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(8.0)))),
           )),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (ctxt, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          }
+
+          if (snapshot.connectionState == ConnectionState.active) {
+            if (snapshot.data == null) {
+              return LoginPage();
+            } else {
+              return MyHomePage(title: 'Pawfect Find');
+            }
+          }
+
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
       routes: {
         'login': (context) => LoginPage(),
         'breed': (context) => BreedPage(),
