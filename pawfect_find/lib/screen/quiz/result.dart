@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:pawfect_find/class/breed.dart';
-import 'package:pawfect_find/class/history.dart';
 import 'package:pawfect_find/class/recommendation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,6 +15,10 @@ class _ResultPage extends State<ResultPage> {
   // variable untuk result quiz
   List<Recommendation> listRecs = [];
 
+  // dropdown
+  String dropdownValue = 'Semua';
+  int max = 0;
+
   // method untuk ambil history id yang baru
   Future<String> getHistoryID() async {
     final prefs = await SharedPreferences.getInstance();
@@ -25,7 +27,6 @@ class _ResultPage extends State<ResultPage> {
   }
 
   // method untuk fetch result dari table histories di db
-  // Future<List<History>> fetchResult(String histId) async {
   Future<List<Recommendation>> fetchResult(String histId) async {
     final response = await http.post(
         Uri.parse("http://localhost/ta/Pawfect-Find-PHP/result.php"),
@@ -58,13 +59,15 @@ class _ResultPage extends State<ResultPage> {
               leading: FittedBox(
                 fit: BoxFit.cover,
                 child: Container(
-                  height: 128.0,
-                  width: 128.0,
-                  child: Image.asset(
-                    'assets/images/card_1.jpg',
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                    height: 128.0,
+                    width: 128.0,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.network(
+                        "http://localhost/ta/Pawfect-Find-PHP/${recommendation.imgAdult}",
+                        fit: BoxFit.cover,
+                      ),
+                    )),
               ),
               title: Text(
                 recommendation.breed,
@@ -108,11 +111,21 @@ class _ResultPage extends State<ResultPage> {
                       } else if (snapshot.hasData) {
                         listRecs = snapshot.data!;
 
+                        if (dropdownValue == 'Semua') {
+                          max = listRecs.length;
+                        } else {
+                          max = int.parse(dropdownValue);
+                        }
+
                         return ListView.builder(
                             itemBuilder: (BuildContext ctxt, int index) {
-                              return cardResult(listRecs[index]);
+                              if (index < max) {
+                                return cardResult(listRecs[index]);
+                              } else {
+                                return SizedBox.shrink();
+                              }
                             },
-                            itemCount: listRecs.length);
+                            itemCount: listRecs.length > max ?  max : listRecs.length);
                       } else {
                         return const Center(
                           child: Text('Tidak ada hasil ditemukan'),
@@ -156,19 +169,68 @@ class _ResultPage extends State<ResultPage> {
                 GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w800),
           ),
         ),
-        body: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Text(
-                'Berdasarkan jawabanmu, ras anjing yang kami rekomendasikan adalah ...',
-                style: GoogleFonts.nunito(fontSize: 16.0),
+        body: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 500.0),
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        "Tampilkan hasil:",
+                        style: GoogleFonts.nunito(fontSize: 16.0),
+                      ),
+                      SizedBox(
+                        width: 16.0,
+                      ),
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            border:
+                                Border.all(color: Colors.black45, width: 1.0)),
+                        child: DropdownButton<String>(
+                          value: dropdownValue,
+                          items: <String>['Semua', '5', '10']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                                value: value,
+                                child: Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Text(
+                                    value,
+                                    style: GoogleFonts.nunito(fontSize: 16.0),
+                                  ),
+                                ));
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              dropdownValue = newValue!;
+                            });
+                          },
+                          underline: Container(),
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 16.0,
+                  ),
+                  Text(
+                    'Berdasarkan jawabanmu, ras anjing yang kami rekomendasikan adalah ...',
+                    style: GoogleFonts.nunito(fontSize: 16.0),
+                  ),
+                  SizedBox(
+                    height: 8.0,
+                  ),
+                  Expanded(child: displayResult())
+                ],
               ),
-              SizedBox(
-                height: 8.0,
-              ),
-              Expanded(child: displayResult())
-            ],
+            ),
           ),
         ));
   }
