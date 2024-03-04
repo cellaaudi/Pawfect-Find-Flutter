@@ -7,7 +7,6 @@ import 'package:pawfect_find/screen/detail/detail.dart';
 import 'package:pawfect_find/screen/navbar/breed.dart';
 import 'package:pawfect_find/screen/navbar/home.dart';
 import 'package:pawfect_find/screen/navbar/settings.dart';
-import 'package:pawfect_find/screen/navbar/story.dart';
 import 'package:pawfect_find/screen/quiz/choose.dart';
 import 'package:pawfect_find/screen/quiz/quiz.dart';
 import 'package:pawfect_find/screen/quiz/result.dart';
@@ -106,13 +105,11 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _screens = [
     HomePage(),
     BreedPage(),
-    StoryPage(),
     SettingsPage()
   ];
 
   Widget navbar() {
     return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
       currentIndex: _currentIndex,
       fixedColor: Colors.blue,
       items: [
@@ -122,8 +119,6 @@ class _MyHomePageState extends State<MyHomePage> {
           label: "Ras Anjing",
           icon: Icon(Icons.pets_rounded),
         ),
-        BottomNavigationBarItem(
-            label: "Cerita", icon: Icon(Icons.dashboard_rounded)),
         BottomNavigationBarItem(
             label: "Pengaturan", icon: Icon(Icons.settings_rounded)),
       ],
