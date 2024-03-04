@@ -50,7 +50,8 @@ class _ChoosePage extends State<ChoosePage> {
                     style: GoogleFonts.nunito(),
                   )),
               TextButton(
-                  onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                  onPressed: () =>
+                      Navigator.of(context).popUntil((route) => route.isFirst),
                   style: TextButton.styleFrom(
                       foregroundColor: Colors.red,
                       textStyle: TextStyle(fontWeight: FontWeight.w600)),
@@ -96,13 +97,15 @@ class _ChoosePage extends State<ChoosePage> {
             leading: FittedBox(
               fit: BoxFit.cover,
               child: Container(
-                height: 128.0,
-                width: 128.0,
-                child: Image.asset(
-                  'assets/images/card_1.jpg',
-                  fit: BoxFit.cover,
-                ),
-              ),
+                  height: 128.0,
+                  width: 128.0,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.network(
+                      "http://localhost/ta/Pawfect-Find-PHP/${breed.imgAdult}",
+                      fit: BoxFit.cover,
+                    ),
+                  )),
             ),
             title: Text(
               breed.breed,
@@ -202,7 +205,7 @@ class _ChoosePage extends State<ChoosePage> {
             title: Text(
               'Pilih Ras Anjing',
               style: GoogleFonts.nunito(
-                  fontSize: 24.0, fontWeight: FontWeight.bold),
+                  fontSize: 20.0, fontWeight: FontWeight.w800),
             ),
           ),
           body: Padding(
