@@ -19,7 +19,31 @@ class _ChoosePage extends State<ChoosePage> {
   bool btnNext = false;
 
   // variable buat menampung selected breeds
-  List<int> selectedBreeds = [];
+  // List<int> selectedBreeds = [];
+  Map<int, String> selectedBreeds = {};
+
+  // method handle perubahan isi selectedBreeds
+  void changeSelected(int id, String breed) {
+    setState(() {
+      if (selectedBreeds.containsKey(id)) {
+        selectedBreeds.remove(id);
+      } else {
+        if (selectedBreeds.length < 5) {
+          selectedBreeds[id] = breed;
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+              "Maksimal 5 ras yang dapat dipilih",
+              style: GoogleFonts.nunito(),
+            ),
+            duration: Duration(seconds: 3),
+          ));
+        }
+      }
+
+      btnNext = selectedBreeds.isNotEmpty;
+    });
+  }
 
   // search otomatis
   TextEditingController _searchController = TextEditingController();
@@ -85,7 +109,7 @@ class _ChoosePage extends State<ChoosePage> {
 
   // method untuk UI card per breed
   Widget cardBreed(Breed breed) {
-    bool isSelected = selectedBreeds.contains(breed.id);
+    bool isSelected = selectedBreeds.containsKey(breed.id);
 
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -113,16 +137,7 @@ class _ChoosePage extends State<ChoosePage> {
             ),
             trailing: TextButton.icon(
               onPressed: () {
-                setState(() {
-                  if (isSelected) {
-                    selectedBreeds.remove(breed.id);
-                  } else {
-                    if (selectedBreeds.length < 5) {
-                      selectedBreeds.add(breed.id);
-                    }
-                  }
-                  btnNext = selectedBreeds.isNotEmpty;
-                });
+                changeSelected(breed.id, breed.breed);
               },
               icon: Icon(
                 isSelected ? Icons.delete_forever_rounded : Icons.add_rounded,
@@ -256,12 +271,25 @@ class _ChoosePage extends State<ChoosePage> {
                 Row(
                   children: [
                     Expanded(
+                        child: RichText(
+                            text: TextSpan(
+                                text:
+                                    "Ras anjing dipilih: ${selectedBreeds.isNotEmpty ? selectedBreeds.values.join(", ") : '-'}",
+                                style: GoogleFonts.nunito(fontSize: 16.0))))
+                  ],
+                ),
+                SizedBox(
+                  height: 16.0,
+                ),
+                Row(
+                  children: [
+                    Expanded(
                         child: ElevatedButton(
                             onPressed: btnNext
                                 ? () async {
                                     List<String> strSelectedBreeds =
-                                        selectedBreeds
-                                            .map((i) => i.toString())
+                                        selectedBreeds.keys
+                                            .map((id) => id.toString())
                                             .toList();
                                     final prefs =
                                         await SharedPreferences.getInstance();
