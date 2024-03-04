@@ -15,6 +15,17 @@ class QuizChoosePage extends StatefulWidget {
 }
 
 class _QuizChoosePage extends State<QuizChoosePage> {
+  // Shared Preferences
+  int? idUser;
+
+  // method shared preferences role
+  void getUserID() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      idUser = prefs.getInt('id_user') ?? 0;
+    });
+  }
+
   // variable untuk menentukan sampai di pertanyaan halaman berapa user saat itu
   int currentPage = 0;
 
@@ -126,7 +137,8 @@ class _QuizChoosePage extends State<QuizChoosePage> {
         body: {
           'uuid': uuid,
           'answers': jsonEncode(answers),
-          'selBreeds': jsonEncode(selBreeds)
+          'selBreeds': jsonEncode(selBreeds),
+          'user_id': idUser
         });
 
     if (response.statusCode == 200) {
@@ -318,7 +330,9 @@ class _QuizChoosePage extends State<QuizChoosePage> {
   @override
   void initState() {
     super.initState();
+    getUserID();
     getSelectedBreeds();
+
     // inisialisation untuk page controller
     _pageController = PageController();
     fetchQuestions().then((questions) {

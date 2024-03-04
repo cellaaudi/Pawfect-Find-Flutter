@@ -15,6 +15,17 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPage extends State<QuizPage> {
+  // Shared Preferences
+  int? idUser;
+
+  // method shared preferences role
+  void getUserID() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      idUser = prefs.getInt('id_user') ?? 0;
+    });
+  }
+
   // variable untuk menentukan sampai di pertanyaan halaman berapa user saat itu
   int currentPage = 0;
 
@@ -103,19 +114,31 @@ class _QuizPage extends State<QuizPage> {
   }
 
   // method untuk kirim post jawaban user ke api
-  void postAnswers(String uuid, List<Answer> answers) async {
+  void postAnswers(List<Answer> answers) async {
     final response = await http.post(
         Uri.parse("http://localhost/ta/Pawfect-Find-PHP/answer.php"),
-        body: {'uuid': uuid, 'answers': jsonEncode(answers)});
+        body: {
+          'answersJson': jsonEncode(answers),
+          'user_id': idUser.toString()
+        });
+
+    print("test post answers");
 
     if (response.statusCode == 200) {
       Map<String, dynamic> result = jsonDecode(response.body);
+      print("test masuk code 200");
 
       if (result['result'] == 'Success') {
-        String uuid = result['uuid'];
+        print("test masuk success");
+        // String uuid = result['uuid'];
+
+        // final prefs = await SharedPreferences.getInstance();
+        // prefs.setString('quiz_uuid', uuid);
+
+        String historyId = result['history_id'].toString();
 
         final prefs = await SharedPreferences.getInstance();
-        prefs.setString('quiz_uuid', uuid);
+        prefs.setString('history_id', historyId);
 
         Navigator.pushNamed(context, "result");
       }
@@ -272,7 +295,7 @@ class _QuizPage extends State<QuizPage> {
                                   curve: Curves.easeInOut);
                             } else {
                               String uuid = generateUUID();
-                              postAnswers(uuid, userAnswers);
+                              postAnswers(userAnswers);
                             }
                           }
                         // button "Berikutnya" tidak bisa diklik karena user belum memilih jawaban
@@ -297,6 +320,8 @@ class _QuizPage extends State<QuizPage> {
   @override
   void initState() {
     super.initState();
+    getUserID();
+
     // inisialisation untuk page controller
     _pageController = PageController();
     fetchQuestions().then((questions) {

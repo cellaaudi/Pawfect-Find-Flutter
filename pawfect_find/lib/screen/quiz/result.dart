@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:pawfect_find/class/breed.dart';
 import 'package:pawfect_find/class/history.dart';
+import 'package:pawfect_find/class/recommendation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ResultPage extends StatefulWidget {
@@ -14,7 +15,14 @@ class ResultPage extends StatefulWidget {
 
 class _ResultPage extends State<ResultPage> {
   // variable untuk result quiz
-  List<History> listHistory = [];
+  List<Recommendation> listRecs = [];
+
+  // method untuk ambil history id yang baru
+  Future<String> getHistoryID() async {
+    final prefs = await SharedPreferences.getInstance();
+    String historyId = prefs.getString("history_id") ?? '';
+    return historyId;
+  }
 
   // method untuk cek quiz_uuid
   Future<String> checkQuizUUID() async {
@@ -24,15 +32,18 @@ class _ResultPage extends State<ResultPage> {
   }
 
   // method untuk fetch result dari table histories di db
-  Future<List<History>> fetchResult(String uuid) async {
+  // Future<List<History>> fetchResult(String histId) async {
+  Future<List<Recommendation>> fetchResult(String histId) async {
     final response = await http.post(
         Uri.parse("http://localhost/ta/Pawfect-Find-PHP/result.php"),
-        body: {'uuid': uuid});
+        body: {'history_id': histId});
 
     if (response.statusCode == 200) {
       Map<String, dynamic> json = jsonDecode(response.body);
-      List<History> result = List<History>.from(
-          json['data'].map((hist) => History.fromJson(hist)));
+      // List<History> result = List<History>.from(
+      //     json['data'].map((hist) => History.fromJson(hist)));
+      List<Recommendation> result = List<Recommendation>.from(
+          json['data'].map((rec) => Recommendation.fromJson(rec)));
       return result;
     } else {
       throw Exception("Failed to read API");
@@ -40,12 +51,12 @@ class _ResultPage extends State<ResultPage> {
   }
 
   // method untuk UI card result
-  Widget cardResult(History history) {
+  Widget cardResult(Recommendation recommendation) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6.0),
       child: InkWell(
         onTap: () {
-          Navigator.pushNamed(context, 'detail', arguments: { 'breed_id' : history.breed_id });
+          Navigator.pushNamed(context, 'detail', arguments: { 'breed_id' : recommendation.breed_id });
         },
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -64,12 +75,12 @@ class _ResultPage extends State<ResultPage> {
                 ),
               ),
               title: Text(
-                history.breed,
+                recommendation.breed,
                 style: GoogleFonts.nunito(
                     fontSize: 18.0, fontWeight: FontWeight.bold),
               ),
               trailing: Text(
-                "${history.cf.toStringAsFixed(2)}%",
+                "${recommendation.cf.toStringAsFixed(2)}%",
                 style: GoogleFonts.nunito(
                   fontSize: 16.0,
                 ),
@@ -83,7 +94,7 @@ class _ResultPage extends State<ResultPage> {
 
   // method untuk display body
   Widget displayResult() => FutureBuilder<String>(
-      future: checkQuizUUID(),
+      future: getHistoryID(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
@@ -91,11 +102,11 @@ class _ResultPage extends State<ResultPage> {
               child: Text('Error: ${snapshot.error}'),
             );
           } else {
-            String uuid = snapshot.data!;
+            String histId = snapshot.data!;
 
-            if (uuid.isNotEmpty) {
+            if (histId.isNotEmpty) {
               return FutureBuilder(
-                  future: fetchResult(uuid),
+                  future: fetchResult(histId),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
                       if (snapshot.hasError) {
@@ -103,13 +114,13 @@ class _ResultPage extends State<ResultPage> {
                           child: Text('Error: ${snapshot.error}'),
                         );
                       } else if (snapshot.hasData) {
-                        listHistory = snapshot.data!;
+                        listRecs = snapshot.data!;
 
                         return ListView.builder(
                             itemBuilder: (BuildContext ctxt, int index) {
-                              return cardResult(listHistory[index]);
+                              return cardResult(listRecs[index]);
                             },
-                            itemCount: listHistory.length);
+                            itemCount: listRecs.length);
                       } else {
                         return const Center(
                           child: Text('Tidak ada hasil ditemukan'),

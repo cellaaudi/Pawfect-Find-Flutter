@@ -31,6 +31,7 @@ class _LoginPage extends State<LoginPage> {
         UserDart user = UserDart.fromJson(result['data']);
 
         final prefs = await SharedPreferences.getInstance();
+        prefs.setInt('id_user', user.id);
         prefs.setInt('is_admin', user.isAdmin);
       }
     } else {
