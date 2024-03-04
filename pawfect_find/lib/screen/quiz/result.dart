@@ -24,13 +24,6 @@ class _ResultPage extends State<ResultPage> {
     return historyId;
   }
 
-  // method untuk cek quiz_uuid
-  Future<String> checkQuizUUID() async {
-    final prefs = await SharedPreferences.getInstance();
-    String quizUUID = prefs.getString("quiz_uuid") ?? '';
-    return quizUUID;
-  }
-
   // method untuk fetch result dari table histories di db
   // Future<List<History>> fetchResult(String histId) async {
   Future<List<Recommendation>> fetchResult(String histId) async {
@@ -40,8 +33,6 @@ class _ResultPage extends State<ResultPage> {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> json = jsonDecode(response.body);
-      // List<History> result = List<History>.from(
-      //     json['data'].map((hist) => History.fromJson(hist)));
       List<Recommendation> result = List<Recommendation>.from(
           json['data'].map((rec) => Recommendation.fromJson(rec)));
       return result;
@@ -56,7 +47,8 @@ class _ResultPage extends State<ResultPage> {
       padding: EdgeInsets.symmetric(vertical: 6.0),
       child: InkWell(
         onTap: () {
-          Navigator.pushNamed(context, 'detail', arguments: { 'breed_id' : recommendation.breed_id });
+          Navigator.pushNamed(context, 'detail',
+              arguments: {'breed_id': recommendation.breed_id});
         },
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -154,8 +146,15 @@ class _ResultPage extends State<ResultPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leading: Icon(Icons.arrow_back_ios_new_rounded),
-          title: const Text('Hasil Rekomendasi'),
+          leading: IconButton(
+              onPressed: () =>
+                  Navigator.popUntil(context, (route) => route.isFirst),
+              icon: Icon(Icons.arrow_back_ios_new_rounded)),
+          title: Text(
+            'Hasil Rekomendasi',
+            style:
+                GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w800),
+          ),
         ),
         body: Padding(
           padding: EdgeInsets.all(16.0),

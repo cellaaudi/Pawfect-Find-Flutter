@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 import 'package:pawfect_find/class/answer.dart';
 import 'package:pawfect_find/class/question.dart';
 
@@ -108,12 +107,6 @@ class _QuizChoosePage extends State<QuizChoosePage> {
         });
   }
 
-  // method untuk generate uuid
-  String generateUUID() {
-    var uuid = Uuid();
-    return uuid.v4();
-  }
-
   // method untuk fetch questions dari db
   Future<List<Question>> fetchQuestions() async {
     final response = await http
@@ -130,25 +123,23 @@ class _QuizChoosePage extends State<QuizChoosePage> {
   }
 
   // method untuk kirim post jawaban user ke api
-  void postAnswers(
-      String uuid, List<Answer> answers, List<int> selBreeds) async {
+  void postAnswers(List<Answer> answers, List<int> selBreeds) async {
     final response = await http.post(
         Uri.parse("http://localhost/ta/Pawfect-Find-PHP/answer_afchoose.php"),
         body: {
-          'uuid': uuid,
-          'answers': jsonEncode(answers),
+          'answersJson': jsonEncode(answers),
           'selBreeds': jsonEncode(selBreeds),
-          'user_id': idUser
+          'user_id': idUser.toString()
         });
 
     if (response.statusCode == 200) {
       Map<String, dynamic> result = jsonDecode(response.body);
 
       if (result['result'] == 'Success') {
-        String uuid = result['uuid'];
+        String historyId = result['history_id'].toString();
 
         final prefs = await SharedPreferences.getInstance();
-        prefs.setString('quiz_uuid', uuid);
+        prefs.setString('history_id', historyId);
 
         Navigator.pushNamed(context, "result");
       }
@@ -304,8 +295,7 @@ class _QuizChoosePage extends State<QuizChoosePage> {
                                   duration: Duration(milliseconds: 300),
                                   curve: Curves.easeInOut);
                             } else {
-                              String uuid = generateUUID();
-                              postAnswers(uuid, userAnswers, selectedBreeds);
+                              postAnswers(userAnswers, selectedBreeds);
                             }
                           }
                         // button "Berikutnya" tidak bisa diklik karena user belum memilih jawaban

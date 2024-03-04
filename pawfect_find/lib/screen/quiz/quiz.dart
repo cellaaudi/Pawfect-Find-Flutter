@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 import 'package:pawfect_find/class/answer.dart';
 import 'package:pawfect_find/class/question.dart';
 
@@ -92,12 +91,6 @@ class _QuizPage extends State<QuizPage> {
         });
   }
 
-  // method untuk generate uuid
-  String generateUUID() {
-    var uuid = Uuid();
-    return uuid.v4();
-  }
-
   // method untuk fetch questions dari db
   Future<List<Question>> fetchQuestions() async {
     final response = await http
@@ -122,19 +115,10 @@ class _QuizPage extends State<QuizPage> {
           'user_id': idUser.toString()
         });
 
-    print("test post answers");
-
     if (response.statusCode == 200) {
       Map<String, dynamic> result = jsonDecode(response.body);
-      print("test masuk code 200");
 
       if (result['result'] == 'Success') {
-        print("test masuk success");
-        // String uuid = result['uuid'];
-
-        // final prefs = await SharedPreferences.getInstance();
-        // prefs.setString('quiz_uuid', uuid);
-
         String historyId = result['history_id'].toString();
 
         final prefs = await SharedPreferences.getInstance();
@@ -294,7 +278,6 @@ class _QuizPage extends State<QuizPage> {
                                   duration: Duration(milliseconds: 300),
                                   curve: Curves.easeInOut);
                             } else {
-                              String uuid = generateUUID();
                               postAnswers(userAnswers);
                             }
                           }
