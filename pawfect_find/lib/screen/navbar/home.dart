@@ -2,9 +2,25 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:pawfect_find/class/history.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _HomePage();
+}
+
+class _HomePage extends State<HomePage> {
   double cardHeight = 130.0;
+
+  // method fetch histories
+  // Future<List<History>> fetchHistory(int idUser) async {
+  //   final response = await http.post(
+  //       Uri.parse("http://localhost/ta/Pawfect-Find-PHP/result.php"),
+  //       body: {'id': idUser});
+
+  //   if (response.statusCode == 200) {}
+  // }
 
   // method untuk UI card
   Widget displayCard(
@@ -128,6 +144,40 @@ class HomePage extends StatelessWidget {
                           ]),
                         )))
               ]),
+              SizedBox(
+                height: 16.0,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                      child: Card(
+                    elevation: 8,
+                    shadowColor: Colors.grey.shade50,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                "Riwayat",
+                                style: GoogleFonts.nunito(
+                                    fontSize: 20, fontWeight: FontWeight.w800),
+                              )
+                            ],
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ))
+                ],
+              )
             ],
           ),
         ),

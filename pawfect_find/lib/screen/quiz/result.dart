@@ -47,7 +47,9 @@ class _ResultPage extends State<ResultPage> {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6.0),
       child: InkWell(
-        onTap: () {
+        onTap: () async{
+          final prefs = await SharedPreferences.getInstance();
+          // prefs.setString('user_answer', recommendation.a)
           Navigator.pushNamed(context, 'detail',
               arguments: {'breed_id': recommendation.breed_id});
         },

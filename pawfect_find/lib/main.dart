@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pawfect_find/screen/auth/login.dart';
 import 'package:pawfect_find/screen/detail/detail.dart';
+import 'package:pawfect_find/screen/detail/detail_afquiz.dart';
 import 'package:pawfect_find/screen/navbar/breed.dart';
 import 'package:pawfect_find/screen/navbar/home.dart';
 import 'package:pawfect_find/screen/navbar/settings.dart';
@@ -86,6 +87,7 @@ class MyApp extends StatelessWidget {
         'choose': (context) => ChoosePage(),
         'quiz_choices': (context) => QuizChoosePage(),
         'result': (context) => ResultPage(),
+        'detail_afquiz': (context) => DetailQuizPage(),
       },
     );
   }
