@@ -13,6 +13,7 @@ class Breed {
   final String attention;
   final String imgPuppy;
   final String imgAdult;
+  final List<dynamic>? criterias;
 
   Breed({
     required this.id,
@@ -29,6 +30,7 @@ class Breed {
     required this.attention,
     required this.imgPuppy,
     required this.imgAdult,
+    this.criterias,
   });
 
   factory Breed.fromJson(Map<String, dynamic> json) {
@@ -47,6 +49,7 @@ class Breed {
       attention: json['attention'] as String,
       imgPuppy: json['img_puppy'] as String,
       imgAdult: json['img_adult'] as String,
+      criterias: json['criterias'] as List<dynamic>?,
       );
   }
 }

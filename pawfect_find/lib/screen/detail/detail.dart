@@ -73,8 +73,7 @@ class _DetailPage extends State<DetailPage> {
             ),
           )
         ],
-      )
-      );
+      ));
 
   // method untuk build body
   Widget displayBody(int breed_id) => SingleChildScrollView(
@@ -104,7 +103,9 @@ class _DetailPage extends State<DetailPage> {
                           imgDog(breed.imgAdult, "dewasa", breed.breed)
                         ],
                       ),
-                      const SizedBox(height: 16.0,),
+                      const SizedBox(
+                        height: 16.0,
+                      ),
                       Text(
                         breed.breed.toString(),
                         style: GoogleFonts.nunito(
@@ -180,6 +181,17 @@ class _DetailPage extends State<DetailPage> {
                         style: GoogleFonts.nunito(
                             fontSize: 16.0, fontWeight: FontWeight.w600),
                       ),
+                      const SizedBox(height: 12.0),
+                      Text(
+                        'Kriteria',
+                        style: GoogleFonts.nunito(fontSize: 12.0),
+                      ),
+                      for (var c in breed.criterias!)
+                        Text(
+                          " - ${c['criteria']}",
+                          style: GoogleFonts.nunito(
+                              fontSize: 16.0, fontWeight: FontWeight.w600),
+                        )
                     ],
                   ),
                 );
