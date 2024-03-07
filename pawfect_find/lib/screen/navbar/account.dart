@@ -100,6 +100,12 @@ class _AccountPage extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Akun",
+          style: GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w800),
+        ),
+      ),
       body: buildBody(),
     );
   }

@@ -6,6 +6,7 @@ import 'package:pawfect_find/screen/auth/login.dart';
 import 'package:pawfect_find/screen/detail/detail.dart';
 import 'package:pawfect_find/screen/detail/detail_afquiz.dart';
 import 'package:pawfect_find/screen/navbar/breed.dart';
+import 'package:pawfect_find/screen/navbar/history.dart';
 import 'package:pawfect_find/screen/navbar/home.dart';
 import 'package:pawfect_find/screen/navbar/account.dart';
 import 'package:pawfect_find/screen/quiz/choose.dart';
@@ -81,13 +82,12 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         'login': (context) => LoginPage(),
-        'breed': (context) => BreedPage(),
-        'detail': (context) => DetailPage(),
         'quiz': (context) => QuizPage(),
         'choose': (context) => ChoosePage(),
         'quiz_choices': (context) => QuizChoosePage(),
         'result': (context) => ResultPage(),
         'detail_afquiz': (context) => DetailQuizPage(),
+        'detail': (context) => DetailPage(),
       },
     );
   }
@@ -107,11 +107,13 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _screens = [
     HomePage(),
     BreedPage(),
+    HistoryPage(),
     AccountPage()
   ];
 
   Widget navbar() {
     return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
       currentIndex: _currentIndex,
       fixedColor: Colors.blue,
       items: [
@@ -121,6 +123,8 @@ class _MyHomePageState extends State<MyHomePage> {
           label: "Ras Anjing",
           icon: Icon(Icons.pets_rounded),
         ),
+        BottomNavigationBarItem(
+            label: "Riwayat", icon: Icon(Icons.history_rounded)),
         BottomNavigationBarItem(
             label: "Akun", icon: Icon(Icons.account_circle_rounded)),
       ],

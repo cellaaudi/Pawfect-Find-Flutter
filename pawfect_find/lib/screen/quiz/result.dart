@@ -22,7 +22,7 @@ class _ResultPage extends State<ResultPage> {
   // method untuk ambil history id yang baru
   Future<String> getHistoryID() async {
     final prefs = await SharedPreferences.getInstance();
-    String historyId = prefs.getString("history_id") ?? '';
+    String historyId = prefs.getString("id_history") ?? '';
     return historyId;
   }
 

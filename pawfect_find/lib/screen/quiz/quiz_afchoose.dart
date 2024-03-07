@@ -139,7 +139,7 @@ class _QuizChoosePage extends State<QuizChoosePage> {
         String historyId = result['history_id'].toString();
 
         final prefs = await SharedPreferences.getInstance();
-        prefs.setString('history_id', historyId);
+        prefs.setString('id_history', historyId);
 
         Navigator.pushNamed(context, "result");
       }
