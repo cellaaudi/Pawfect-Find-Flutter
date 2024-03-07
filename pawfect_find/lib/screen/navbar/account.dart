@@ -4,12 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingsPage extends StatefulWidget {
+class AccountPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _SettingsPage();
+  State<StatefulWidget> createState() => _AccountPage();
 }
 
-class _SettingsPage extends State<SettingsPage> {
+class _AccountPage extends State<AccountPage> {
   // Firebase
   late FirebaseAuth auth;
 
@@ -72,7 +72,7 @@ class _SettingsPage extends State<SettingsPage> {
                   child: OutlinedButton(
                       onPressed: () async {
                         final prefs = await SharedPreferences.getInstance();
-                        prefs.remove('is_admin');
+                        prefs.clear();
 
                         await GoogleSignIn().signOut();
                         FirebaseAuth.instance.signOut();

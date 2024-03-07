@@ -7,7 +7,7 @@ import 'package:pawfect_find/screen/detail/detail.dart';
 import 'package:pawfect_find/screen/detail/detail_afquiz.dart';
 import 'package:pawfect_find/screen/navbar/breed.dart';
 import 'package:pawfect_find/screen/navbar/home.dart';
-import 'package:pawfect_find/screen/navbar/settings.dart';
+import 'package:pawfect_find/screen/navbar/account.dart';
 import 'package:pawfect_find/screen/quiz/choose.dart';
 import 'package:pawfect_find/screen/quiz/quiz.dart';
 import 'package:pawfect_find/screen/quiz/result.dart';
@@ -107,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _screens = [
     HomePage(),
     BreedPage(),
-    SettingsPage()
+    AccountPage()
   ];
 
   Widget navbar() {
@@ -122,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
           icon: Icon(Icons.pets_rounded),
         ),
         BottomNavigationBarItem(
-            label: "Pengaturan", icon: Icon(Icons.settings_rounded)),
+            label: "Akun", icon: Icon(Icons.account_circle_rounded)),
       ],
       onTap: (int index) {
         setState(() {
