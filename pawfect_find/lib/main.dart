@@ -44,6 +44,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.all(16),
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
                 shape: const RoundedRectangleBorder(
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
           ),
           outlinedButtonTheme: OutlinedButtonThemeData(
             style: OutlinedButton.styleFrom(
+                padding: EdgeInsets.all(16),
                 side: const BorderSide(
                   color: Colors.blue,
                   width: 1.3,

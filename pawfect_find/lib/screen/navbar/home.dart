@@ -100,6 +100,7 @@ class _HomePage extends State<HomePage> {
               Expanded(
                   child: Card(
                       elevation: 8,
+                      color: Colors.white,
                       shadowColor: Colors.grey.shade50,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
@@ -111,7 +112,7 @@ class _HomePage extends State<HomePage> {
                               Text(
                                 "Rekomendasi",
                                 style: GoogleFonts.nunito(
-                                    fontSize: 18, fontWeight: FontWeight.w800),
+                                    fontSize: 18, fontWeight: FontWeight.w800,),
                               )
                             ],
                           ),
@@ -153,6 +154,50 @@ class _HomePage extends State<HomePage> {
             SizedBox(
               height: 16.0,
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                    child: Card(
+                        color: Colors.red,
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "PERHATIAN",
+                                    style: GoogleFonts.nunito(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white),
+                                  )
+                                ],
+                              ),
+                              Divider(color: Colors.white),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                      child: RichText(
+                                          text: TextSpan(
+                                              text:
+                                                  "Hasil rekomendasi yang diberikan hanya sebagai bantuan pertama bagimu untuk menentukan ras anjing yang akan dipelihara.",
+                                              style: GoogleFonts.nunito(
+                                                  fontSize: 16,
+                                                  color: Colors.white))))
+                                ],
+                              )
+                            ],
+                          ),
+                        )))
+              ],
+            )
           ],
         ),
       ));

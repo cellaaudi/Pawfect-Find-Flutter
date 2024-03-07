@@ -24,66 +24,160 @@ class _AccountPage extends State<AccountPage> {
     });
   }
 
+  // method logout msg
+  Future<void> _logoutMsg(BuildContext context) async => showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+          title: Text(
+            'Konfirmasi Keluar',
+            style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+          ),
+          content: Text(
+            'Apakah kamu yakin ingin keluar?',
+            style: GoogleFonts.nunito(fontSize: 16.0),
+          ),
+          actions: <Widget>[
+            TextButton(
+                style: TextButton.styleFrom(
+                    textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Batal',
+                  style: GoogleFonts.nunito(),
+                )),
+            TextButton(
+                onPressed: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  prefs.clear();
+
+                  await GoogleSignIn().signOut();
+                  FirebaseAuth.instance.signOut();
+
+                  Navigator.pop(context);
+                },
+                style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                child: Text(
+                  'Keluar',
+                  style: GoogleFonts.nunito(),
+                ))
+          ],
+        );
+      });
+
+  // method button admin
+  Widget btnAdmin(String title) => InkWell(
+      onTap: () {},
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        child: Row(
+          children: [
+            Text(
+              title,
+              style: GoogleFonts.nunito(fontSize: 16),
+            )
+          ],
+        ),
+      ));
+
   // method untuk build body
   Widget buildBody() {
     User? user = auth.currentUser;
 
-    return Padding(
+    return SingleChildScrollView(
       padding: EdgeInsets.all(16.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                  child: Card(
-                      elevation: 8.0,
-                      shadowColor: Colors.grey.shade50,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0)),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          radius: 50.0,
-                          child: ClipOval(
-                            child: Image.network(user?.photoURL ?? ""),
-                          ),
+                  child: ListTile(
+                leading: FittedBox(
+                  fit: BoxFit.cover,
+                  child: Container(
+                      height: 128.0,
+                      width: 128.0,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.network(
+                          user?.photoURL ?? "",
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, trace) {
+                            return Image.asset(
+                              "assets/logos/logo-black.png",
+                              fit: BoxFit.cover,
+                            );
+                          },
                         ),
-                        title: Text(
-                          user?.displayName ?? "Nama",
-                          style: GoogleFonts.nunito(
-                              fontSize: 20.0, fontWeight: FontWeight.w800),
-                        ),
-                        subtitle: Text(
-                          user?.email ?? "email@gmail.com",
-                          style: GoogleFonts.nunito(fontSize: 16.0),
-                        ),
-                        trailing: Text(
-                          isAdmin == 1 ? "Admin" : "User",
-                          style: GoogleFonts.nunito(fontSize: 12.0),
-                        ),
-                      ))),
+                      )),
+                ),
+                title: Text(
+                  user?.displayName ?? "Nama",
+                  style: GoogleFonts.nunito(
+                      fontSize: 20.0, fontWeight: FontWeight.w800),
+                ),
+                subtitle: Text(
+                  user?.email ?? "email@gmail.com",
+                  style: GoogleFonts.nunito(fontSize: 16.0),
+                ),
+                trailing: Text(
+                  isAdmin == 1 ? "Admin" : "User",
+                  style: GoogleFonts.nunito(fontSize: 12.0),
+                ),
+              )),
             ],
           ),
-          Row(
-            children: [
-              Expanded(
-                  child: OutlinedButton(
-                      onPressed: () async {
-                        final prefs = await SharedPreferences.getInstance();
-                        prefs.clear();
-
-                        await GoogleSignIn().signOut();
-                        FirebaseAuth.instance.signOut();
-                      },
-                      child: Text(
-                        'Keluar',
-                        style: GoogleFonts.nunito(
-                            fontSize: 16.0, color: Colors.red),
-                      )))
-            ],
-          )
+          SizedBox(
+            height: 24,
+          ),
+          Visibility(
+              visible: isAdmin == 1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                      child: Card(
+                          elevation: 8,
+                          color: Colors.white,
+                          shadowColor: Colors.grey.shade50,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Pengaturan Data",
+                                      style: GoogleFonts.nunito(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Divider(),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                btnAdmin("Ras Anjing"),
+                                btnAdmin("Kriteria"),
+                                btnAdmin("Aturan"),
+                                btnAdmin("Pertanyaan"),
+                                btnAdmin("Pilihan Jawaban"),
+                              ],
+                            ),
+                          )))
+                ],
+              )),
         ],
       ),
     );
@@ -105,6 +199,16 @@ class _AccountPage extends State<AccountPage> {
           "Akun",
           style: GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w800),
         ),
+        actions: [
+          IconButton(
+            onPressed: () async => await _logoutMsg(context),
+            icon: Icon(Icons.logout_rounded),
+            tooltip: "Keluar",
+            style: IconButton.styleFrom(
+              foregroundColor: Colors.red
+            ),
+          )
+        ],
       ),
       body: buildBody(),
     );
