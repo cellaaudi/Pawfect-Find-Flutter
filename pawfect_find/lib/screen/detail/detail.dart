@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:pawfect_find/class/breed.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailPage extends StatefulWidget {
   @override
@@ -11,18 +12,34 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPage extends State<DetailPage> {
-  // method untuk ambil data breed dari database
-  Future<Breed> fetchBreed(int breed_id) async {
-    final response = await http.post(
-        Uri.parse("http://localhost/ta/Pawfect-Find-PHP/detail.php"),
-        body: {'breed_id': breed_id.toString()});
+  // Shared Preferences
+  int idBreed = 0;
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> json = jsonDecode(response.body);
-      Breed result = Breed.fromJson(json['data']);
-      return result;
-    } else {
-      throw Exception("Failed to read API");
+  // method shared preferences id breed
+  void getBreedID() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      idBreed = prefs.getInt('id_breed') ?? 0;
+    });
+  }
+
+  // method untuk ambil data breed dari database
+  Future<Breed> fetchBreed() async {
+    try {
+      final response = await http.post(
+          Uri.parse("http://localhost/ta/Pawfect-Find-PHP/detail.php"),
+          body: {'breed_id': idBreed.toString()});
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
+        Breed result = Breed.fromJson(json['data']);
+
+        return result;
+      } else {
+        throw Exception("Gagal menampilkan detail ras anjing.");
+      }
+    } catch (ex) {
+      throw Exception("Terjadi kesalahan: $ex");
     }
   }
 
@@ -76,9 +93,10 @@ class _DetailPage extends State<DetailPage> {
       ));
 
   // method untuk build body
-  Widget displayBody(int breed_id) => SingleChildScrollView(
+  Widget displayBody() => SingleChildScrollView(
+      padding: EdgeInsets.all(16),
       child: FutureBuilder<Breed>(
-          future: fetchBreed(breed_id),
+          future: fetchBreed(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasError) {
@@ -88,9 +106,7 @@ class _DetailPage extends State<DetailPage> {
               } else if (snapshot.hasData) {
                 Breed breed = snapshot.data!;
 
-                return Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
+                return Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -192,9 +208,7 @@ class _DetailPage extends State<DetailPage> {
                           style: GoogleFonts.nunito(
                               fontSize: 16.0, fontWeight: FontWeight.w600),
                         )
-                    ],
-                  ),
-                );
+                    ]);
               } else {
                 return const Center(
                   child: Text('Tidak ada hasil ditemukan'),
@@ -208,14 +222,22 @@ class _DetailPage extends State<DetailPage> {
           }));
 
   @override
-  Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as Map<String, int>;
+  void initState() {
+    super.initState();
 
+    getBreedID();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded),
-            onPressed: () {
+            onPressed: () async {
+              final prefs = await SharedPreferences.getInstance();
+              prefs.remove('id_breed');
+
               Navigator.pop(context);
             }),
         title: Text(
@@ -225,12 +247,7 @@ class _DetailPage extends State<DetailPage> {
         ),
       ),
       body: Center(
-        child: displayBody(args['breed_id']!),
-        // child: args != null
-        //     ? displayBody(args['breed_id']!)
-        //     : Center(
-        //         child: Text('Terjadi kesalahan, silahkan coba lagi'),
-        //       ),
+        child: displayBody(),
       ),
     );
   }

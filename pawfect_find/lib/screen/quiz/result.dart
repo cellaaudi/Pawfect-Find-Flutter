@@ -43,51 +43,39 @@ class _ResultPage extends State<ResultPage> {
   }
 
   // method untuk UI card result
-  Widget cardResult(Recommendation recommendation) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 6.0),
-      child: InkWell(
-        onTap: () async{
-          final prefs = await SharedPreferences.getInstance();
-          // prefs.setString('user_answer', recommendation.a)
-          Navigator.pushNamed(context, 'detail',
-              arguments: {'breed_id': recommendation.breed_id});
-        },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ListTile(
-              leading: FittedBox(
-                fit: BoxFit.cover,
-                child: Container(
-                    height: 128.0,
-                    width: 128.0,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.network(
-                        "http://localhost/ta/Pawfect-Find-PHP/${recommendation.imgAdult}",
-                        fit: BoxFit.cover,
-                      ),
-                    )),
-              ),
-              title: Text(
-                recommendation.breed,
-                style: GoogleFonts.nunito(
-                    fontSize: 18.0, fontWeight: FontWeight.bold),
-              ),
-              trailing: Text(
-                "${recommendation.cf.toStringAsFixed(2)}%",
-                style: GoogleFonts.nunito(
-                  fontSize: 16.0,
+  Widget cardResult(Recommendation recommendation) => InkWell(
+      onTap: () async {
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setInt('id_breed', recommendation.breed_id);
+        
+        Navigator.pushNamed(context, 'detail');
+      },
+      child: ListTile(
+        leading: FittedBox(
+          fit: BoxFit.cover,
+          child: Container(
+              height: 128.0,
+              width: 128.0,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.network(
+                  "http://localhost/ta/Pawfect-Find-PHP/${recommendation.imgAdult}",
+                  fit: BoxFit.cover,
                 ),
-              ),
-            )
-          ],
+              )),
         ),
-      ),
-    );
-  }
+        title: Text(
+          recommendation.breed,
+          style:
+              GoogleFonts.nunito(fontSize: 18.0, fontWeight: FontWeight.bold),
+        ),
+        trailing: Text(
+          "${recommendation.cf.toStringAsFixed(2)}%",
+          style: GoogleFonts.nunito(
+            fontSize: 16.0,
+          ),
+        ),
+      ));
 
   // method untuk display body
   Widget displayResult() => FutureBuilder<String>(
@@ -119,15 +107,22 @@ class _ResultPage extends State<ResultPage> {
                           max = int.parse(dropdownValue);
                         }
 
-                        return ListView.builder(
-                            itemBuilder: (BuildContext ctxt, int index) {
-                              if (index < max) {
-                                return cardResult(listRecs[index]);
-                              } else {
-                                return SizedBox.shrink();
-                              }
-                            },
-                            itemCount: listRecs.length > max ?  max : listRecs.length);
+                        return ListView.separated(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemBuilder: (BuildContext ctxt, int index) {
+                            if (index < max) {
+                              return cardResult(listRecs[index]);
+                            } else {
+                              return SizedBox.shrink();
+                            }
+                          },
+                          itemCount:
+                              listRecs.length > max ? max : listRecs.length,
+                          separatorBuilder: (context, index) {
+                            return Divider();
+                          },
+                        );
                       } else {
                         return const Center(
                           child: Text('Tidak ada hasil ditemukan'),
@@ -162,8 +157,12 @@ class _ResultPage extends State<ResultPage> {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-              onPressed: () =>
-                  Navigator.popUntil(context, (route) => route.isFirst),
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                prefs.remove('id_history');
+
+                Navigator.popUntil(context, (route) => route.isFirst);
+              },
               icon: Icon(Icons.arrow_back_ios_new_rounded)),
           title: Text(
             'Hasil Rekomendasi',
@@ -171,10 +170,11 @@ class _ResultPage extends State<ResultPage> {
                 GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w800),
           ),
         ),
-        body: Center(
+        body: Align(
+          alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 500.0),
-            child: Padding(
+            child: SingleChildScrollView(
               padding: EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,7 +229,7 @@ class _ResultPage extends State<ResultPage> {
                   SizedBox(
                     height: 8.0,
                   ),
-                  Expanded(child: displayResult())
+                  displayResult()
                 ],
               ),
             ),
