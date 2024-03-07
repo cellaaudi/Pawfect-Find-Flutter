@@ -29,11 +29,11 @@ class _BreedIndexPage extends State<BreedIndexPage> {
     if (response.statusCode == 200) {
       Map<String, dynamic> json = jsonDecode(response.body);
 
-      List<Breed> breeds = List<Breed>.from(
-        json['data'].map((breed) => Breed.fromJson(breed)),
+      List<Breed> datas = List<Breed>.from(
+        json['data'].map((data) => Breed.fromJson(data)),
       );
 
-      return breeds;
+      return datas;
     } else {
       throw Exception("Gagal menampilkan data ras anjing.");
     }
