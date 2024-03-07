@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pawfect_find/screen/admin/breed/breedindex.dart';
+import 'package:pawfect_find/screen/admin/criteria/criteriaindex.dart';
 import 'package:pawfect_find/screen/auth/login.dart';
 import 'package:pawfect_find/screen/detail/detail.dart';
 import 'package:pawfect_find/screen/detail/detail_afquiz.dart';
@@ -90,6 +92,10 @@ class MyApp extends StatelessWidget {
         'result': (context) => ResultPage(),
         'detail_afquiz': (context) => DetailQuizPage(),
         'detail': (context) => DetailPage(),
+
+        // admin only
+        'breed_index': (context) => BreedIndexPage(),
+        'criteria_index': (context) => CriteriaIndexPage(),
       },
     );
   }

@@ -47,7 +47,7 @@ class _ResultPage extends State<ResultPage> {
       onTap: () async {
         final prefs = await SharedPreferences.getInstance();
         prefs.setInt('id_breed', recommendation.breed_id);
-        
+
         Navigator.pushNamed(context, 'detail');
       },
       child: ListTile(
@@ -84,7 +84,10 @@ class _ResultPage extends State<ResultPage> {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
             return Center(
-              child: Text('Error: ${snapshot.error}'),
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: GoogleFonts.nunito(fontSize: 16),
+              ),
             );
           } else {
             String histId = snapshot.data!;

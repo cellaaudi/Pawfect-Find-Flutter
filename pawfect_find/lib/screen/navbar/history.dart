@@ -67,7 +67,7 @@ class _HistoryPage extends State<HistoryPage> {
       );
 
   // method untuk tile history
-  Widget tileHistory(History history, int index) => InkWell(
+  Widget tileHistory(History history) => InkWell(
       onTap: () async {
         final prefs = await SharedPreferences.getInstance();
         prefs.setString('id_history', history.id.toString());
@@ -137,7 +137,7 @@ class _HistoryPage extends State<HistoryPage> {
                     itemBuilder: (context, index) {
                       History history = histories[index];
 
-                      return tileHistory(history, index);
+                      return tileHistory(history);
                     },
                     separatorBuilder: (context, index) {
                       return Divider();

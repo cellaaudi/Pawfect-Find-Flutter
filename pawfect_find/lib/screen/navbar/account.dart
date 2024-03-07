@@ -70,8 +70,8 @@ class _AccountPage extends State<AccountPage> {
       });
 
   // method button admin
-  Widget btnAdmin(String title) => InkWell(
-      onTap: () {},
+  Widget btnAdmin(String title, String route) => InkWell(
+      onTap: () => Navigator.pushNamed(context, route),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         child: Row(
@@ -168,11 +168,11 @@ class _AccountPage extends State<AccountPage> {
                                 SizedBox(
                                   height: 8,
                                 ),
-                                btnAdmin("Ras Anjing"),
-                                btnAdmin("Kriteria"),
-                                btnAdmin("Aturan"),
-                                btnAdmin("Pertanyaan"),
-                                btnAdmin("Pilihan Jawaban"),
+                                btnAdmin("Ras Anjing", "breed_index"),
+                                btnAdmin("Kriteria", "criteria_index"),
+                                btnAdmin("Aturan", "rule_index"),
+                                btnAdmin("Kuis", "quiz_index"),
+                                // btnAdmin("Pilihan Jawaban"),
                               ],
                             ),
                           )))
