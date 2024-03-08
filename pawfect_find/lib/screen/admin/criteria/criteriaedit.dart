@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CriteriaEditPage extends StatefulWidget {
   const CriteriaEditPage({super.key});
@@ -21,41 +22,62 @@ class _CriteriaEditPage extends State<CriteriaEditPage> {
   // variable input
   String? criteria;
 
+  // Shared Preferences
+  int idCriteria = 0;
+
+  // method ambil id criteria
+  void getCriteriaID() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      idCriteria = prefs.getInt('id_criteria') ?? 0;
+      criteria = prefs.getString('str_criteria') ?? '';
+    });
+
+    _criteriaController.text = criteria ?? "";
+    setState(() {
+      isDis = _criteriaController.text.isEmpty;
+    });
+  }
+
   // method tambah data
-  void addData(String criteria) async {
+  void editData(String criteria) async {
     final response = await http.post(
         Uri.parse(
-            'http://localhost/ta/Pawfect-Find-PHP/admin/criteria_add.php'),
-        body: {'criteria': criteria});
+            'http://localhost/ta/Pawfect-Find-PHP/admin/criteria_edit.php'),
+        body: {'id': idCriteria.toString(), 'criteria': criteria});
 
     if (response.statusCode == 200) {
       Map<String, dynamic> json = jsonDecode(response.body);
 
       if (json['result'] == "Success") {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Berhasil menambahkan data baru."),
+          content: Text("Berhasil memperbarui data."),
           duration: Duration(seconds: 3),
         ));
+
+        final prefs = await SharedPreferences.getInstance();
+        prefs.remove('id_criteria');
+        prefs.remove('str_criteria');
 
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Gagal menambahkan data baru."),
+          content: Text("Gagal memperbarui data."),
           duration: Duration(seconds: 3),
         ));
-        throw Exception("Gagal menambahkan data baru.");
+        throw Exception("Gagal memperbarui data.");
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Gagal menambahkan data baru."),
+        content: Text("Gagal memperbarui data."),
         duration: Duration(seconds: 3),
       ));
-      throw Exception("Gagal menambahkan data baru.");
+      throw Exception("Gagal memperbarui data.");
     }
   }
 
   // method back message
-  void _backMessage() => showDialog<void>(
+  void _backMessage() async => showDialog<void>(
       context: context,
       builder: (BuildContext ctxt) {
         return AlertDialog(
@@ -79,8 +101,14 @@ class _CriteriaEditPage extends State<CriteriaEditPage> {
                   style: GoogleFonts.nunito(),
                 )),
             TextButton(
-                onPressed: () => Navigator.popUntil(
-                    context, ModalRoute.withName('criteria_index')),
+                onPressed: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  prefs.remove('id_criteria');
+                  prefs.remove('str_criteria');
+
+                  Navigator.popUntil(
+                      context, ModalRoute.withName('criteria_index'));
+                },
                 style: TextButton.styleFrom(
                     foregroundColor: Colors.red,
                     textStyle: TextStyle(fontWeight: FontWeight.w600)),
@@ -128,7 +156,7 @@ class _CriteriaEditPage extends State<CriteriaEditPage> {
               children: [
                 Expanded(
                     child: ElevatedButton(
-                        onPressed: isDis ? null : () => addData(criteria!),
+                        onPressed: isDis ? null : () => editData(criteria!),
                         child: Text(
                           "Simpan",
                           style: GoogleFonts.nunito(fontSize: 16),
@@ -138,6 +166,13 @@ class _CriteriaEditPage extends State<CriteriaEditPage> {
           ],
         ),
       );
+
+  @override
+  void initState() {
+    super.initState();
+
+    getCriteriaID();
+  }
 
   @override
   Widget build(BuildContext context) {

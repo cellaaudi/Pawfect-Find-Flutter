@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:pawfect_find/class/criteria.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CriteriaIndexPage extends StatefulWidget {
   const CriteriaIndexPage({super.key});
@@ -49,7 +50,14 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              onPressed: () {},
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                prefs.setInt('id_criteria', data.id);
+                prefs.setString('str_criteria', data.criteria);
+
+                Navigator.pushNamed(context, 'criteria_edit')
+                    .then((value) => _refresh());
+              },
               icon: Icon(Icons.edit_rounded),
               tooltip: "Perbarui data",
               style: IconButton.styleFrom(foregroundColor: Colors.blue),
