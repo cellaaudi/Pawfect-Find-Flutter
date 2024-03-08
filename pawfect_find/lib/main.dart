@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pawfect_find/screen/admin/breed/breedindex.dart';
 import 'package:pawfect_find/screen/admin/criteria/criteriaadd.dart';
+import 'package:pawfect_find/screen/admin/criteria/criteriaedit.dart';
 import 'package:pawfect_find/screen/admin/criteria/criteriaindex.dart';
 import 'package:pawfect_find/screen/admin/rule/ruleindex.dart';
 import 'package:pawfect_find/screen/auth/login.dart';
@@ -99,6 +100,7 @@ class MyApp extends StatelessWidget {
         'breed_index': (context) => BreedIndexPage(),
         'criteria_index': (context) => CriteriaIndexPage(),
         'criteria_add': (context) => CriteriaAddPage(),
+        'criteria_edit': (context) => CriteriaEditPage(),
         'rule_index': (context) => RuleIndexPage(),
       },
     );

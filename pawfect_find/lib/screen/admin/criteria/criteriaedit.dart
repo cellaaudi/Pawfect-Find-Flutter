@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
-class CriteriaAddPage extends StatefulWidget {
-  const CriteriaAddPage({super.key});
+class CriteriaEditPage extends StatefulWidget {
+  const CriteriaEditPage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _CriteriaAddPage();
+  State<StatefulWidget> createState() => _CriteriaEditPage();
 }
 
-class _CriteriaAddPage extends State<CriteriaAddPage> {
+class _CriteriaEditPage extends State<CriteriaEditPage> {
   // controller input
   TextEditingController _criteriaController = TextEditingController();
 
@@ -156,7 +156,7 @@ class _CriteriaAddPage extends State<CriteriaAddPage> {
               onPressed: () => _backMessage(),
             ),
             title: Text(
-              "Tambah Kriteria",
+              "Perbarui Kriteria",
               style:
                   GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w800),
             ),

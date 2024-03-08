@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:pawfect_find/class/rule.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class RuleIndexPage extends StatefulWidget {
   const RuleIndexPage({super.key});
