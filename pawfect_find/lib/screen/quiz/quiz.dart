@@ -128,8 +128,8 @@ class _QuizPage extends State<QuizPage> {
       }
     } else {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error')));
-      throw Exception('Gagal mendapatkan hasil');
+          .showSnackBar(SnackBar(content: Text('Gagal mengirim jawaban')));
+      throw Exception('Gagal mengirim jawaban');
     }
   }
 

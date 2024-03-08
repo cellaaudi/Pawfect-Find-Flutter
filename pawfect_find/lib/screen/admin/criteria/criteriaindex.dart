@@ -14,6 +14,9 @@ class CriteriaIndexPage extends StatefulWidget {
 }
 
 class _CriteriaIndexPage extends State<CriteriaIndexPage> {
+  // method refresh
+  void _refresh() => setState(() {});
+
   // method untuk ambil semua data
   Future<List<Criteria>> fetchData() async {
     final response = await http.post(
@@ -33,23 +36,32 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
   }
 
   // method tile data
-  Widget tileData(Criteria criteria) => InkWell(
-        onTap: () async {
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setInt('id_criteria', criteria.id);
-
-          Navigator.pushNamed(context, 'detail');
-        },
-        child: ListTile(
-          leading: Text(
-            criteria.id.toString(),
-            style: GoogleFonts.nunito(fontSize: 16),
-          ),
-          title: Text(
-            criteria.criteria,
-            style:
-                GoogleFonts.nunito(fontSize: 16),
-          ),
+  Widget tileData(Criteria data) => ListTile(
+        leading: Text(
+          data.id.toString(),
+          style: GoogleFonts.nunito(fontSize: 16),
+        ),
+        title: Text(
+          data.criteria,
+          style: GoogleFonts.nunito(fontSize: 16),
+        ),
+        trailing: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.edit_rounded),
+              tooltip: "Perbarui data",
+              style: IconButton.styleFrom(foregroundColor: Colors.blue),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.delete_rounded),
+              tooltip: "Hapus data",
+              style: IconButton.styleFrom(foregroundColor: Colors.red),
+            ),
+          ],
         ),
       );
 
@@ -66,9 +78,9 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
               ),
             );
           } else if (snapshot.hasData) {
-            List<Criteria> criterias = snapshot.data!;
+            List<Criteria> datas = snapshot.data!;
 
-            if (criterias.isNotEmpty) {
+            if (datas.isNotEmpty) {
               return Column(
                 children: [
                   Row(
@@ -85,6 +97,11 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
                           style: GoogleFonts.nunito(
                               fontSize: 18, fontWeight: FontWeight.w800),
                         ),
+                        trailing: Text(
+                          "Aksi",
+                          style: GoogleFonts.nunito(
+                              fontSize: 18, fontWeight: FontWeight.w800),
+                        ),
                       ))
                     ],
                   ),
@@ -95,14 +112,14 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
                   ListView.separated(
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
-                        Criteria criteria = criterias[index];
+                        Criteria data = datas[index];
 
-                        return tileData(criteria);
+                        return tileData(data);
                       },
                       separatorBuilder: (context, index) {
                         return Divider();
                       },
-                      itemCount: criterias.length)
+                      itemCount: datas.length)
                 ],
               );
             } else {
@@ -140,7 +157,8 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, 'criteria_add')
+                .then((value) => _refresh()),
             icon: Icon(Icons.add_rounded),
             tooltip: "Tambah data baru",
           )
