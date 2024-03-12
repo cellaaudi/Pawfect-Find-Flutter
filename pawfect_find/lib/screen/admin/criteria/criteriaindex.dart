@@ -43,8 +43,11 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
                 )),
             TextButton(
                 onPressed: () async {
-                  await deleteData(data.id);
-                  Navigator.pop(context);
+                  bool deleted = await deleteData(data.id);
+
+                  if (deleted) {
+                    Navigator.pop(context);
+                  }
                 },
                 style: TextButton.styleFrom(
                     foregroundColor: Colors.red,
@@ -80,7 +83,7 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
   }
 
   // method hapus data
-  void deleteData(int id) async {
+  Future<bool> deleteData(int id) async {
     final response = await http.post(
         Uri.parse(
             "http://localhost/ta/Pawfect-Find-PHP/admin/criteria_delete.php"),
@@ -94,12 +97,16 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
           content: Text("Berhasil hapus data."),
           duration: Duration(seconds: 3),
         ));
+
+        return true;
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content:
               Text("Gagal hapus data. Data masih digunakan untuk data lain."),
           duration: Duration(seconds: 3),
         ));
+
+        return false;
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -107,15 +114,13 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
             Text("Gagal hapus data. Data masih digunakan untuk data lain."),
         duration: Duration(seconds: 3),
       ));
+
+      return false;
     }
   }
 
   // method tile data
   Widget tileData(Criteria data) => ListTile(
-        leading: Text(
-          data.id.toString(),
-          style: GoogleFonts.nunito(fontSize: 16),
-        ),
         title: Text(
           data.criteria,
           style: GoogleFonts.nunito(fontSize: 16),
@@ -169,11 +174,6 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
                     children: [
                       Expanded(
                           child: ListTile(
-                        leading: Text(
-                          "ID",
-                          style: GoogleFonts.nunito(
-                              fontSize: 18, fontWeight: FontWeight.w800),
-                        ),
                         title: Text(
                           "Kriteria",
                           style: GoogleFonts.nunito(
