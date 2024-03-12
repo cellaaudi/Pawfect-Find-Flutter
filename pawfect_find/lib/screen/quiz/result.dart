@@ -194,7 +194,7 @@ class _ResultPage extends State<ResultPage> {
                       ),
                       DecoratedBox(
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
+                            borderRadius: BorderRadius.circular(4),
                             border:
                                 Border.all(color: Colors.black45, width: 1.0)),
                         child: DropdownButton<String>(

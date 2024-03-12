@@ -14,6 +14,9 @@ class BreedIndexPage extends StatefulWidget {
 }
 
 class _BreedIndexPage extends State<BreedIndexPage> {
+  // method refresh
+  void _refresh() => setState(() {});
+
   // variable buat kata yang diketik user di search box
   String _searchText = '';
 
@@ -40,36 +43,65 @@ class _BreedIndexPage extends State<BreedIndexPage> {
   }
 
   // method tile data
-  Widget tileData(Breed breed) => InkWell(
-        onTap: () async {
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setInt('id_breed', breed.id);
-
-          Navigator.pushNamed(context, 'detail');
-        },
-        child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: ListTile(
-                leading: FittedBox(
+  Widget tileData(Breed breed) => Padding(
+      padding: EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        leading: FittedBox(
+          fit: BoxFit.cover,
+          child: Container(
+              height: 128.0,
+              width: 128.0,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.network(
+                  "http://localhost/ta/Pawfect-Find-PHP/${breed.imgAdult}",
                   fit: BoxFit.cover,
-                  child: Container(
-                      height: 128.0,
-                      width: 128.0,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: Image.network(
-                          "http://localhost/ta/Pawfect-Find-PHP/${breed.imgAdult}",
-                          fit: BoxFit.cover,
-                        ),
-                      )),
                 ),
-                title: Text(
-                  breed.breed,
-                  style: GoogleFonts.nunito(
-                      fontSize: 16, fontWeight: FontWeight.w800),
-                ),
-                trailing: Icon(Icons.arrow_forward_ios_rounded))),
-      );
+              )),
+        ),
+        title: Text(
+          breed.breed,
+          style: GoogleFonts.nunito(fontSize: 16, fontWeight: FontWeight.w800),
+        ),
+        // trailing: Icon(Icons.arrow_forward_ios_rounded))),
+        trailing: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                prefs.setInt('id_breed', breed.id);
+
+                Navigator.pushNamed(context, 'detail');
+              },
+              icon: Icon(Icons.remove_red_eye_rounded),
+              tooltip: "Lihat data",
+              style: IconButton.styleFrom(foregroundColor: Colors.blue),
+            ),
+            IconButton(
+              onPressed: () async {
+                // final prefs = await SharedPreferences.getInstance();
+                // prefs.setInt('id_criteria', data.id);
+                // prefs.setString('str_criteria', data.criteria);
+
+                // Navigator.pushNamed(context, 'criteria_edit')
+                //     .then((value) => _refresh());
+              },
+              icon: Icon(Icons.edit_rounded),
+              tooltip: "Perbarui data",
+              style: IconButton.styleFrom(foregroundColor: Colors.orange),
+            ),
+            IconButton(
+              onPressed: () {},
+              // onPressed: () => _delMsg(data).then((value) => _refresh()),
+              icon: Icon(Icons.delete_rounded),
+              tooltip: "Hapus data",
+              style: IconButton.styleFrom(foregroundColor: Colors.red),
+            ),
+          ],
+        ),
+      ));
 
   // method untuk display data
   Widget displayData() => FutureBuilder<List<Breed>>(
@@ -168,7 +200,8 @@ class _BreedIndexPage extends State<BreedIndexPage> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, 'breed_add')
+                .then((value) => _refresh()),
             icon: Icon(Icons.add_rounded),
             tooltip: "Tambah data baru",
           )

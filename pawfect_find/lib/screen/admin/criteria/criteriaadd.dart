@@ -118,7 +118,7 @@ class _CriteriaAddPage extends State<CriteriaAddPage> {
                     });
                   },
                   decoration: InputDecoration(
-                      hintText: "Kriteria baru ...",
+                      hintText: "Contoh: Ukuran besar",
                       border: OutlineInputBorder()),
                 ))
               ],
