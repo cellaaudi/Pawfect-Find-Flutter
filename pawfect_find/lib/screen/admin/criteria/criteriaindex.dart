@@ -17,6 +17,46 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
   // method refresh
   void _refresh() => setState(() {});
 
+  // method delete alert
+  Future<void> _delMsg(Criteria data) async => showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+          title: Text(
+            'Hapus Kriteria',
+            style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+          ),
+          content: Text(
+            'Apa kamu yakin ingin menghapus "${data.criteria}" dari daftar kriteria?',
+            style: GoogleFonts.nunito(fontSize: 16.0),
+          ),
+          actions: <Widget>[
+            TextButton(
+                style: TextButton.styleFrom(
+                    textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Batal',
+                  style: GoogleFonts.nunito(),
+                )),
+            TextButton(
+                onPressed: () async {
+                  await deleteData(data.id);
+                  Navigator.pop(context);
+                },
+                style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                child: Text(
+                  'Hapus',
+                  style: GoogleFonts.nunito(),
+                ))
+          ],
+        );
+      });
+
   // method untuk ambil semua data
   Future<List<Criteria>> fetchData() async {
     final response = await http.post(
@@ -31,7 +71,42 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
 
       return datas;
     } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Gagal menampilkan data kriteria."),
+        duration: Duration(seconds: 3),
+      ));
       throw Exception("Gagal menampilkan data kriteria.");
+    }
+  }
+
+  // method hapus data
+  void deleteData(int id) async {
+    final response = await http.post(
+        Uri.parse(
+            "http://localhost/ta/Pawfect-Find-PHP/admin/criteria_delete.php"),
+        body: {'id': id.toString()});
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> json = jsonDecode(response.body);
+
+      if (json['result'] == "Success") {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Berhasil hapus data."),
+          duration: Duration(seconds: 3),
+        ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text("Gagal hapus data. Data masih digunakan untuk data lain."),
+          duration: Duration(seconds: 3),
+        ));
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content:
+            Text("Gagal hapus data. Data masih digunakan untuk data lain."),
+        duration: Duration(seconds: 3),
+      ));
     }
   }
 
@@ -63,7 +138,7 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
               style: IconButton.styleFrom(foregroundColor: Colors.blue),
             ),
             IconButton(
-              onPressed: () {},
+              onPressed: () => _delMsg(data).then((value) => _refresh()),
               icon: Icon(Icons.delete_rounded),
               tooltip: "Hapus data",
               style: IconButton.styleFrom(foregroundColor: Colors.red),
