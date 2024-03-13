@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 class BreedAddPage extends StatefulWidget {
   const BreedAddPage({super.key});
@@ -30,6 +34,13 @@ class _BreedAddPage extends State<BreedAddPage> {
   // variable input
   String? criteria;
 
+  // photo handler
+  File? puppyImg;
+  File? adultImg;
+  Uint8List? puppyByte;
+  Uint8List? adultByte;
+  // final picker = ImagePicker();
+
   // method enable button
   bool isFilled() =>
       _nameController.text.isNotEmpty &&
@@ -42,6 +53,35 @@ class _BreedAddPage extends State<BreedAddPage> {
       _originController.text.isNotEmpty &&
       _colourController.text.isNotEmpty &&
       _attentionController.text.isNotEmpty;
+
+  // method pick img
+  pickImage(bool isCam, bool isPuppy) async {
+    final ImagePicker picker = ImagePicker();
+
+    XFile? img;
+
+    if (isCam) {
+      img = await picker.pickImage(
+          source: ImageSource.camera, maxHeight: 1080, maxWidth: 1080);
+    } else {
+      img = await picker.pickImage(
+          source: ImageSource.gallery, maxHeight: 1080, maxWidth: 1080);
+    }
+
+    if (img != null) {
+      var inByte = await img.readAsBytes();
+
+      setState(() {
+        if (isPuppy) {
+          puppyImg = File(img!.path);
+          puppyByte = inByte;
+        } else {
+          adultImg = File(img!.path);
+          adultByte = inByte;
+        }
+      });
+    }
+  }
 
   // method tambah data
   void addData(String criteria) async {
@@ -208,6 +248,93 @@ class _BreedAddPage extends State<BreedAddPage> {
         ],
       );
 
+  // method input poto
+  Widget inputImg(String age) {
+    File? imgPath;
+    Uint8List? imgByte;
+
+    if (age == "muda") {
+      imgPath = puppyImg;
+      imgByte = puppyByte;
+    } else {
+      imgPath = adultImg;
+      imgByte = adultByte;
+    }
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Text("Foto anjing $age", style: GoogleFonts.nunito(fontSize: 14)),
+          ],
+        ),
+        SizedBox(
+          height: 8,
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                padding: imgPath == null ? EdgeInsets.all(16) : null,
+                child: imgPath == null
+                    ? Center(child: Text("Tidak ada foto dipilih."))
+                    : kIsWeb
+                        ? Image.memory(
+                            imgByte!,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.file(
+                            imgPath,
+                            fit: BoxFit.cover,
+                          ),
+                decoration: BoxDecoration(
+                  border: imgPath == null ? Border.all(color: Colors.grey, width: 1) : null,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            )
+          ],
+        ),
+        SizedBox(
+          height: 8,
+        ),
+        Row(
+          children: [
+            Expanded(
+                child: OutlinedButton.icon(
+                    icon: Icon(Icons.photo_camera_rounded),
+                    onPressed: () async {
+                      if (age == "muda") {
+                        pickImage(true, true);
+                      } else {
+                        pickImage(true, false);
+                      }
+                    },
+                    label: Text("Kamera"))),
+            SizedBox(
+              width: 16,
+            ),
+            Expanded(
+                child: OutlinedButton.icon(
+              icon: Icon(Icons.photo_library_rounded),
+              onPressed: () async {
+                if (age == "muda") {
+                  pickImage(false, true);
+                } else {
+                  pickImage(false, false);
+                }
+              },
+              label: Text("Galeri"),
+            ))
+          ],
+        ),
+        SizedBox(
+          height: 16,
+        )
+      ],
+    );
+  }
+
   // method untuk build body
   Widget buildBody() => SingleChildScrollView(
         padding: EdgeInsets.all(16),
@@ -278,6 +405,8 @@ class _BreedAddPage extends State<BreedAddPage> {
                 "Perhatian khusus",
                 "Contoh: Anjing ras ini sangat tidak disarankan untuk menjadi anjing peliharaan pertama",
                 _attentionController),
+            inputImg("muda"),
+            inputImg("dewasa"),
             SizedBox(
               height: 48,
             ),
