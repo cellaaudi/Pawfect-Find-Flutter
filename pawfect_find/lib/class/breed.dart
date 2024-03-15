@@ -13,7 +13,7 @@ class Breed {
   final String attention;
   final String imgPuppy;
   final String imgAdult;
-  final List<dynamic>? criterias;
+  final List<Map<String, dynamic>>? criterias;
 
   Breed({
     required this.id,
@@ -35,7 +35,7 @@ class Breed {
 
   factory Breed.fromJson(Map<String, dynamic> json) {
     return Breed(
-      id: json['id'] as int, 
+      id: json['id'] as int,
       breed: json['breed'] as String,
       group: json['group'] as String,
       heightMin: json['height_min'] as double,
@@ -49,7 +49,9 @@ class Breed {
       attention: json['attention'] as String,
       imgPuppy: json['img_puppy'] as String,
       imgAdult: json['img_adult'] as String,
-      criterias: json['criterias'] as List<dynamic>?,
-      );
+      criterias: (json['criterias'] as List<dynamic>?)
+          ?.map((rec) => rec as Map<String, dynamic>)
+          .toList(),
+    );
   }
 }

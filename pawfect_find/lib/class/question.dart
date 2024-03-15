@@ -6,7 +6,7 @@ class Question {
   Question({
     required this.id,
     required this.question,
-    required this.choices,
+    this.choices,
   });
 
   factory Question.fromJson(Map<String, dynamic> json) {

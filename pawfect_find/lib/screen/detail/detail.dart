@@ -92,6 +92,42 @@ class _DetailPage extends State<DetailPage> {
         ],
       ));
 
+  // method text
+  Widget textDog(String val, String title) => Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.nunito(fontSize: 12.0),
+          ),
+          Text(
+            val,
+            style:
+                GoogleFonts.nunito(fontSize: 16.0, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 12.0),
+        ],
+      );
+
+  // method double
+  Widget dblDog(double min, double max, String title, String unit) => Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.nunito(fontSize: 12.0),
+          ),
+          Text(
+            '${min.toString()} - ${max.toString()} $unit',
+            style:
+                GoogleFonts.nunito(fontSize: 16.0, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 12.0),
+        ],
+      );
+
   // method untuk build body
   Widget displayBody() => SingleChildScrollView(
       padding: EdgeInsets.all(16),
@@ -101,7 +137,10 @@ class _DetailPage extends State<DetailPage> {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasError) {
                 return Center(
-                  child: Text('Error: ${snapshot.error}'),
+                  child: Text(
+                    'Error: ${snapshot.error}',
+                    style: GoogleFonts.nunito(fontSize: 16),
+                  ),
                 );
               } else if (snapshot.hasData) {
                 Breed breed = snapshot.data!;
@@ -128,90 +167,40 @@ class _DetailPage extends State<DetailPage> {
                             fontSize: 24.0, fontWeight: FontWeight.w800),
                       ),
                       const SizedBox(height: 16.0),
-                      Text(
-                        'Kelompok',
-                        style: GoogleFonts.nunito(fontSize: 12.0),
-                      ),
-                      Text(
-                        breed.group,
-                        style: GoogleFonts.nunito(
-                            fontSize: 16.0, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 12.0),
-                      Text(
-                        'Tinggi',
-                        style: GoogleFonts.nunito(fontSize: 12.0),
-                      ),
-                      Text(
-                        '${breed.heightMin.toString()} - ${breed.heightMax.toString()} cm',
-                        style: GoogleFonts.nunito(
-                            fontSize: 16.0, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 12.0),
-                      Text(
-                        'Berat',
-                        style: GoogleFonts.nunito(fontSize: 12.0),
-                      ),
-                      Text(
-                        '${breed.weightMin.toString()} - ${breed.weightMax.toString()} kg',
-                        style: GoogleFonts.nunito(
-                            fontSize: 16.0, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 12.0),
-                      Text(
-                        'Rentang Kemungkinan Umur',
-                        style: GoogleFonts.nunito(fontSize: 12.0),
-                      ),
-                      Text(
-                        '${breed.lifeMin.toString()} - ${breed.lifeMax.toString()} tahun',
-                        style: GoogleFonts.nunito(
-                            fontSize: 16.0, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 12.0),
-                      Text(
-                        'Negara Asal',
-                        style: GoogleFonts.nunito(fontSize: 12.0),
-                      ),
-                      Text(
-                        breed.origin,
-                        style: GoogleFonts.nunito(
-                            fontSize: 16.0, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 12.0),
-                      Text(
-                        'Warna',
-                        style: GoogleFonts.nunito(fontSize: 12.0),
-                      ),
-                      Text(
-                        breed.colour,
-                        style: GoogleFonts.nunito(
-                            fontSize: 16.0, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 12.0),
-                      Text(
-                        'Perhatian Khusus',
-                        style: GoogleFonts.nunito(fontSize: 12.0),
-                      ),
-                      Text(
-                        breed.attention,
-                        style: GoogleFonts.nunito(
-                            fontSize: 16.0, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 12.0),
+                      textDog(breed.group, "Kelompok"),
+                      dblDog(breed.heightMin, breed.heightMax, "Tinggi", "cm"),
+                      dblDog(breed.weightMin, breed.weightMax, "berat", "kg"),
+                      dblDog(breed.lifeMin, breed.lifeMax, "Kemungkinan Umur",
+                          "tahun"),
+                      textDog(breed.origin, "Negara Asal"),
+                      textDog(breed.colour, "Warna"),
+                      textDog(breed.attention, "Perhatian Khusus"),
                       Text(
                         'Kriteria',
                         style: GoogleFonts.nunito(fontSize: 12.0),
                       ),
-                      for (var c in breed.criterias!)
-                        Text(
-                          " - ${c['criteria']}",
-                          style: GoogleFonts.nunito(
-                              fontSize: 16.0, fontWeight: FontWeight.w600),
+                      if (breed.criterias!.isNotEmpty)
+                        for (var c in breed.criterias!)
+                          Text(
+                            " - ${c['criteria']}",
+                            style: GoogleFonts.nunito(
+                                fontSize: 16.0, fontWeight: FontWeight.w600),
+                          )
+                      else
+                        Center(
+                          child: Text(
+                            "Belum ada kriteria.",
+                            style: GoogleFonts.nunito(
+                                fontSize: 16.0, color: Colors.grey),
+                          ),
                         )
                     ]);
               } else {
-                return const Center(
-                  child: Text('Tidak ada hasil ditemukan'),
+                return Center(
+                  child: Text(
+                    'Data tidak ditemukan.',
+                    style: GoogleFonts.nunito(fontSize: 16),
+                  ),
                 );
               }
             } else {

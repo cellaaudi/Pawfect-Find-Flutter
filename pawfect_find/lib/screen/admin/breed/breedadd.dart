@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html' as html;
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -31,15 +32,13 @@ class _BreedAddPage extends State<BreedAddPage> {
   TextEditingController _colourController = TextEditingController();
   TextEditingController _attentionController = TextEditingController();
 
-  // variable input
-  String? criteria;
-
   // photo handler
   File? puppyImg;
   File? adultImg;
   Uint8List? puppyByte;
   Uint8List? adultByte;
-  // final picker = ImagePicker();
+  List<int>? puppyFile;
+  List<int>? adultFile;
 
   // method enable button
   bool isFilled() =>
@@ -52,11 +51,14 @@ class _BreedAddPage extends State<BreedAddPage> {
       _maxLifeController.text.isNotEmpty &&
       _originController.text.isNotEmpty &&
       _colourController.text.isNotEmpty &&
-      _attentionController.text.isNotEmpty;
+      _attentionController.text.isNotEmpty &&
+      puppyImg != null &&
+      adultImg != null;
 
   // method pick img
   pickImage(bool isCam, bool isPuppy) async {
     final ImagePicker picker = ImagePicker();
+    final reader = html.FileReader();
 
     XFile? img;
 
@@ -75,22 +77,58 @@ class _BreedAddPage extends State<BreedAddPage> {
         if (isPuppy) {
           puppyImg = File(img!.path);
           puppyByte = inByte;
+          puppyFile =
+              Base64Decoder().convert(reader.result.toString().split(",").last);
         } else {
           adultImg = File(img!.path);
           adultByte = inByte;
+          adultFile =
+              Base64Decoder().convert(reader.result.toString().split(",").last);
         }
       });
+      // print("puppybyte = $puppyByte");
+      print("puppyfile = $puppyFile");
+      // print("adultbyte = $adultByte");
+      print("adultfile = $adultFile");
     }
   }
 
   // method tambah data
-  void addData(String criteria) async {
-    final response = await http.post(
-        Uri.parse('http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php'),
-        body: {'criteria': criteria});
+  Future addData() async {
+    var request = http.MultipartRequest("POST",
+        Uri.parse("http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php"));
+    request.fields['breed'] = _nameController.text;
+    request.fields['group'] = dropdownValue;
+    request.fields['minHeight'] = _minHeightController.text;
+    request.fields['maxHeight'] = _maxHeightController.text;
+    request.fields['minWeight'] = _minWeightController.text;
+    request.fields['maxWeight'] = _maxWeightController.text;
+    request.fields['minLife'] = _minLifeController.text;
+    request.fields['maxLife'] = _maxLifeController.text;
+    request.fields['origin'] = _originController.text;
+    request.fields['colour'] = _colourController.text;
+    request.fields['attention'] = _attentionController.text;
+
+    var picPuppy;
+    var picAdult;
+
+    if (kIsWeb) {
+      picPuppy =
+          await http.MultipartFile.fromBytes("imgPuppy", puppyByte!.cast());
+      picAdult =
+          await http.MultipartFile.fromBytes("imgAdult", adultByte!.cast());
+    } else {
+      picPuppy = await http.MultipartFile.fromPath("imgPuppy", puppyImg!.path);
+      picAdult = await http.MultipartFile.fromPath("imgAdult", adultImg!.path);
+    }
+    request.files.add(picPuppy);
+    request.files.add(picAdult);
+
+    var response = await request.send();
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> json = jsonDecode(response.body);
+      var responseBody = await response.stream.bytesToString();
+      var json = jsonDecode(responseBody);
 
       if (json['result'] == "Success") {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -171,11 +209,6 @@ class _BreedAddPage extends State<BreedAddPage> {
                   child: TextField(
                 maxLines: null,
                 controller: _controller,
-                onChanged: (value) {
-                  setState(() {
-                    criteria = value;
-                  });
-                },
                 decoration: InputDecoration(
                     hintText: hint, border: OutlineInputBorder()),
               ))
@@ -288,7 +321,9 @@ class _BreedAddPage extends State<BreedAddPage> {
                             fit: BoxFit.cover,
                           ),
                 decoration: BoxDecoration(
-                  border: imgPath == null ? Border.all(color: Colors.grey, width: 1) : null,
+                  border: imgPath == null
+                      ? Border.all(color: Colors.grey, width: 1)
+                      : null,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -414,7 +449,7 @@ class _BreedAddPage extends State<BreedAddPage> {
               children: [
                 Expanded(
                     child: ElevatedButton(
-                        onPressed: isFilled() ? () => addData(criteria!) : null,
+                        onPressed: isFilled() ? () => addData() : null,
                         child: Text(
                           "Simpan",
                           style: GoogleFonts.nunito(fontSize: 16),

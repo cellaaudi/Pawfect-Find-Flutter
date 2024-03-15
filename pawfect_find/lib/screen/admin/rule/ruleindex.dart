@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:pawfect_find/class/rule.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RuleIndexPage extends StatefulWidget {
   const RuleIndexPage({super.key});
@@ -24,25 +25,27 @@ class _RuleIndexPage extends State<RuleIndexPage> {
       List<Rule> datas = List<Rule>.from(
         json['data'].map((data) => Rule.fromJson(data)),
       );
-
+      print(datas);
+      
       return datas;
     } else {
-      throw Exception("Gagal menampilkan data kriteria.");
+      throw Exception("Gagal menampilkan data aturan.");
     }
   }
 
   // method tile data
   Widget tileData(Rule data) => InkWell(
-        onTap: () {},
+        onTap: () async {
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setInt('id_breed', data.breedId);
+
+          Navigator.pushNamed(context, 'rule_detail');
+        },
         child: ListTile(
           title: Text(
             data.breedName,
             style: GoogleFonts.nunito(fontSize: 16),
           ),
-          // trailing: Text(
-          //   data.totalCriterias.toString(),
-          //   style: GoogleFonts.nunito(fontSize: 16),
-          // )
           trailing: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
@@ -51,7 +54,9 @@ class _RuleIndexPage extends State<RuleIndexPage> {
                 data.totalCriterias.toString(),
                 style: GoogleFonts.nunito(fontSize: 16),
               ),
-              SizedBox(width: 8,),
+              SizedBox(
+                width: 8,
+              ),
               Icon(Icons.arrow_forward_ios_rounded)
             ],
           ),
@@ -67,7 +72,7 @@ class _RuleIndexPage extends State<RuleIndexPage> {
             return Center(
               child: Text(
                 'Error: ${snapshot.error}',
-                style: GoogleFonts.nunito(fontSize: 16),
+                style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
               ),
             );
           } else if (snapshot.hasData) {
