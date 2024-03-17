@@ -101,6 +101,7 @@ class MyApp extends StatelessWidget {
         // admin only
         'breed_index': (context) => BreedIndexPage(),
         'breed_add': (context) => BreedAddPage(),
+        'breed_add_2': (context) => BreedAddPage(),
         'criteria_index': (context) => CriteriaIndexPage(),
         'criteria_add': (context) => CriteriaAddPage(),
         'criteria_edit': (context) => CriteriaEditPage(),

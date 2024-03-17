@@ -163,7 +163,10 @@ class _ChoosePage extends State<ChoosePage> {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
             return Center(
-              child: Text('Error: ${snapshot.error}'),
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: GoogleFonts.nunito(fontSize: 14, color: Colors.grey),
+              ),
             );
           } else if (snapshot.hasData) {
             return ListView.separated(
