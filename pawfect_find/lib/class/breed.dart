@@ -33,6 +33,20 @@ class Breed {
     this.criterias,
   });
 
+  Map<String, dynamic> toMap() => {
+    'breed': breed,
+    'group': group,
+    'heightMin': heightMin,
+    'heightMax': heightMax,
+    'weightMin': weightMin,
+    'weightMax': weightMax,
+    'lifeMin': lifeMin,
+    'lifeMax': lifeMax,
+    'origin': origin,
+    'colour': colour,
+    'attention': attention,
+  };
+
   factory Breed.fromJson(Map<String, dynamic> json) {
     return Breed(
       id: json['id'] as int,

@@ -46,6 +46,7 @@ dependencies:
   google_sign_in: ^6.1.5
   google_fonts: ^6.1.0
   image_picker: ^1.0.7
+  dio: ^5.4.1
 
 dev_dependencies:
   flutter_test:

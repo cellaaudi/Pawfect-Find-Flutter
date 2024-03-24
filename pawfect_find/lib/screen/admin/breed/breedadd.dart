@@ -3,6 +3,7 @@ import 'dart:html' as html;
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -86,17 +87,48 @@ class _BreedAddPage extends State<BreedAddPage> {
               Base64Decoder().convert(reader.result.toString().split(",").last);
         }
       });
-      // print("puppybyte = $puppyByte");
-      print("puppyfile = $puppyFile");
-      // print("adultbyte = $adultByte");
-      print("adultfile = $adultFile");
     }
   }
 
   // method tambah data
   Future addData() async {
+    // try {
+    //   String url = "http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php";
+
+    //   var formData = FormData.fromMap({
+    //     'breed': _nameController.text,
+    //     'group': dropdownValue,
+    //     'minHeight': _minHeightController.text,
+    //     'maxHeight': _maxHeightController.text,
+    //     'minWeight': _minWeightController.text,
+    //     'maxWeight': _maxWeightController.text,
+    //     'minLife': _minLifeController.text,
+    //     'maxLife': _maxLifeController.text,
+    //     'origin': _originController.text,
+    //     'colour': _colourController.text,
+    //     'attention': _attentionController.text,
+    //     'imgPuppy': await MultipartFile.fromBytes(puppyByte as List<int>),
+    //     'imgAdult': await MultipartFile.fromBytes(adultByte as List<int>),
+    //   });
+
+    //   var response = await Dio().post(url, data: formData);
+
+    //   if (response.statusCode == 200) {
+    //     print(response);
+    //     // var map = response.data as Map;
+    //     // // var json = jsonDecode(response.data);
+    //     // // print(json);
+    //   } else {
+    //     print("Error");
+    //   }
+    // } catch (e) {
+    //   throw ("Error: $e");
+    // }
+
+
     var request = http.MultipartRequest("POST",
         Uri.parse("http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php"));
+
     request.fields['breed'] = _nameController.text;
     request.fields['group'] = dropdownValue;
     request.fields['minHeight'] = _minHeightController.text;
@@ -114,9 +146,14 @@ class _BreedAddPage extends State<BreedAddPage> {
 
     if (kIsWeb) {
       picPuppy =
-          await http.MultipartFile.fromBytes("imgPuppy", puppyByte!.cast());
+      // http.MultipartFile("imgPuppy",
+      //     puppyImg!.readAsBytes().asStream(), puppyImg!.lengthSync());
+      await http.MultipartFile.fromBytes("imgPuppy", puppyByte!.cast());
+      
       picAdult =
-          await http.MultipartFile.fromBytes("imgAdult", adultByte!.cast());
+      // http.MultipartFile("imgAdult",
+      //     adultImg!.readAsBytes().asStream(), puppyImg!.lengthSync());
+      await http.MultipartFile.fromBytes("imgAdult", adultByte!.cast());
     } else {
       picPuppy = await http.MultipartFile.fromPath("imgPuppy", puppyImg!.path);
       picAdult = await http.MultipartFile.fromPath("imgAdult", adultImg!.path);
@@ -450,8 +487,11 @@ class _BreedAddPage extends State<BreedAddPage> {
                 Expanded(
                     child: ElevatedButton(
                         onPressed: isFilled() ? () => addData() : null,
+                        // onPressed: isFilled() ? () => {
+
+                        // } : null,
                         child: Text(
-                          "Simpan",
+                          "Tambah Ras Anjing (1/2)",
                           style: GoogleFonts.nunito(fontSize: 16),
                         )))
               ],
