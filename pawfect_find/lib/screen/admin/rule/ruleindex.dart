@@ -25,7 +25,6 @@ class _RuleIndexPage extends State<RuleIndexPage> {
       List<Rule> datas = List<Rule>.from(
         json['data'].map((data) => Rule.fromJson(data)),
       );
-      print(datas);
       
       return datas;
     } else {
@@ -99,9 +98,6 @@ class _RuleIndexPage extends State<RuleIndexPage> {
                     ],
                   ),
                   Divider(),
-                  SizedBox(
-                    height: 8,
-                  ),
                   ListView.separated(
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
