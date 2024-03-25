@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:html' as html;
+// import 'dart:html' as html;
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -38,8 +38,8 @@ class _BreedAddPage extends State<BreedAddPage> {
   File? adultImg;
   Uint8List? puppyByte;
   Uint8List? adultByte;
-  List<int>? puppyFile;
-  List<int>? adultFile;
+  // List<int>? puppyFile;
+  // List<int>? adultFile;
 
   // method enable button
   bool isFilled() =>
@@ -59,7 +59,7 @@ class _BreedAddPage extends State<BreedAddPage> {
   // method pick img
   pickImage(bool isCam, bool isPuppy) async {
     final ImagePicker picker = ImagePicker();
-    final reader = html.FileReader();
+    // final reader = html.FileReader();
 
     XFile? img;
 
@@ -78,13 +78,13 @@ class _BreedAddPage extends State<BreedAddPage> {
         if (isPuppy) {
           puppyImg = File(img!.path);
           puppyByte = inByte;
-          puppyFile =
-              Base64Decoder().convert(reader.result.toString().split(",").last);
+          // puppyFile =
+          //     Base64Decoder().convert(reader.result.toString().split(",").last);
         } else {
           adultImg = File(img!.path);
           adultByte = inByte;
-          adultFile =
-              Base64Decoder().convert(reader.result.toString().split(",").last);
+          // adultFile =
+          //     Base64Decoder().convert(reader.result.toString().split(",").last);
         }
       });
     }
@@ -93,101 +93,134 @@ class _BreedAddPage extends State<BreedAddPage> {
   // method tambah data
   Future addData() async {
     // try {
-    //   String url = "http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php";
+      String url = "http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php";
 
-    //   var formData = FormData.fromMap({
-    //     'breed': _nameController.text,
-    //     'group': dropdownValue,
-    //     'minHeight': _minHeightController.text,
-    //     'maxHeight': _maxHeightController.text,
-    //     'minWeight': _minWeightController.text,
-    //     'maxWeight': _maxWeightController.text,
-    //     'minLife': _minLifeController.text,
-    //     'maxLife': _maxLifeController.text,
-    //     'origin': _originController.text,
-    //     'colour': _colourController.text,
-    //     'attention': _attentionController.text,
-    //     'imgPuppy': await MultipartFile.fromBytes(puppyByte as List<int>),
-    //     'imgAdult': await MultipartFile.fromBytes(adultByte as List<int>),
-    //   });
+      var request = http.MultipartRequest('POST', Uri.parse(url));
 
-    //   var response = await Dio().post(url, data: formData);
+      request.files.add(
+        http.MultipartFile.fromBytes('imgPuppy', puppyImg!.readAsBytesSync(), filename: 'imgPuppy')
+      );
 
-    //   if (response.statusCode == 200) {
-    //     print(response);
-    //     // var map = response.data as Map;
-    //     // // var json = jsonDecode(response.data);
-    //     // // print(json);
-    //   } else {
-    //     print("Error");
-    //   }
+      request.files.add(
+        http.MultipartFile.fromBytes('imgAdult', adultImg!.readAsBytesSync(), filename: 'imgAdult')
+      );
+
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        print(response);
+      } else {
+        print("not 200");
+      }
+
+      // var pup = await puppyImg!.readAsBytes();
+      // var adl = await adultImg!.readAsBytes();
+
+      // MultipartFile filePup = MultipartFile.fromBytes(pup, filename: "imgPuppy");
+      // MultipartFile fileAdl = MultipartFile.fromBytes(adl, filename: "imgAdult");
+
+      // // MapEntry<String, MultipartFile> pupEntry = MapEntry("imgPuppy", filePup);
+      // // MapEntry<String, MultipartFile> adlEntry = MapEntry("imgAdult", fileAdl);
+
+      // // formData.files.add(pupEntry);
+      // // formData.files.add(adlEntry);
+
+      // var formData = FormData.fromMap({
+      //   'breed': _nameController.text,
+      //   'group': dropdownValue,
+      //   'minHeight': _minHeightController.text,
+      //   'maxHeight': _maxHeightController.text,
+      //   'minWeight': _minWeightController.text,
+      //   'maxWeight': _maxWeightController.text,
+      //   'minLife': _minLifeController.text,
+      //   'maxLife': _maxLifeController.text,
+      //   'origin': _originController.text,
+      //   'colour': _colourController.text,
+      //   'attention': _attentionController.text,
+      //   'imgPuppy': filePup,
+      //   'imgAdult': fileAdl,
+      // });
+
+      // var response = await Dio().post(url, data: formData, options: Options(headers: {
+      //   "Content-Type": "multipart/form-data",
+      // }));
+
+      // if (response.statusCode == 200) {
+      //   print(response);
+      //   // var map = response.data as Map;
+      //   // // var json = jsonDecode(response.data);
+      //   // // print(json);
+      // } else {
+      //   print("Error");
+      // }
     // } catch (e) {
     //   throw ("Error: $e");
     // }
 
 
-    var request = http.MultipartRequest("POST",
-        Uri.parse("http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php"));
+    // var request = http.MultipartRequest("POST",
+    //     Uri.parse("http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php"));
 
-    request.fields['breed'] = _nameController.text;
-    request.fields['group'] = dropdownValue;
-    request.fields['minHeight'] = _minHeightController.text;
-    request.fields['maxHeight'] = _maxHeightController.text;
-    request.fields['minWeight'] = _minWeightController.text;
-    request.fields['maxWeight'] = _maxWeightController.text;
-    request.fields['minLife'] = _minLifeController.text;
-    request.fields['maxLife'] = _maxLifeController.text;
-    request.fields['origin'] = _originController.text;
-    request.fields['colour'] = _colourController.text;
-    request.fields['attention'] = _attentionController.text;
+    // request.fields['breed'] = _nameController.text;
+    // request.fields['group'] = dropdownValue;
+    // request.fields['minHeight'] = _minHeightController.text;
+    // request.fields['maxHeight'] = _maxHeightController.text;
+    // request.fields['minWeight'] = _minWeightController.text;
+    // request.fields['maxWeight'] = _maxWeightController.text;
+    // request.fields['minLife'] = _minLifeController.text;
+    // request.fields['maxLife'] = _maxLifeController.text;
+    // request.fields['origin'] = _originController.text;
+    // request.fields['colour'] = _colourController.text;
+    // request.fields['attention'] = _attentionController.text;
 
-    var picPuppy;
-    var picAdult;
+    // var picPuppy;
+    // var picAdult;
 
-    if (kIsWeb) {
-      picPuppy =
-      // http.MultipartFile("imgPuppy",
-      //     puppyImg!.readAsBytes().asStream(), puppyImg!.lengthSync());
-      await http.MultipartFile.fromBytes("imgPuppy", puppyByte!.cast());
-      
-      picAdult =
-      // http.MultipartFile("imgAdult",
-      //     adultImg!.readAsBytes().asStream(), puppyImg!.lengthSync());
-      await http.MultipartFile.fromBytes("imgAdult", adultByte!.cast());
-    } else {
-      picPuppy = await http.MultipartFile.fromPath("imgPuppy", puppyImg!.path);
-      picAdult = await http.MultipartFile.fromPath("imgAdult", adultImg!.path);
-    }
-    request.files.add(picPuppy);
-    request.files.add(picAdult);
+    // if (kIsWeb) {
+    //   picPuppy =
+    //   // http.MultipartFile("imgPuppy",
+    //   //     puppyImg!.readAsBytes().asStream(), puppyImg!.lengthSync());
+    //   await http.MultipartFile.fromBytes("imgPuppy", puppyByte!.cast());
+    //   print("puppy photo: $picPuppy");
+    //   picAdult =
+    //   // http.MultipartFile("imgAdult",
+    //   //     adultImg!.readAsBytes().asStream(), puppyImg!.lengthSync());
+    //   await http.MultipartFile.fromBytes("imgAdult", adultByte!.cast());
+    //   print("adult photo: $picAdult");
+    // } else {
+    //   picPuppy = await http.MultipartFile.fromPath("imgPuppy", puppyImg!.path);
+    //   picAdult = await http.MultipartFile.fromPath("imgAdult", adultImg!.path);
+    // }
+    // request.files.add(picPuppy);
+    // request.files.add(picAdult);
 
-    var response = await request.send();
+    // var response = await request.send();
 
-    if (response.statusCode == 200) {
-      var responseBody = await response.stream.bytesToString();
-      var json = jsonDecode(responseBody);
+    // if (response.statusCode == 200) {
+    //   var responseBody = await response.stream.bytesToString();
+    //   var json = jsonDecode(responseBody);
 
-      if (json['result'] == "Success") {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Berhasil menambahkan data baru."),
-          duration: Duration(seconds: 3),
-        ));
+    //   if (json['result'] == "Success") {
+    //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //       content: Text("Berhasil menambahkan data baru."),
+    //       duration: Duration(seconds: 3),
+    //     ));
 
-        Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Gagal menambahkan data baru."),
-          duration: Duration(seconds: 3),
-        ));
-        throw Exception("Gagal menambahkan data baru.");
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Gagal menambahkan data baru."),
-        duration: Duration(seconds: 3),
-      ));
-      throw Exception("Gagal menambahkan data baru.");
-    }
+    //     Navigator.pop(context);
+    //   } else {
+    //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //       content: Text("Gagal menambahkan data baru."),
+    //       duration: Duration(seconds: 3),
+    //     ));
+    //     throw Exception("Gagal menambahkan data baru.");
+    //   }
+    // } else {
+    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //     content: Text("Gagal menambahkan data baru."),
+    //     duration: Duration(seconds: 3),
+    //   ));
+    //   throw Exception("Gagal menambahkan data baru.");
+    // }
   }
 
   // method back message
