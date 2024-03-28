@@ -17,16 +17,6 @@ class _QuizIndexPage extends State<QuizIndexPage> {
   // method refresh
   void _refresh() => setState(() {});
 
-  // method popup menu
-  void handleMenu(String menu) {
-    switch (menu) {
-      case 'Tambah pertanyaan baru':
-        break;
-      case 'Ubah urutan pertanyaan':
-        break;
-    }
-  }
-
   // method fetch data
   Future<List<Question>> fetchData() async {
     try {
@@ -199,12 +189,34 @@ class _QuizIndexPage extends State<QuizIndexPage> {
         actions: [
           PopupMenuButton<String>(
               tooltip: "Lihat pilihan",
-              onSelected: handleMenu,
-              itemBuilder: (context) {
-                return {'Tambah pertanyaan baru', 'Ubah urutan pertanyaan'}
-                    .map((menu) => PopupMenuItem<String>(child: Text(menu)))
-                    .toList();
-              }),
+              onSelected: (value) {
+                if (value == 'add') {
+                  Navigator.pushNamed(context, 'que_add')
+                      .then((value) => _refresh());
+                } else {
+                  
+                }
+              },
+              itemBuilder: (context) => [
+                    PopupMenuItem(
+                      child: Text(
+                        'Tambah pertanyaan baru',
+                        style: GoogleFonts.nunito(),
+                      ),
+                      value: 'add',
+                    ),
+                    PopupMenuItem(
+                      child: Text(
+                        'Ubah urutan pertanyaan',
+                        style: GoogleFonts.nunito(),
+                      ),
+                      value: 'sort',
+                    )
+                  ]
+              // return {'Tambah pertanyaan baru', 'Ubah urutan pertanyaan'}
+              //     .map((menu) => PopupMenuItem<String>(child: Text(menu)))
+              //     .toList();
+              ),
         ],
       ),
       body: Align(

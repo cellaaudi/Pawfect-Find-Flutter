@@ -7,6 +7,7 @@ import 'package:pawfect_find/screen/admin/breed/breedindex.dart';
 import 'package:pawfect_find/screen/admin/criteria/criteriaadd.dart';
 import 'package:pawfect_find/screen/admin/criteria/criteriaedit.dart';
 import 'package:pawfect_find/screen/admin/criteria/criteriaindex.dart';
+import 'package:pawfect_find/screen/admin/quiz/questionadd.dart';
 import 'package:pawfect_find/screen/admin/quiz/questiondetail.dart';
 import 'package:pawfect_find/screen/admin/quiz/quizindex.dart';
 import 'package:pawfect_find/screen/admin/rule/ruledetail.dart';
@@ -110,6 +111,7 @@ class MyApp extends StatelessWidget {
         'rule_index': (context) => RuleIndexPage(),
         'rule_detail': (context) => RuleDetailPage(),
         'quiz_index': (context) => QuizIndexPage(),
+        'que_add': (context) => QuestionAddPage(),
         'que_detail': (context) => QuestionDetailPage(),
       },
     );

@@ -76,7 +76,7 @@ class _RuleDetailPage extends State<RuleDetailPage> {
                 return Center(
                   child: Text(
                     'Error: ${snapshot.error}',
-                    style: GoogleFonts.nunito(fontSize: 16),
+                    style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
                   ),
                 );
               } else if (snapshot.hasData) {
@@ -112,7 +112,7 @@ class _RuleDetailPage extends State<RuleDetailPage> {
                 return Center(
                   child: Text(
                     'Data tidak ditemukan.',
-                    style: GoogleFonts.nunito(fontSize: 16),
+                    style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
                   ),
                 );
               }
