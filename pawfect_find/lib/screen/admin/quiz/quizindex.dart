@@ -194,7 +194,10 @@ class _QuizIndexPage extends State<QuizIndexPage> {
                 if (value == 'add') {
                   Navigator.pushNamed(context, 'que_add')
                       .then((value) => _refresh());
-                } else {}
+                } else {
+                  Navigator.pushNamed(context, 'que_sort')
+                      .then((value) => _refresh());
+                }
               },
               itemBuilder: (context) => [
                     PopupMenuItem(
@@ -211,11 +214,7 @@ class _QuizIndexPage extends State<QuizIndexPage> {
                       ),
                       value: 'sort',
                     )
-                  ]
-              // return {'Tambah pertanyaan baru', 'Ubah urutan pertanyaan'}
-              //     .map((menu) => PopupMenuItem<String>(child: Text(menu)))
-              //     .toList();
-              ),
+                  ]),
         ],
       ),
       body: Align(
