@@ -14,6 +14,9 @@ class QuestionAddPage extends StatefulWidget {
 }
 
 class _QuestionAddPage extends State<QuestionAddPage> {
+  // next sort
+  int sort = 0;
+
   // controller
   TextEditingController _queController = TextEditingController();
   List<TextEditingController> _ansController = [];
@@ -96,7 +99,7 @@ class _QuestionAddPage extends State<QuestionAddPage> {
       });
 
   // get next sort
-  Future<int> getNext() async {
+  Future<void> getNext() async {
     try {
       final response = await http.get(Uri.parse(
           "http://localhost/ta/Pawfect-Find-PHP/admin/question_sort.php"));
@@ -105,7 +108,9 @@ class _QuestionAddPage extends State<QuestionAddPage> {
         Map<String, dynamic> json = jsonDecode(response.body);
 
         if (json['result'] == 'Success') {
-          return json['data'];
+          setState(() {
+            sort = json['data'];
+          });
         } else {
           throw Exception(
               'Gagal menampilkan nomor urut selanjutnya: ${json['result']}');
@@ -145,41 +150,49 @@ class _QuestionAddPage extends State<QuestionAddPage> {
   }
 
   // // add new data
-  // Future<Question> addData() async {
-  //   try {
-  //     final response = await http.post(
-  //         Uri.parse(
-  //             'http://localhost/ta/Pawfect-Find-PHP/admin/question_add.php'),
-  //         body: {'question': _queController.text});
+  Future<void> addData() async {
+    try {
+      List<String> choices =
+          _ansController.map((controller) => controller.text).toList();
 
-  //     if (response.statusCode == 200) {
-  //       Map<String, dynamic> json = jsonDecode(response.body);
+      final response = await http.post(
+          Uri.parse(
+              'http://localhost/ta/Pawfect-Find-PHP/admin/question_add.php'),
+          body: {
+            'sort': sort.toString(),
+            'question': _queController.text,
+            'choices': jsonEncode(choices),
+            'criterias': jsonEncode(selCrits)
+          });
 
-  //       if (json['result'] == "Success") {
-  //         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //           content: Text("Berhasil menambahkan data baru."),
-  //           duration: Duration(seconds: 3),
-  //         ));
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
 
-  //         Navigator.pop(context);
-  //       } else {
-  //         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //           content: Text("Gagal menambahkan data baru."),
-  //           duration: Duration(seconds: 3),
-  //         ));
-  //         throw Exception("Gagal menambahkan data baru.");
-  //       }
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //         content: Text("Gagal menambahkan data baru."),
-  //         duration: Duration(seconds: 3),
-  //       ));
-  //       throw Exception("Gagal menambahkan data baru.");
-  //     }
-  //   } catch (ex) {
-  //     throw Exception('Terjadi kesalahan: $ex');
-  //   }
-  // }
+        if (json['result'] == "Success") {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Berhasil menambahkan data baru."),
+            duration: Duration(seconds: 3),
+          ));
+
+          Navigator.pop(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Gagal menambahkan data baru.1"),
+            duration: Duration(seconds: 3),
+          ));
+          throw Exception("Gagal menambahkan data baru.");
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Gagal menambahkan data baru."),
+          duration: Duration(seconds: 3),
+        ));
+        throw Exception("Gagal menambahkan data baru.");
+      }
+    } catch (ex) {
+      throw Exception('Terjadi kesalahan: $ex');
+    }
+  }
 
   // method choice
   Widget cardChoice(int index) => FutureBuilder<List<Criteria>>(
@@ -205,8 +218,7 @@ class _QuestionAddPage extends State<QuestionAddPage> {
                     controller: _ansController[index],
                     onChanged: (_) => checkFilled(),
                     decoration: InputDecoration(
-                        // hintText: "Contoh: Hitam",
-                        hintText: index.toString(),
+                        hintText: "Contoh: Hitam",
                         border: OutlineInputBorder()),
                   ),
                   DropdownButtonFormField<int>(
@@ -219,7 +231,6 @@ class _QuestionAddPage extends State<QuestionAddPage> {
                     onChanged: (value) {
                       setState(() {
                         selCrits[index] = value!;
-                        print(selCrits);
                       });
                     },
                     decoration: InputDecoration(
@@ -245,134 +256,113 @@ class _QuestionAddPage extends State<QuestionAddPage> {
       });
 
   // method build body
-  Widget buildBody() => FutureBuilder<int>(
-      future: getNext(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Error: ${snapshot.error}',
-                style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+  Widget buildBody() => sort == 0
+      ? Center(
+          child: CircularProgressIndicator(),
+        )
+      : SingleChildScrollView(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                "Nomor Urut",
+                style: GoogleFonts.nunito(fontSize: 12.0),
               ),
-            );
-          } else if (snapshot.hasData) {
-            return SingleChildScrollView(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              Text(
+                sort.toString(),
+                style: GoogleFonts.nunito(
+                    fontSize: 16.0, fontWeight: FontWeight.w600),
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              Text(
+                "Pertanyaan",
+                style: GoogleFonts.nunito(fontSize: 12.0),
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
                 children: [
-                  Text(
-                    "Nomor Urut",
-                    style: GoogleFonts.nunito(fontSize: 12.0),
-                  ),
-                  Text(
-                    snapshot.data.toString(),
-                    style: GoogleFonts.nunito(
-                        fontSize: 16.0, fontWeight: FontWeight.w600),
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  Text(
-                    "Pertanyaan",
-                    style: GoogleFonts.nunito(fontSize: 12.0),
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                          child: TextField(
-                        maxLines: null,
-                        controller: _queController,
-                        onChanged: (_) => checkFilled(),
-                        decoration: InputDecoration(
-                            hintText:
-                                "Contoh: Apa warna bulu anjing yang kamu inginkan?",
-                            border: OutlineInputBorder()),
-                      ))
-                    ],
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  Text(
-                    "Pilihan Jawaban",
-                    style: GoogleFonts.nunito(fontSize: 12.0),
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    children: [
-                      cardChoice(0),
-                    ],
-                  ),
-                  Column(
-                      children:
-                          List.generate(_ansController.length - 1, (index) {
-                    return Row(
-                      children: [
-                        cardChoice(index + 1),
-                        if (index + 1 == 1)
-                          IconButton(
-                            onPressed: addField,
-                            icon: Icon(
-                              Icons.add_rounded,
-                              color: Colors.blue,
-                            ),
-                            tooltip: "Tambah pilihan jawaban",
-                          ),
-                        if (index + 1 > 1)
-                          IconButton(
-                            onPressed: () => removeField(index + 1),
-                            icon: Icon(
-                              Icons.clear_rounded,
-                              color: Colors.red,
-                            ),
-                            tooltip: "Hapus pilihan jawaban",
-                          ),
-                      ],
-                    );
-                  })),
-                  SizedBox(
-                    height: 48,
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                          child: ElevatedButton(
-                              onPressed: isReady ? () {} : null,
-                              child: Text(
-                                "Simpan Pertanyaan Baru",
-                                style: GoogleFonts.nunito(fontSize: 16),
-                              )))
-                    ],
-                  )
+                  Expanded(
+                      child: TextField(
+                    maxLines: null,
+                    controller: _queController,
+                    onChanged: (_) => checkFilled(),
+                    decoration: InputDecoration(
+                        hintText:
+                            "Contoh: Apa warna bulu anjing yang kamu inginkan?",
+                        border: OutlineInputBorder()),
+                  ))
                 ],
               ),
-            );
-          } else {
-            return Center(
-              child: Text(
-                'Gagal memuat. Silahkan coba lagi.',
-                style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+              SizedBox(
+                height: 16,
               ),
-            );
-          }
-        } else {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-      });
+              Text(
+                "Pilihan Jawaban",
+                style: GoogleFonts.nunito(fontSize: 12.0),
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                children: [
+                  cardChoice(0),
+                ],
+              ),
+              Column(
+                  children: List.generate(_ansController.length - 1, (index) {
+                return Row(
+                  children: [
+                    cardChoice(index + 1),
+                    if (index + 1 == 1)
+                      IconButton(
+                        onPressed: addField,
+                        icon: Icon(
+                          Icons.add_rounded,
+                          color: Colors.blue,
+                        ),
+                        tooltip: "Tambah pilihan jawaban",
+                      ),
+                    if (index + 1 > 1)
+                      IconButton(
+                        onPressed: () => removeField(index + 1),
+                        icon: Icon(
+                          Icons.clear_rounded,
+                          color: Colors.red,
+                        ),
+                        tooltip: "Hapus pilihan jawaban",
+                      ),
+                  ],
+                );
+              })),
+              SizedBox(
+                height: 48,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                      child: ElevatedButton(
+                          onPressed: isReady ? () => addData() : null,
+                          child: Text(
+                            "Simpan Pertanyaan Baru",
+                            style: GoogleFonts.nunito(fontSize: 16),
+                          )))
+                ],
+              )
+            ],
+          ),
+        );
 
   @override
   void initState() {
     super.initState();
+
+    getNext();
 
     if (_ansController.length < 2) {
       _ansController.add(TextEditingController());
