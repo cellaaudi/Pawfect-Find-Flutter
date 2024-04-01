@@ -11,9 +11,35 @@ class QuestionAddPage extends StatefulWidget {
 class _QuestionAddPage extends State<QuestionAddPage> {
   // controller
   TextEditingController _queController = TextEditingController();
+  List<TextEditingController> _ansController = [];
+
+  // add/remove field
+  void addField() {
+    setState(() {
+      _ansController.add(TextEditingController());
+    });
+  }
+
+  void removeField(int index) {
+    setState(() {
+      _ansController.removeAt(index);
+    });
+  }
 
   // disable save
-  bool isFilled() => _queController.text.isNotEmpty;
+  void checkFilled() {
+    setState(() {});
+  }
+
+  bool isFilled() {
+    if (_queController.text.isEmpty) return false;
+
+    for (var cont in _ansController) {
+      if (cont.text.isEmpty) return false;
+    }
+
+    return true;
+  }
 
   // method back message
   void _backMessage() => showDialog<void>(
@@ -85,16 +111,105 @@ class _QuestionAddPage extends State<QuestionAddPage> {
                     child: TextField(
                   maxLines: null,
                   controller: _queController,
+                  onChanged: (_) => checkFilled(),
                   decoration: InputDecoration(
                       hintText:
                           "Contoh: Apa warna bulu anjing yang kamu inginkan?",
                       border: OutlineInputBorder()),
                 ))
               ],
+            ),
+            SizedBox(
+              height: 16,
+            ),
+            Text(
+              "Pilihan Jawaban",
+              style: GoogleFonts.nunito(fontSize: 12.0),
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    maxLines: null,
+                    controller: _ansController[0],
+                    onChanged: (_) => checkFilled(),
+                    decoration: InputDecoration(
+                        hintText: "Contoh: Hitam",
+                        border: OutlineInputBorder()),
+                  ),
+                ),
+                IconButton(
+                  onPressed: addField,
+                  icon: Icon(
+                    Icons.add_rounded,
+                    color: Colors.blue,
+                  ),
+                  tooltip: "Tambah pilihan jawaban",
+                ),
+              ],
+            ),
+            Column(
+                children: List.generate(_ansController.length - 1, (index) {
+              return Row(
+                children: [
+                  Expanded(
+                      child: TextField(
+                    maxLines: null,
+                    controller: _ansController[index + 1],
+                    onChanged: (_) => checkFilled(),
+                    decoration: InputDecoration(
+                        hintText: "Contoh: Putih",
+                        border: OutlineInputBorder()),
+                  )),
+                  IconButton(
+                    onPressed: () {
+                      removeField(index + 1);
+                    },
+                    icon: Icon(
+                      Icons.clear_rounded,
+                      color: Colors.red,
+                    ),
+                    tooltip: "Hapus pilihan jawaban",
+                  ),
+                ],
+              );
+            })),
+            SizedBox(
+              height: 48,
+            ),
+            Row(
+              children: [
+                Expanded(
+                    child: ElevatedButton(
+                        onPressed: isFilled() ? () {} : null,
+                        child: Text(
+                          "Simpan Pertanyaan Baru",
+                          style: GoogleFonts.nunito(fontSize: 16),
+                        )))
+              ],
             )
           ],
         ),
       );
+
+  @override
+  void initState() {
+    super.initState();
+
+    _ansController.add(TextEditingController());
+  }
+
+  @override
+  void dispose() {
+    for (var cont in _ansController) {
+      cont.dispose();
+    }
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => PopScope(
