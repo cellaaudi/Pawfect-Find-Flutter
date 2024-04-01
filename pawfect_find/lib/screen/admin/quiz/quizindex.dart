@@ -76,12 +76,13 @@ class _QuizIndexPage extends State<QuizIndexPage> {
               ),
               IconButton(
                 onPressed: () async {
-                  // final prefs = await SharedPreferences.getInstance();
-                  // prefs.setInt('id_criteria', data.id);
-                  // prefs.setString('str_criteria', data.criteria);
+                  final prefs = await SharedPreferences.getInstance();
+                  prefs.setInt('id_que', data.id);
+                  prefs.setInt('sort_que', data.sort);
+                  prefs.setString('str_que', data.question);
 
-                  // Navigator.pushNamed(context, 'criteria_edit')
-                  //     .then((value) => _refresh());
+                  Navigator.pushNamed(context, 'que_edit')
+                      .then((value) => _refresh());
                 },
                 icon: Icon(Icons.edit_rounded),
                 tooltip: "Perbarui data",
@@ -193,9 +194,7 @@ class _QuizIndexPage extends State<QuizIndexPage> {
                 if (value == 'add') {
                   Navigator.pushNamed(context, 'que_add')
                       .then((value) => _refresh());
-                } else {
-                  
-                }
+                } else {}
               },
               itemBuilder: (context) => [
                     PopupMenuItem(

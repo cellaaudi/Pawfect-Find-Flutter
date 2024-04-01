@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:pawfect_find/class/criteria.dart';
-import 'package:pawfect_find/class/question.dart';
 
 class QuestionAddPage extends StatefulWidget {
   const QuestionAddPage({super.key});
@@ -177,7 +176,7 @@ class _QuestionAddPage extends State<QuestionAddPage> {
           Navigator.pop(context);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Gagal menambahkan data baru.1"),
+            content: Text("Gagal menambahkan data baru: ${json['message']}"),
             duration: Duration(seconds: 3),
           ));
           throw Exception("Gagal menambahkan data baru.");
