@@ -14,6 +14,9 @@ class QuestionDetailPage extends StatefulWidget {
 }
 
 class _QuestionDetailPage extends State<QuestionDetailPage> {
+  // method refresh
+  void _refresh() => setState(() {});
+
   // shared pref
   int? idQue;
 
@@ -184,7 +187,9 @@ class _QuestionDetailPage extends State<QuestionDetailPage> {
                           children: [
                             Expanded(
                                 child: OutlinedButton.icon(
-                                    onPressed: () {},
+                                    onPressed: () =>
+                                        Navigator.pushNamed(context, 'ans_add')
+                                            .then((value) => _refresh()),
                                     icon: Icon(Icons.add_rounded),
                                     label: Text(
                                       "Tambah Pilihan Jawaban",
