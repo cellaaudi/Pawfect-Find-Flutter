@@ -30,9 +30,6 @@ class _QuestionEditPage extends State<QuestionEditPage> {
     });
   }
 
-  // enable button
-  bool isFilled() => _queController.text.isNotEmpty;
-
   // method back message
   void _backMessage() => showDialog<void>(
       context: context,
@@ -80,39 +77,47 @@ class _QuestionEditPage extends State<QuestionEditPage> {
 
   // method edit data
   Future<void> editData() async {
-    try {
-      final response = await http.post(
-          Uri.parse(
-              'http://localhost/ta/Pawfect-Find-PHP/admin/question_edit.php'),
-          body: {'id': idQue.toString(), 'question': _queController.text});
+    if (_queController.text.isNotEmpty) {
+      try {
+        final response = await http.post(
+            Uri.parse(
+                'http://localhost/ta/Pawfect-Find-PHP/admin/question_edit.php'),
+            body: {'id': idQue.toString(), 'question': _queController.text});
 
-      if (response.statusCode == 200) {
-        Map<String, dynamic> json = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          Map<String, dynamic> json = jsonDecode(response.body);
 
-        if (json['result'] == 'Success') {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Berhasil memperbarui data."),
-            duration: Duration(seconds: 3),
-          ));
+          if (json['result'] == 'Success') {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Berhasil memperbarui data."),
+              duration: Duration(seconds: 3),
+            ));
 
-          final prefs = await SharedPreferences.getInstance();
-          prefs.remove('id_que');
-          prefs.remove('sort_que');
-          prefs.remove('str_que');
+            final prefs = await SharedPreferences.getInstance();
+            prefs.remove('id_que');
+            prefs.remove('sort_que');
+            prefs.remove('str_que');
 
-          Navigator.pop(context);
+            Navigator.pop(context);
+          } else {
+            throw Exception("Gagal memperbarui data: ${json['message']}");
+          }
         } else {
-          throw Exception("Gagal memperbarui data: ${json['message']}");
+          throw Exception("Gagal memperbarui data: ${response.statusCode}");
         }
-      } else {
-        throw Exception("Gagal memperbarui data: ${response.statusCode}");
-      }
-    } catch (ex) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      } catch (ex) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("Terjadi kesalahan: $ex"),
           duration: Duration(seconds: 3),
         ));
-      throw Exception("Terjadi kesalahan: $ex");
+        throw Exception("Terjadi kesalahan: $ex");
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Data belum semua terisi."),
+        duration: Duration(seconds: 3),
+      ));
+      throw Exception("Data belum semua terisi.");
     }
   }
 
@@ -166,7 +171,7 @@ class _QuestionEditPage extends State<QuestionEditPage> {
                 children: [
                   Expanded(
                       child: ElevatedButton(
-                          onPressed: isFilled() ? () => editData() : null,
+                          onPressed: () => editData(),
                           child: Text(
                             "Simpan Perubahan",
                             style: GoogleFonts.nunito(fontSize: 16),

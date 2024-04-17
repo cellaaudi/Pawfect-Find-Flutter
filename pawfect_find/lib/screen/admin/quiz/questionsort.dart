@@ -99,8 +99,6 @@ class _QuestionSortPage extends State<QuestionSortPage> {
         });
       }
 
-      // print(newOrder);
-
       final response = await http.post(
           Uri.parse(
               "http://localhost/ta/Pawfect-Find-PHP/admin/question_edit_sort.php"),
@@ -110,8 +108,6 @@ class _QuestionSortPage extends State<QuestionSortPage> {
 
       if (response.statusCode == 200) {
         Map<String, dynamic> json = jsonDecode(response.body);
-
-        // print(json);
 
         if (json['result'] == "Success") {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
