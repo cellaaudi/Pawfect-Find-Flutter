@@ -87,6 +87,54 @@ class _QuestionSortPage extends State<QuestionSortPage> {
     }
   }
 
+  // mwthod save new order
+  Future<void> updateOrder() async {
+    try {
+      List<Map<String, dynamic>> newOrder = [];
+
+      for (int i = 0; i < queList.length; i++) {
+        newOrder.add({
+          'id': queList[i].id,
+          'sort': i + 1,
+        });
+      }
+
+      // print(newOrder);
+
+      final response = await http.post(
+          Uri.parse(
+              "http://localhost/ta/Pawfect-Find-PHP/admin/question_edit_sort.php"),
+          body: {
+            'newOrder': jsonEncode(newOrder),
+          });
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
+
+        // print(json);
+
+        if (json['result'] == "Success") {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Berhasil memperbarui data."),
+            duration: Duration(seconds: 3),
+          ));
+
+          Navigator.pop(context);
+        } else {
+          throw Exception("Gagal memperbarui data: ${json['message']}");
+        }
+      } else {
+        throw Exception("Gagal memperbarui data: ${response.statusCode}");
+      }
+    } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Terjadi kesalahan: $ex"),
+        duration: Duration(seconds: 3),
+      ));
+      throw Exception("Terjadi kesalahan: $ex");
+    }
+  }
+
   // method on reorder
   void _onReorder(int oldId, int newId) {
     setState(() {
@@ -105,7 +153,7 @@ class _QuestionSortPage extends State<QuestionSortPage> {
   }
 
   // method build body
-  Widget buildBody(Color colOdd, Color colEven) => queList.isEmpty
+  Widget buildBody() => queList.isEmpty
       ? Center(child: CircularProgressIndicator())
       : ReorderableListView.builder(
           padding: EdgeInsets.all(16),
@@ -115,11 +163,14 @@ class _QuestionSortPage extends State<QuestionSortPage> {
 
             return ReorderableDragStartListener(
                 key: ValueKey(question.id),
+                index: index,
                 child: ListTile(
-                    title: Text(question.question),
-                    // tileColor: question.isOdd ? colOdd : colEven,
+                  leading: Text(
+                    "${index + 1}.",
+                    style: GoogleFonts.nunito(fontSize: 16),
                   ),
-                index: index);
+                  title: Text(question.question),
+                ));
           },
           itemCount: queList.length,
           onReorder: _onReorder,
@@ -130,10 +181,6 @@ class _QuestionSortPage extends State<QuestionSortPage> {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colSch = Theme.of(context).colorScheme;
-    final Color colOdd = colSch.primary.withOpacity(0.05);
-    final Color colEven = colSch.primary.withOpacity(0.15);
-
     return PopScope(
         canPop: false,
         onPopInvoked: (bool didPop) {
@@ -155,7 +202,7 @@ class _QuestionSortPage extends State<QuestionSortPage> {
             ),
             actions: [
               IconButton(
-                onPressed: () {},
+                onPressed: () => updateOrder(),
                 icon: Icon(Icons.check_rounded),
                 color: Colors.blue,
                 tooltip: "Simpan perubahan",
@@ -165,9 +212,22 @@ class _QuestionSortPage extends State<QuestionSortPage> {
           body: Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 500),
-              child: buildBody(colOdd, colEven),
-            ),
+                constraints: BoxConstraints(maxWidth: 500),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text(
+                        "Tekan dan geser pertanyaan untuk mengubah urutannya.",
+                        style: GoogleFonts.nunito(fontSize: 16),
+                      ),
+                    ),
+                    Divider(),
+                    Expanded(child: buildBody()),
+                  ],
+                )),
           ),
         ));
   }

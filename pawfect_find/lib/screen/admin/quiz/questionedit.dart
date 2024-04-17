@@ -102,20 +102,16 @@ class _QuestionEditPage extends State<QuestionEditPage> {
 
           Navigator.pop(context);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Gagal memperbarui data: ${json['message']}"),
-            duration: Duration(seconds: 3),
-          ));
-          throw Exception("Gagal memperbarui data.");
+          throw Exception("Gagal memperbarui data: ${json['message']}");
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Gagal memperbarui data."),
-          duration: Duration(seconds: 3),
-        ));
-        throw Exception("Gagal memperbarui data.");
+        throw Exception("Gagal memperbarui data: ${response.statusCode}");
       }
     } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Terjadi kesalahan: $ex"),
+          duration: Duration(seconds: 3),
+        ));
       throw Exception("Terjadi kesalahan: $ex");
     }
   }
