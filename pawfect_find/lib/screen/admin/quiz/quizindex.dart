@@ -158,7 +158,7 @@ class _QuizIndexPage extends State<QuizIndexPage> {
               return Center(
                 child: Text(
                   'Data tidak ditemukan',
-                  style: GoogleFonts.nunito(fontSize: 16),
+                  style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
                 ),
               );
             }
@@ -166,7 +166,7 @@ class _QuizIndexPage extends State<QuizIndexPage> {
             return Center(
               child: Text(
                 'Data tidak ditemukan',
-                style: GoogleFonts.nunito(fontSize: 16),
+                style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
               ),
             );
           }

@@ -39,16 +39,6 @@ class _QuestionAddPage extends State<QuestionAddPage> {
   List<int> selCrits = [];
 
   // disable save
-  bool isReady = false;
-
-  void checkFilled() {
-    if (isFilled() != isReady) {
-      setState(() {
-        isReady = isFilled();
-      });
-    }
-  }
-
   bool isFilled() {
     if (_queController.text.isEmpty) return false;
 
@@ -150,46 +140,58 @@ class _QuestionAddPage extends State<QuestionAddPage> {
 
   // // add new data
   Future<void> addData() async {
-    try {
-      List<String> choices =
-          _ansController.map((controller) => controller.text).toList();
+    if (isFilled()) {
+      try {
+        List<String> choices =
+            _ansController.map((controller) => controller.text).toList();
 
-      final response = await http.post(
-          Uri.parse(
-              'http://localhost/ta/Pawfect-Find-PHP/admin/question_add.php'),
-          body: {
-            'sort': sort.toString(),
-            'question': _queController.text,
-            'choices': jsonEncode(choices),
-            'criterias': jsonEncode(selCrits)
-          });
+        final response = await http.post(
+            Uri.parse(
+                'http://localhost/ta/Pawfect-Find-PHP/admin/question_add.php'),
+            body: {
+              'sort': sort.toString(),
+              'question': _queController.text,
+              'choices': jsonEncode(choices),
+              'criterias': jsonEncode(selCrits)
+            });
 
-      if (response.statusCode == 200) {
-        Map<String, dynamic> json = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          Map<String, dynamic> json = jsonDecode(response.body);
 
-        if (json['result'] == "Success") {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Berhasil menambahkan data baru."),
-            duration: Duration(seconds: 3),
-          ));
+          if (json['result'] == "Success") {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Berhasil menambahkan data baru."),
+              duration: Duration(seconds: 3),
+            ));
 
-          Navigator.pop(context);
+            Navigator.pop(context);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Gagal menambahkan data baru: ${json['message']}"),
+              duration: Duration(seconds: 3),
+            ));
+            throw Exception("Gagal menambahkan data baru.");
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Gagal menambahkan data baru: ${json['message']}"),
+            content: Text("Gagal menambahkan data baru."),
             duration: Duration(seconds: 3),
           ));
           throw Exception("Gagal menambahkan data baru.");
         }
-      } else {
+      } catch (ex) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Gagal menambahkan data baru."),
+          content: Text('Terjadi kesalahan: $ex'),
           duration: Duration(seconds: 3),
         ));
-        throw Exception("Gagal menambahkan data baru.");
+        throw Exception('Terjadi kesalahan: $ex');
       }
-    } catch (ex) {
-      throw Exception('Terjadi kesalahan: $ex');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Data belum semua terisi."),
+        duration: Duration(seconds: 3),
+      ));
+      throw Exception("Data belum semua terisi.");
     }
   }
 
@@ -215,7 +217,6 @@ class _QuestionAddPage extends State<QuestionAddPage> {
                   TextField(
                     maxLines: null,
                     controller: _ansController[index],
-                    onChanged: (_) => checkFilled(),
                     decoration: InputDecoration(
                         hintText: "Contoh: Hitam",
                         border: OutlineInputBorder()),
@@ -290,7 +291,6 @@ class _QuestionAddPage extends State<QuestionAddPage> {
                       child: TextField(
                     maxLines: null,
                     controller: _queController,
-                    onChanged: (_) => checkFilled(),
                     decoration: InputDecoration(
                         hintText:
                             "Contoh: Apa warna bulu anjing yang kamu inginkan?",
@@ -346,7 +346,7 @@ class _QuestionAddPage extends State<QuestionAddPage> {
                 children: [
                   Expanded(
                       child: ElevatedButton(
-                          onPressed: isReady ? () => addData() : null,
+                          onPressed: () => addData(),
                           child: Text(
                             "Simpan Pertanyaan Baru",
                             style: GoogleFonts.nunito(fontSize: 16),
