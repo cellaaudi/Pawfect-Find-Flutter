@@ -122,10 +122,10 @@ class _QuestionDetailPage extends State<QuestionDetailPage> {
                   final prefs = await SharedPreferences.getInstance();
                   prefs.setInt('id_choice', choice['choice_id']);
 
-                  // Navigator.pushNamed(context, 'que_detail');
+                  Navigator.pushNamed(context, 'ans_edit');
                 },
                 icon: Icon(Icons.edit_rounded),
-                tooltip: "Lihat data",
+                tooltip: "Perbarui data",
                 style: IconButton.styleFrom(foregroundColor: Colors.orange),
               ),
               IconButton(
@@ -136,7 +136,7 @@ class _QuestionDetailPage extends State<QuestionDetailPage> {
                   // Navigator.pushNamed(context, 'que_detail');
                 },
                 icon: Icon(Icons.delete_rounded),
-                tooltip: "Lihat data",
+                tooltip: "Hapus data",
                 style: IconButton.styleFrom(foregroundColor: Colors.red),
               ),
             ],
