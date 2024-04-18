@@ -21,7 +21,10 @@ class _AnswerAddPage extends State<AnswerAddPage> {
   // controller
   TextEditingController _ansController = TextEditingController();
 
-  // method shared preferences id breed
+  // dd handler
+  int? selectedCrit;
+
+  // method shared preferences id que
   void getQueID() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -94,6 +97,52 @@ class _AnswerAddPage extends State<AnswerAddPage> {
     }
   }
 
+  // save new data
+  Future<void> addData() async {
+    if (_ansController.text.isNotEmpty && selectedCrit != null) {
+      try {
+        final response = await http.post(
+            Uri.parse(
+                'http://localhost/ta/Pawfect-Find-PHP/admin/choice_add.php'),
+            body: {
+              'que_id': idQue.toString(),
+              'crit_id': selectedCrit.toString(),
+              'choice': _ansController.text
+            });
+
+        if (response.statusCode == 200) {
+          Map<String, dynamic> json = jsonDecode(response.body);
+
+          if (json['result'] == "Success") {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Berhasil menambahkan data baru."),
+              duration: Duration(seconds: 3),
+            ));
+
+            Navigator.pop(context);
+          } else {
+            throw Exception("Gagal menambahkan data baru: ${json['message']}");
+          }
+        } else {
+          throw Exception(
+              "Gagal menambahkan data baru: ${response.statusCode}");
+        }
+      } catch (ex) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Terjadi kesalahan: $ex'),
+          duration: Duration(seconds: 3),
+        ));
+        throw Exception('Terjadi kesalahan: $ex');
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Data belum semua terisi."),
+        duration: Duration(seconds: 3),
+      ));
+      throw Exception("Data belum semua terisi.");
+    }
+  }
+
   // method future drop down criterias
   Widget ddCriterias() => FutureBuilder<List<Criteria>>(
       future: fetchCriterias(),
@@ -110,12 +159,21 @@ class _AnswerAddPage extends State<AnswerAddPage> {
             List<Criteria> criterias = snapshot.data!;
 
             if (criterias.isNotEmpty) {
+              selectedCrit = criterias[0].id;
+
               return DropdownButtonFormField(
-                  items: criterias.map((crit) {
-                    return DropdownMenuItem(
-                        value: crit.id, child: Text(crit.criteria));
-                  }).toList(),
-                  onChanged: (value) {});
+                value: selectedCrit,
+                items: criterias.map((crit) {
+                  return DropdownMenuItem(
+                      value: crit.id, child: Text(crit.criteria));
+                }).toList(),
+                onChanged: (value) {
+                  selectedCrit = value;
+                },
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.all(8)),
+              );
             } else {
               return Center(
                 child: Text(
@@ -169,21 +227,39 @@ class _AnswerAddPage extends State<AnswerAddPage> {
                 "Jawaban Baru",
                 style: GoogleFonts.nunito(fontSize: 12.0),
               ),
-              Expanded(
-                  child: Card(
-                child: Column(
-                  children: [
-                    TextField(
-                      maxLines: null,
-                      controller: _ansController,
-                      decoration: InputDecoration(
-                          hintText: "Contoh: Hitam",
-                          border: OutlineInputBorder()),
+              Row(
+                children: [
+                  Expanded(
+                      child: Card(
+                    child: Column(
+                      children: [
+                        TextField(
+                          maxLines: null,
+                          controller: _ansController,
+                          decoration: InputDecoration(
+                              hintText: "Contoh: Hitam",
+                              border: OutlineInputBorder()),
+                        ),
+                        ddCriterias()
+                      ],
                     ),
-                    ddCriterias()
-                  ],
-                ),
-              ))
+                  ))
+                ],
+              ),
+              SizedBox(
+                height: 48,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                      child: ElevatedButton(
+                          onPressed: () => addData(),
+                          child: Text(
+                            "Simpan Jawaban Baru",
+                            style: GoogleFonts.nunito(fontSize: 16),
+                          )))
+                ],
+              )
             ],
           ),
         );
@@ -211,7 +287,7 @@ class _AnswerAddPage extends State<AnswerAddPage> {
             onPressed: () => _backMessage(),
           ),
           title: Text(
-            "Perbarui Pertanyaan",
+            "Tambah Pilihan Jawaban",
             style:
                 GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w800),
           ),

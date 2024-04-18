@@ -138,7 +138,7 @@ class _QuestionAddPage extends State<QuestionAddPage> {
     }
   }
 
-  // // add new data
+  // add new data
   Future<void> addData() async {
     if (isFilled()) {
       try {
@@ -166,18 +166,10 @@ class _QuestionAddPage extends State<QuestionAddPage> {
 
             Navigator.pop(context);
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text("Gagal menambahkan data baru: ${json['message']}"),
-              duration: Duration(seconds: 3),
-            ));
-            throw Exception("Gagal menambahkan data baru.");
+            throw Exception("Gagal menambahkan data baru: ${json['message']}");
           }
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Gagal menambahkan data baru."),
-            duration: Duration(seconds: 3),
-          ));
-          throw Exception("Gagal menambahkan data baru.");
+          throw Exception("Gagal menambahkan data baru: ${response.statusCode}");
         }
       } catch (ex) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(

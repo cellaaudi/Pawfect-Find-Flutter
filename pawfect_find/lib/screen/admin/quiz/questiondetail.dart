@@ -19,6 +19,7 @@ class _QuestionDetailPage extends State<QuestionDetailPage> {
 
   // shared pref
   int? idQue;
+  String? strQue;
 
   // method shared preferences id breed
   void getQueID() async {
@@ -43,6 +44,9 @@ class _QuestionDetailPage extends State<QuestionDetailPage> {
 
         if (json['result'] == "Success") {
           Question result = Question.fromJson(json['data']);
+
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setString('str_que', result.question);
 
           return result;
         } else {
