@@ -14,6 +14,7 @@ import 'package:pawfect_find/screen/admin/quiz/questiondetail.dart';
 import 'package:pawfect_find/screen/admin/quiz/questionedit.dart';
 import 'package:pawfect_find/screen/admin/quiz/questionsort.dart';
 import 'package:pawfect_find/screen/admin/quiz/quizindex.dart';
+import 'package:pawfect_find/screen/admin/rule/ruleadd.dart';
 import 'package:pawfect_find/screen/admin/rule/ruledetail.dart';
 import 'package:pawfect_find/screen/admin/rule/ruleindex.dart';
 import 'package:pawfect_find/screen/auth/login.dart';
@@ -113,6 +114,7 @@ class MyApp extends StatelessWidget {
         'criteria_add': (context) => CriteriaAddPage(),
         'criteria_edit': (context) => CriteriaEditPage(),
         'rule_index': (context) => RuleIndexPage(),
+        'rule_add': (context) => RuleAddPage(),
         'rule_detail': (context) => RuleDetailPage(),
         'quiz_index': (context) => QuizIndexPage(),
         'que_add': (context) => QuestionAddPage(),

@@ -26,17 +26,18 @@ class _QuizIndexPage extends State<QuizIndexPage> {
       if (response.statusCode == 200) {
         Map<String, dynamic> json = jsonDecode(response.body);
 
-        List<Question> datas = List<Question>.from(
-          json['data'].map((data) => Question.fromJson(data)),
-        );
+        if (json['result'] == 'Success') {
+          List<Question> datas = List<Question>.from(
+            json['data'].map((data) => Question.fromJson(data)),
+          );
 
-        return datas;
+          return datas;
+        } else {
+          throw Exception("Gagal menampilkan data: ${json['message']}.");
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Gagal menampilkan data pertanyaan."),
-          duration: Duration(seconds: 3),
-        ));
-        throw ("Error: Gagal menampilkan data pertanyaan");
+        throw Exception(
+            "Gagal menampilkan data: Status ${response.statusCode}.");
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

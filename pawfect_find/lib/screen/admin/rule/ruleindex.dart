@@ -16,19 +16,32 @@ class RuleIndexPage extends StatefulWidget {
 class _RuleIndexPage extends State<RuleIndexPage> {
   // method untuk ambil semua data
   Future<List<Rule>> fetchData() async {
-    final response = await http
-        .post(Uri.parse('http://localhost/ta/Pawfect-Find-PHP/admin/rule.php'));
+    try {
+      final response = await http.post(
+          Uri.parse('http://localhost/ta/Pawfect-Find-PHP/admin/rule.php'));
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> json = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
 
-      List<Rule> datas = List<Rule>.from(
-        json['data'].map((data) => Rule.fromJson(data)),
-      );
-      
-      return datas;
-    } else {
-      throw Exception("Gagal menampilkan data aturan.");
+        if (json['result'] == "Success") {
+          List<Rule> datas = List<Rule>.from(
+            json['data'].map((data) => Rule.fromJson(data)),
+          );
+
+          return datas;
+        } else {
+          throw Exception("Gagal menampilkan data: ${json['message']}.");
+        }
+      } else {
+        throw Exception(
+            "Gagal menampilkan data: Status ${response.statusCode}.");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Terjadi kesalahan: $e"),
+        duration: Duration(seconds: 3),
+      ));
+      throw ("Terjadi kesalahan: $e");
     }
   }
 
@@ -37,6 +50,7 @@ class _RuleIndexPage extends State<RuleIndexPage> {
         onTap: () async {
           final prefs = await SharedPreferences.getInstance();
           prefs.setInt('id_breed', data.breedId);
+          prefs.setString('str_breed', data.breedName);
 
           Navigator.pushNamed(context, 'rule_detail');
         },
@@ -49,9 +63,13 @@ class _RuleIndexPage extends State<RuleIndexPage> {
             mainAxisAlignment: MainAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                data.totalCriterias.toString(),
-                style: GoogleFonts.nunito(fontSize: 16),
+              CircleAvatar(
+                backgroundColor:
+                    data.totalCriterias == 0 ? Colors.red.shade100 : Colors.blue.shade100,
+                child: Text(
+                  data.totalCriterias.toString(),
+                  style: GoogleFonts.nunito(),
+                ),
               ),
               SizedBox(
                 width: 8,
@@ -144,13 +162,6 @@ class _RuleIndexPage extends State<RuleIndexPage> {
           "Data Aturan",
           style: GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w800),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.add_rounded),
-            tooltip: "Tambah data baru",
-          )
-        ],
       ),
       body: Align(
         alignment: Alignment.topCenter,

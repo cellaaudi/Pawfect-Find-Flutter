@@ -15,14 +15,19 @@ class RuleDetailPage extends StatefulWidget {
 }
 
 class _RuleDetailPage extends State<RuleDetailPage> {
+  // method refresh
+  void _refresh() => setState(() {});
+
   // Shared pref
   int? idBreed;
+  String? strBreed;
 
   // method shared preferences id breed
   void getBreedID() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       idBreed = prefs.getInt('id_breed');
+      strBreed = prefs.getString('str_breed');
     });
   }
 
@@ -59,14 +64,22 @@ class _RuleDetailPage extends State<RuleDetailPage> {
 
   // method tile data
   Widget tileData(criterias, int index) => ListTile(
-        leading: CircleAvatar(
-          child: Text("${index + 1}"),
+      leading: CircleAvatar(
+        child: Text(
+          "${index + 1}",
+          style: GoogleFonts.nunito(),
         ),
-        title: Text(
-          criterias['criteria'],
-          style: GoogleFonts.nunito(fontSize: 16),
-        ),
-      );
+      ),
+      title: Text(
+        criterias['criteria'],
+        style: GoogleFonts.nunito(fontSize: 16),
+      ),
+      trailing: IconButton(
+        onPressed: () {},
+        icon: Icon(Icons.delete_rounded),
+        tooltip: "Hapus data",
+        style: IconButton.styleFrom(foregroundColor: Colors.red),
+      ));
 
   // method build body
   Widget buildBody() => idBreed == null
@@ -163,6 +176,14 @@ class _RuleDetailPage extends State<RuleDetailPage> {
             style:
                 GoogleFonts.nunito(fontSize: 20.0, fontWeight: FontWeight.w800),
           ),
+          actions: [
+            IconButton(
+              onPressed: () => Navigator.pushNamed(context, 'rule_add')
+                  .then((value) => _refresh()),
+              icon: Icon(Icons.add_rounded),
+              tooltip: "Tambah data baru",
+            )
+          ],
         ),
         body: Align(
           alignment: Alignment.topCenter,
