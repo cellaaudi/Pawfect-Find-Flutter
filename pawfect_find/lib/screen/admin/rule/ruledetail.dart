@@ -22,7 +22,6 @@ class _RuleDetailPage extends State<RuleDetailPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       idBreed = prefs.getInt('id_breed');
-      print("id breed : $idBreed");
     });
   }
 
@@ -36,16 +35,17 @@ class _RuleDetailPage extends State<RuleDetailPage> {
       if (response.statusCode == 200) {
         Map<String, dynamic> json = jsonDecode(response.body);
 
-        Rule result = Rule.fromJson(json['data']);
+        if (json['result'] == 'Success') {
+          Rule result = Rule.fromJson(json['data']);
 
-        return result;
+          return result;
+        } else {
+          throw Exception(
+              'Gagal menampilkan data: ${json["message"]}.');
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Gagal menampilkan data aturan ras anjing.'),
-          duration: Duration(seconds: 3),
-        ));
-
-        throw Exception('Gagal menampilkan data aturan ras anjing.');
+        throw Exception(
+            'Gagal menampilkan data: Status ${response.statusCode}.');
       }
     } catch (ex) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -66,64 +66,70 @@ class _RuleDetailPage extends State<RuleDetailPage> {
       );
 
   // method build body
-  Widget buildBody() => SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: FutureBuilder<Rule>(
-          future: fetchData(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text(
-                    'Error: ${snapshot.error}',
-                    style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
-                  ),
-                );
-              } else if (snapshot.hasData) {
-                Rule rule = snapshot.data!;
-
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          rule.breedName,
-                          style: GoogleFonts.nunito(
-                              fontSize: 24, fontWeight: FontWeight.w800),
-                        )
-                      ],
+  Widget buildBody() => idBreed == null
+      ? Center(
+          child: CircularProgressIndicator(),
+        )
+      : SingleChildScrollView(
+          padding: EdgeInsets.all(16),
+          child: FutureBuilder<Rule>(
+            future: fetchData(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Error: ${snapshot.error}',
+                      style:
+                          GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
                     ),
-                    SizedBox(height: 16),
-                    // if (rule.criterias!.isNotEmpty)
-                    //   for (var c in rule.criterias!) tileData(c)
-                    // else
-                    //   Center(
-                    //     child: Text(
-                    //       "Belum ada kriteria.",
-                    //       style: GoogleFonts.nunito(
-                    //           fontSize: 16.0, color: Colors.grey),
-                    //     ),
-                    //   )
-                  ],
-                );
+                  );
+                } else if (snapshot.hasData) {
+                  Rule rule = snapshot.data!;
+
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            rule.breedName,
+                            style: GoogleFonts.nunito(
+                                fontSize: 24, fontWeight: FontWeight.w800),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: 16),
+                      if (rule.criterias!.isNotEmpty)
+                        for (var c in rule.criterias!) tileData(c)
+                      else
+                        Center(
+                          child: Text(
+                            "Belum ada kriteria.",
+                            style: GoogleFonts.nunito(
+                                fontSize: 16.0, color: Colors.grey),
+                          ),
+                        )
+                    ],
+                  );
+                } else {
+                  return Center(
+                    child: Text(
+                      'Data tidak ditemukan.',
+                      style:
+                          GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+                    ),
+                  );
+                }
               } else {
                 return Center(
-                  child: Text(
-                    'Data tidak ditemukan.',
-                    style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
-                  ),
+                  child: CircularProgressIndicator(),
                 );
               }
-            } else {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          },
-        ),
-      );
+            },
+          ),
+        );
 
   @override
   void initState() {
