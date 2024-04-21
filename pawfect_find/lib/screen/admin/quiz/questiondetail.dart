@@ -50,24 +50,19 @@ class _QuestionDetailPage extends State<QuestionDetailPage> {
 
           return result;
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content:
-                Text("Gagal menampilkan data pertanyaan: ${json['message']}."),
-            duration: Duration(seconds: 3),
-          ));
-
           throw Exception(
               "Gagal menampilkan data pertanyaan: ${json['message']}.");
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Gagal menampilkan data pertanyaan.'),
-          duration: Duration(seconds: 3),
-        ));
-
-        throw Exception('Gagal menampilkan data pertanyaan.');
+        throw Exception(
+            'Gagal menampilkan data pertanyaan: Status ${response.statusCode}.');
       }
     } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Terjadi kesalahan: $ex"),
+        duration: Duration(seconds: 3),
+      ));
+
       throw Exception("Terjadi kesalahan: $ex");
     }
   }
@@ -122,7 +117,8 @@ class _QuestionDetailPage extends State<QuestionDetailPage> {
                   final prefs = await SharedPreferences.getInstance();
                   prefs.setInt('id_choice', choice['choice_id']);
 
-                  Navigator.pushNamed(context, 'ans_edit');
+                  Navigator.pushNamed(context, 'ans_edit')
+                      .then((value) => _refresh());
                 },
                 icon: Icon(Icons.edit_rounded),
                 tooltip: "Perbarui data",
