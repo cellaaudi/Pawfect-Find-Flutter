@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:pawfect_find/class/criteria.dart';
 import 'package:pawfect_find/class/rule.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,8 +41,7 @@ class _RuleDetailPage extends State<RuleDetailPage> {
 
           return result;
         } else {
-          throw Exception(
-              'Gagal menampilkan data: ${json["message"]}.');
+          throw Exception('Gagal menampilkan data: ${json["message"]}.');
         }
       } else {
         throw Exception(
@@ -58,7 +58,10 @@ class _RuleDetailPage extends State<RuleDetailPage> {
   }
 
   // method tile data
-  Widget tileData(criterias) => ListTile(
+  Widget tileData(criterias, int index) => ListTile(
+        leading: CircleAvatar(
+          child: Text("${index + 1}"),
+        ),
         title: Text(
           criterias['criteria'],
           style: GoogleFonts.nunito(fontSize: 16),
@@ -102,7 +105,13 @@ class _RuleDetailPage extends State<RuleDetailPage> {
                       ),
                       SizedBox(height: 16),
                       if (rule.criterias!.isNotEmpty)
-                        for (var c in rule.criterias!) tileData(c)
+                        ListView.separated(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) =>
+                                tileData(rule.criterias![index], index),
+                            separatorBuilder: (context, index) => Divider(),
+                            itemCount: rule.criterias!.length)
                       else
                         Center(
                           child: Text(
