@@ -14,6 +14,9 @@ class RuleIndexPage extends StatefulWidget {
 }
 
 class _RuleIndexPage extends State<RuleIndexPage> {
+  // method refresh
+  void _refresh() => setState(() {});
+
   // method untuk ambil semua data
   Future<List<Rule>> fetchData() async {
     try {
@@ -52,7 +55,8 @@ class _RuleIndexPage extends State<RuleIndexPage> {
           prefs.setInt('id_breed', data.breedId);
           prefs.setString('str_breed', data.breedName);
 
-          Navigator.pushNamed(context, 'rule_detail');
+          Navigator.pushNamed(context, 'rule_detail')
+              .then((value) => _refresh());
         },
         child: ListTile(
           title: Text(
@@ -64,8 +68,9 @@ class _RuleIndexPage extends State<RuleIndexPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               CircleAvatar(
-                backgroundColor:
-                    data.totalCriterias == 0 ? Colors.red.shade100 : Colors.blue.shade100,
+                backgroundColor: data.totalCriterias == 0
+                    ? Colors.red.shade100
+                    : Colors.blue.shade100,
                 child: Text(
                   data.totalCriterias.toString(),
                   style: GoogleFonts.nunito(),

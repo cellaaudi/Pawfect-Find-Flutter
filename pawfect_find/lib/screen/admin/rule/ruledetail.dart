@@ -70,9 +70,19 @@ class _RuleDetailPage extends State<RuleDetailPage> {
           style: GoogleFonts.nunito(),
         ),
       ),
-      title: Text(
-        criterias['criteria'],
-        style: GoogleFonts.nunito(fontSize: 16),
+      title: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            criterias['criteria'],
+            style: GoogleFonts.nunito(fontSize: 16),
+          ),
+          Text(
+            "Certainty Factor: ${criterias['cf']}",
+            style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+          )
+        ],
       ),
       trailing: IconButton(
         onPressed: () {},
@@ -117,6 +127,29 @@ class _RuleDetailPage extends State<RuleDetailPage> {
                         ],
                       ),
                       SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: ListTile(
+                            leading: Text(
+                              "No.",
+                              style: GoogleFonts.nunito(
+                                  fontSize: 18, fontWeight: FontWeight.w800),
+                            ),
+                            title: Text(
+                              "Kriteria",
+                              style: GoogleFonts.nunito(
+                                  fontSize: 18, fontWeight: FontWeight.w800),
+                            ),
+                            trailing: Text(
+                              "Aksi",
+                              style: GoogleFonts.nunito(
+                                  fontSize: 18, fontWeight: FontWeight.w800),
+                            ),
+                          )),
+                        ],
+                      ),
+                      Divider(),
                       if (rule.criterias!.isNotEmpty)
                         ListView.separated(
                             shrinkWrap: true,

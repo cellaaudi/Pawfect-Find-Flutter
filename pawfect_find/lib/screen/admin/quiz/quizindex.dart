@@ -52,9 +52,11 @@ class _QuizIndexPage extends State<QuizIndexPage> {
   Widget tileData(Question data) => Padding(
         padding: EdgeInsets.symmetric(vertical: 8),
         child: ListTile(
-          leading: Text(
-            "${data.sort}.",
-            style: GoogleFonts.nunito(fontSize: 16),
+          leading: CircleAvatar(
+            child: Text(
+              "${data.sort}",
+              style: GoogleFonts.nunito(),
+            ),
           ),
           title: Text(
             data.question,

@@ -127,7 +127,50 @@ class _RuleAddPage extends State<RuleAddPage> {
   }
 
   // method add data
-  // cek kalo dd criteria null maka gak bisa tambah data
+  Future<void> addData(double cf) async {
+    if (selectedCrit != null && selectedMB != null && selectedMD != null) {
+      try {
+        final response = await http.post(
+            Uri.parse(
+                "http://localhost/ta/Pawfect-Find-PHP/admin/rule_add.php"),
+            body: {
+              'breed_id': idBreed.toString(),
+              'criteria_id': selectedCrit.toString(),
+              'cf': cf.toStringAsFixed(1),
+            });
+
+        if (response.statusCode == 200) {
+          Map<String, dynamic> json = jsonDecode(response.body);
+
+          if (json['result'] == "Success") {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Berhasil menambahkan data baru."),
+              duration: Duration(seconds: 3),
+            ));
+
+            Navigator.pop(context);
+          } else {
+            throw Exception("Gagal menambahkan data baru: ${json['message']}");
+          }
+        } else {
+          throw Exception(
+              "Gagal menambahkan data baru: Status ${response.statusCode}.");
+        }
+      } catch (ex) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Terjadi kesalahan: $ex."),
+          duration: Duration(seconds: 3),
+        ));
+        throw Exception("Terjadi kesalahan: $ex.");
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Data belum semua terisi."),
+        duration: Duration(seconds: 3),
+      ));
+      throw Exception("Data belum semua terisi.");
+    }
+  }
 
   // method future drop down criterias
   Widget ddCriterias() => FutureBuilder<List<Criteria>>(
@@ -145,7 +188,9 @@ class _RuleAddPage extends State<RuleAddPage> {
             List<Criteria> criterias = snapshot.data!;
 
             if (criterias.isNotEmpty) {
-              selectedCrit = criterias[0].id;
+              if (selectedCrit == null) {
+                selectedCrit = criterias[0].id;
+              }
 
               return DropdownButtonFormField(
                 value: selectedCrit,
@@ -154,7 +199,11 @@ class _RuleAddPage extends State<RuleAddPage> {
                       value: crit.id, child: Text(crit.criteria));
                 }).toList(),
                 onChanged: (value) {
-                  selectedCrit = value;
+                  if (value != selectedCrit) {
+                    setState(() {
+                      selectedCrit = value;
+                    });
+                  }
                 },
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
@@ -294,7 +343,14 @@ class _RuleAddPage extends State<RuleAddPage> {
                 children: [
                   Expanded(
                       child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            if (selectedMB != null && selectedMD != null) {
+                              double cf =
+                                  (selectedMB! - selectedMD!).clamp(-1.0, 1.0);
+
+                              addData(cf);
+                            }
+                          },
                           child: Text(
                             "Simpan Aturan Baru",
                             style: GoogleFonts.nunito(fontSize: 16),
@@ -310,6 +366,8 @@ class _RuleAddPage extends State<RuleAddPage> {
     super.initState();
 
     getBreedID();
+
+    selectedCrit = null;
 
     selectedMB = mbOptions.values.first;
     selectedMD = mdOptions.values.first;
