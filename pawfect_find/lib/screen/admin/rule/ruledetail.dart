@@ -31,6 +31,50 @@ class _RuleDetailPage extends State<RuleDetailPage> {
     });
   }
 
+  // method delete alert
+  Future<void> _delMsg(criterias) async => showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+          title: Text(
+            'Hapus Aturan',
+            style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+          ),
+          content: Text(
+            'Apa kamu yakin ingin menghapus ${criterias["criteria"]} dari daftar kriteria $strBreed?',
+            style: GoogleFonts.nunito(fontSize: 16.0),
+          ),
+          actions: <Widget>[
+            TextButton(
+                style: TextButton.styleFrom(
+                    textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Batal',
+                  style: GoogleFonts.nunito(),
+                )),
+            TextButton(
+                onPressed: () async {
+                  bool deleted = await deleteData(criterias['criteria_id']);
+
+                  if (deleted) {
+                    Navigator.pop(context);
+                  }
+                },
+                style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                child: Text(
+                  'Hapus',
+                  style: GoogleFonts.nunito(),
+                ))
+          ],
+        );
+      });
+
+  // method fetch data
   Future<Rule> fetchData() async {
     try {
       final response = await http.post(
@@ -52,6 +96,47 @@ class _RuleDetailPage extends State<RuleDetailPage> {
         throw Exception(
             'Gagal menampilkan data: Status ${response.statusCode}.');
       }
+    } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Terjadi kesalahan: $ex'),
+        duration: Duration(seconds: 3),
+      ));
+
+      throw Exception('Terjadi kesalahan: $ex');
+    }
+  }
+
+  // method delete data
+  Future<bool> deleteData(int criteria_id) async {
+    try {
+      bool deleted = false;
+
+      final response = await http.post(
+          Uri.parse(
+              "http://localhost/ta/Pawfect-Find-PHP/admin/rule_delete.php"),
+          body: {
+            'breed_id': idBreed.toString(),
+            'criteria_id': criteria_id.toString(),
+          });
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
+
+        if (json['result'] == 'Success') {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Berhasil hapus data."),
+            duration: Duration(seconds: 3),
+          ));
+
+          deleted = true;
+        } else {
+          throw Exception("Gagal hapus data: ${json['message']}.");
+        }
+      } else {
+        throw Exception("Gagal hapus data: Status ${response.statusCode}.");
+      }
+
+      return deleted;
     } catch (ex) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Terjadi kesalahan: $ex'),
@@ -85,7 +170,9 @@ class _RuleDetailPage extends State<RuleDetailPage> {
         ],
       ),
       trailing: IconButton(
-        onPressed: () {},
+        onPressed: () {
+          _delMsg(criterias).then((value) => _refresh());
+        },
         icon: Icon(Icons.delete_rounded),
         tooltip: "Hapus data",
         style: IconButton.styleFrom(foregroundColor: Colors.red),
