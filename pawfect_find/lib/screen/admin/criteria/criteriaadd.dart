@@ -15,42 +15,47 @@ class _CriteriaAddPage extends State<CriteriaAddPage> {
   // controller input
   TextEditingController _criteriaController = TextEditingController();
 
-  // boolean disable button
-  bool isDis = true;
-
   // variable input
   String? criteria;
 
   // method tambah data
-  void addData(String criteria) async {
-    final response = await http.post(
-        Uri.parse(
-            'http://localhost/ta/Pawfect-Find-PHP/admin/criteria_add.php'),
-        body: {'criteria': criteria});
+  Future<void> addData() async {
+    if (_criteriaController.text.isNotEmpty) {
+      try {
+        final response = await http.post(
+            Uri.parse(
+                'http://localhost/ta/Pawfect-Find-PHP/admin/criteria_add.php'),
+            body: {'criteria': _criteriaController.text});
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> json = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          Map<String, dynamic> json = jsonDecode(response.body);
 
-      if (json['result'] == "Success") {
+          if (json['result'] == "Success") {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Berhasil menambahkan data baru."),
+              duration: Duration(seconds: 3),
+            ));
+
+            Navigator.pop(context);
+          } else {
+            throw Exception("Gagal menambahkan data baru: ${json['message']}.");
+          }
+        } else {
+          throw Exception(
+              "Gagal menambahkan data baru: Status ${response.statusCode}.");
+        }
+      } catch (ex) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Berhasil menambahkan data baru."),
+          content: Text("Terjadi kesalahan: $ex."),
           duration: Duration(seconds: 3),
         ));
-
-        Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Gagal menambahkan data baru."),
-          duration: Duration(seconds: 3),
-        ));
-        throw Exception("Gagal menambahkan data baru.");
+        throw Exception("Terjadi kesalahan: $ex.");
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Gagal menambahkan data baru."),
+        content: Text("Data belum semua terisi."),
         duration: Duration(seconds: 3),
       ));
-      throw Exception("Gagal menambahkan data baru.");
     }
   }
 
@@ -93,10 +98,11 @@ class _CriteriaAddPage extends State<CriteriaAddPage> {
       });
 
   // method untuk build body
-  Widget buildBody() => Padding(
+  Widget buildBody() => SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
@@ -114,7 +120,6 @@ class _CriteriaAddPage extends State<CriteriaAddPage> {
                   onChanged: (value) {
                     setState(() {
                       criteria = value;
-                      isDis = value.isEmpty;
                     });
                   },
                   decoration: InputDecoration(
@@ -123,12 +128,14 @@ class _CriteriaAddPage extends State<CriteriaAddPage> {
                 ))
               ],
             ),
-            Spacer(),
+            SizedBox(
+              height: 48,
+            ),
             Row(
               children: [
                 Expanded(
                     child: ElevatedButton(
-                        onPressed: isDis ? null : () => addData(criteria!),
+                        onPressed: () => addData(),
                         child: Text(
                           "Simpan",
                           style: GoogleFonts.nunito(fontSize: 16),

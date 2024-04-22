@@ -16,9 +16,6 @@ class _CriteriaEditPage extends State<CriteriaEditPage> {
   // controller input
   TextEditingController _criteriaController = TextEditingController();
 
-  // boolean disable button
-  bool isDis = true;
-
   // variable input
   String? criteria;
 
@@ -34,45 +31,53 @@ class _CriteriaEditPage extends State<CriteriaEditPage> {
     });
 
     _criteriaController.text = criteria ?? "";
-    setState(() {
-      isDis = _criteriaController.text.isEmpty;
-    });
   }
 
   // method tambah data
-  void editData(String criteria) async {
-    final response = await http.post(
-        Uri.parse(
-            'http://localhost/ta/Pawfect-Find-PHP/admin/criteria_edit.php'),
-        body: {'id': idCriteria.toString(), 'criteria': criteria});
+  Future<void> editData() async {
+    if (_criteriaController.text.isNotEmpty) {
+      try {
+        final response = await http.post(
+            Uri.parse(
+                'http://localhost/ta/Pawfect-Find-PHP/admin/criteria_edit.php'),
+            body: {
+              'id': idCriteria.toString(),
+              'criteria': _criteriaController.text,
+            });
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> json = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          Map<String, dynamic> json = jsonDecode(response.body);
 
-      if (json['result'] == "Success") {
+          if (json['result'] == "Success") {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Berhasil memperbarui data."),
+              duration: Duration(seconds: 3),
+            ));
+
+            final prefs = await SharedPreferences.getInstance();
+            prefs.remove('id_criteria');
+            prefs.remove('str_criteria');
+
+            Navigator.pop(context);
+          } else {
+            throw Exception("Gagal memperbarui data: ${json['message']}.");
+          }
+        } else {
+          throw Exception(
+              "Gagal memperbarui data: Status ${response.statusCode}.");
+        }
+      } catch (ex) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Berhasil memperbarui data."),
+          content: Text("Terjadi kesalahan: $ex."),
           duration: Duration(seconds: 3),
         ));
-
-        final prefs = await SharedPreferences.getInstance();
-        prefs.remove('id_criteria');
-        prefs.remove('str_criteria');
-
-        Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Gagal memperbarui data."),
-          duration: Duration(seconds: 3),
-        ));
-        throw Exception("Gagal memperbarui data.");
+        throw Exception("Terjadi kesalahan: $ex.");
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Gagal memperbarui data."),
+        content: Text("Data belum semua terisi."),
         duration: Duration(seconds: 3),
       ));
-      throw Exception("Gagal memperbarui data.");
     }
   }
 
@@ -124,7 +129,8 @@ class _CriteriaEditPage extends State<CriteriaEditPage> {
   Widget buildBody() => Padding(
         padding: EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
@@ -142,7 +148,6 @@ class _CriteriaEditPage extends State<CriteriaEditPage> {
                   onChanged: (value) {
                     setState(() {
                       criteria = value;
-                      isDis = value.isEmpty;
                     });
                   },
                   decoration: InputDecoration(
@@ -151,12 +156,14 @@ class _CriteriaEditPage extends State<CriteriaEditPage> {
                 ))
               ],
             ),
-            Spacer(),
+            SizedBox(
+              height: 48,
+            ),
             Row(
               children: [
                 Expanded(
                     child: ElevatedButton(
-                        onPressed: isDis ? null : () => editData(criteria!),
+                        onPressed: () => editData(),
                         child: Text(
                           "Simpan",
                           style: GoogleFonts.nunito(fontSize: 16),
