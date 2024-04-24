@@ -21,7 +21,7 @@ class _QuizPage extends State<QuizPage> {
   void getUserID() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      idUser = prefs.getInt('id_user') ?? 0;
+      idUser = prefs.getInt('id_user');
     });
   }
 
@@ -48,6 +48,27 @@ class _QuizPage extends State<QuizPage> {
 
   // progress bar
   double progress = 0.0;
+
+  // list untuk menampung selected breeds from previous step
+  List<int>? selectedBreeds;
+
+  // method untuk shared preferences list of selected breeds
+  void getSelectedBreeds() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String>? strSelectedBreeds =
+        prefs.getStringList("quiz_selectedbreeds");
+
+    if (strSelectedBreeds != null) {
+      setState(() {
+        // convert list string jadi list int
+        selectedBreeds = strSelectedBreeds.map((i) => int.parse(i)).toList();
+      });
+    } else {
+      setState(() {
+        selectedBreeds = null;
+      });
+    }
+  }
 
   // method untuk confirmation message sebelum keluar quiz
   void _backMessage() {
@@ -93,43 +114,85 @@ class _QuizPage extends State<QuizPage> {
 
   // method untuk fetch questions dari db
   Future<List<Question>> fetchQuestions() async {
-    final response = await http
-        .get(Uri.parse("http://localhost/ta/Pawfect-Find-PHP/question.php"));
+    try {
+      final response = await http
+          .get(Uri.parse("http://localhost/ta/Pawfect-Find-PHP/question.php"));
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> json = jsonDecode(response.body);
-      List<Question> questions = List<Question>.from(
-          json['data'].map((que) => Question.fromJson(que)));
-      return questions;
-    } else {
-      throw Exception("Failed to read API");
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
+
+        if (json['result'] == 'Success') {
+          List<Question> questions = List<Question>.from(
+              json['data'].map((que) => Question.fromJson(que)));
+
+          return questions;
+        } else {
+          throw Exception("Gagal menampilkan data: ${json['message']}.");
+        }
+      } else {
+        throw Exception(
+            "Gagal menampilkan data: Status ${response.statusCode}.");
+      }
+    } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Terjadi kesalahan: $ex."),
+        duration: Duration(seconds: 3),
+      ));
+
+      throw Exception("Terjadi kesalahan: $ex");
     }
   }
 
   // method untuk kirim post jawaban user ke api
   void postAnswers(List<Answer> answers) async {
-    final response = await http.post(
-        Uri.parse("http://localhost/ta/Pawfect-Find-PHP/answer.php"),
-        body: {
-          'answersJson': jsonEncode(answers),
-          'user_id': idUser.toString()
-        });
+    try {
+      http.Response response;
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> result = jsonDecode(response.body);
-
-      if (result['result'] == 'Success') {
-        String historyId = result['history_id'].toString();
+      if (selectedBreeds == null) {
+        response = await http.post(
+            Uri.parse("http://localhost/ta/Pawfect-Find-PHP/answer.php"),
+            body: {
+              'answersJson': jsonEncode(answers),
+              'user_id': idUser.toString()
+            });
+      } else {
+        response = await http.post(
+            Uri.parse(
+                "http://localhost/ta/Pawfect-Find-PHP/answer_afchoose.php"),
+            body: {
+              'answersJson': jsonEncode(answers),
+              'selBreeds': jsonEncode(selectedBreeds),
+              'user_id': idUser.toString()
+            });
 
         final prefs = await SharedPreferences.getInstance();
-        prefs.setString('id_history', historyId);
-
-        Navigator.pushNamed(context, "result");
+        prefs.remove('quiz_selectedbreeds');
       }
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Gagal mengirim jawaban')));
-      throw Exception('Gagal mengirim jawaban');
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> result = jsonDecode(response.body);
+
+        if (result['result'] == 'Success') {
+          String historyId = result['history_id'].toString();
+
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setString('id_history', historyId);
+
+          Navigator.pushNamed(context, "result");
+        } else {
+          throw Exception("Gagal mengirim jawaban: ${result['message']}.");
+        }
+      } else {
+        throw Exception(
+            'Gagal mengirim jawaban: Status ${response.statusCode}.');
+      }
+    } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Terjadi kesalahan: $ex."),
+        duration: Duration(seconds: 3),
+      ));
+
+      throw Exception("Terjadi kesalahan: $ex");
     }
   }
 
@@ -204,25 +267,51 @@ class _QuizPage extends State<QuizPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Sangat tidak yakin',
-                    style: GoogleFonts.nunito(fontSize: 12.0),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Sangat',
+                        style: GoogleFonts.nunito(fontSize: 14.0),
+                      ),
+                      Text(
+                        'tidak',
+                        style: GoogleFonts.nunito(fontSize: 14.0),
+                      ),
+                      Text(
+                        'yakin',
+                        style: GoogleFonts.nunito(fontSize: 14.0),
+                      ),
+                    ],
                   ),
-                  Slider(
-                    value: cfValues[question.id] ?? 0.0,
-                    onChanged: (value) {
-                      setState(() {
-                        cfValues[question.id] = value;
-                      });
-                    },
-                    min: 0.0,
-                    max: 1.0,
-                    divisions: 4,
-                    label: cfLabel(cfValues[question.id] ?? 0.0),
-                  ),
-                  Text(
-                    'Sangat yakin',
-                    style: GoogleFonts.nunito(fontSize: 12.0),
+                  Expanded(
+                      child: FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: Slider(
+                      value: cfValues[question.id] ?? 0.0,
+                      onChanged: (value) {
+                        setState(() {
+                          cfValues[question.id] = value;
+                        });
+                      },
+                      min: 0.0,
+                      max: 1.0,
+                      divisions: 4,
+                      label: cfLabel(cfValues[question.id] ?? 0.0),
+                    ),
+                  )),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Sangat',
+                        style: GoogleFonts.nunito(fontSize: 14.0),
+                      ),
+                      Text(
+                        'yakin',
+                        style: GoogleFonts.nunito(fontSize: 14.0),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -300,13 +389,78 @@ class _QuizPage extends State<QuizPage> {
     );
   }
 
+  // method build body
+  Widget buildBody() => idUser == null
+      ? Center(
+          child: CircularProgressIndicator(),
+        )
+      : listQuestions.isEmpty
+          ? Center(
+              child: Text(
+                "Tidak ada pertanyaan",
+                style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+              ),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: PageView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    controller: _pageController,
+                    itemCount: listQuestions.length,
+                    onPageChanged: (int page) {
+                      setState(() {
+                        currentPage = page;
+                      });
+                      updateProgress(page, listQuestions.length);
+                    },
+                    itemBuilder: (BuildContext ctxt, int index) {
+                      return displayQuestions(listQuestions[index], index);
+                    },
+                  ),
+                ),
+                Container(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            '${currentPage + 1} dari ${listQuestions.length} pertanyaan',
+                            style: GoogleFonts.nunito(fontSize: 16.0),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 8.0,
+                        ),
+                        ClipRRect(
+                          borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(16.0),
+                              bottom: Radius.circular(16.0)),
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            minHeight: 10,
+                            backgroundColor: Colors.grey,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.blue),
+                          ),
+                        ),
+                      ],
+                    )),
+              ],
+            );
+
   @override
   void initState() {
     super.initState();
+
     getUserID();
+    getSelectedBreeds();
 
     // inisialisation untuk page controller
     _pageController = PageController();
+
     fetchQuestions().then((questions) {
       setState(() {
         listQuestions = questions;
@@ -325,66 +479,25 @@ class _QuizPage extends State<QuizPage> {
         _backMessage();
       },
       child: Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new_rounded),
-              onPressed: () => _backMessage(),
-            ),
-            title: Text(
-              'Kuis Pawfect Find',
-              style: GoogleFonts.nunito(
-                  fontSize: 20.0, fontWeight: FontWeight.w800),
-            ),
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_new_rounded),
+            onPressed: () => _backMessage(),
           ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: PageView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  controller: _pageController,
-                  itemCount: listQuestions.length,
-                  onPageChanged: (int page) {
-                    setState(() {
-                      currentPage = page;
-                    });
-                    updateProgress(page, listQuestions.length);
-                  },
-                  itemBuilder: (BuildContext ctxt, int index) {
-                    return displayQuestions(listQuestions[index], index);
-                  },
-                ),
-              ),
-              Container(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          '${currentPage + 1} dari ${listQuestions.length} pertanyaan',
-                          style: GoogleFonts.nunito(fontSize: 16.0),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 8.0,
-                      ),
-                      ClipRRect(
-                        borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(16.0),
-                            bottom: Radius.circular(16.0)),
-                        child: LinearProgressIndicator(
-                          value: progress,
-                          minHeight: 10,
-                          backgroundColor: Colors.grey,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.blue),
-                        ),
-                      ),
-                    ],
-                  )),
-            ],
-          )),
+          title: Text(
+            'Kuis Pawfect Find',
+            style:
+                GoogleFonts.nunito(fontSize: 20.0, fontWeight: FontWeight.w800),
+          ),
+        ),
+        body: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 500),
+            child: buildBody(),
+          ),
+        ),
+      ),
     );
   }
 

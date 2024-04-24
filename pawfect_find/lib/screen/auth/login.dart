@@ -108,6 +108,7 @@ class _LoginPage extends State<LoginPage> {
                     const SizedBox(height: 32.0),
                     Text(
                       "Masuk dengan Google untuk menikmati fitur yang tersedia",
+                      textAlign: TextAlign.center,
                       style: GoogleFonts.nunito(fontSize: 16.0),
                     ),
                     const SizedBox(

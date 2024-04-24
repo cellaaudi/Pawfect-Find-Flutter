@@ -17,20 +17,34 @@ class _BreedPage extends State<BreedPage> {
 
   // method untuk fetch data breeds dari database
   Future<List<Breed>> fetchBreeds() async {
-    final response = await http.post(
-        Uri.parse('http://localhost/ta/Pawfect-Find-PHP/breed.php'),
-        body: {'search': _searchText});
+    try {
+      final response = await http.post(
+          Uri.parse('http://localhost/ta/Pawfect-Find-PHP/breed.php'),
+          body: {'search': _searchText});
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> json = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
 
-      List<Breed> breeds = List<Breed>.from(
-        json['data'].map((breed) => Breed.fromJson(breed)),
-      );
+        if (json['result'] == 'Success') {
+          List<Breed> breeds = List<Breed>.from(
+            json['data'].map((breed) => Breed.fromJson(breed)),
+          );
 
-      return breeds;
-    } else {
-      throw Exception("Gagal membaca API");
+          return breeds;
+        } else {
+          throw Exception("Gagal menampilkan data: ${json['message']}.");
+        }
+      } else {
+        throw Exception(
+            "Gagal menampilkan data: Status ${response.statusCode}.");
+      }
+    } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Terjadi kesalahan: $ex."),
+        duration: Duration(seconds: 3),
+      ));
+
+      throw Exception("Terjadi kesalahan: $ex");
     }
   }
 
@@ -39,7 +53,7 @@ class _BreedPage extends State<BreedPage> {
       onTap: () async {
         final prefs = await SharedPreferences.getInstance();
         prefs.setInt('id_breed', breed.id);
-        
+
         Navigator.pushNamed(context, 'detail');
       },
       child: Card(
@@ -51,7 +65,8 @@ class _BreedPage extends State<BreedPage> {
           alignment: Alignment.centerLeft,
           children: [
             Ink.image(
-              image: NetworkImage("http://localhost/ta/Pawfect-Find-PHP/${breed.imgAdult}"),
+              image: NetworkImage(
+                  "http://localhost/ta/Pawfect-Find-PHP/${breed.imgAdult}"),
               fit: BoxFit.cover,
             ),
             Container(
@@ -96,23 +111,38 @@ class _BreedPage extends State<BreedPage> {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasError) {
                 return Center(
-                  child: Text('Error: ${snapshot.error}'),
+                  child: Text(
+                    'Error: ${snapshot.error}',
+                    style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+                  ),
                 );
               } else if (snapshot.hasData) {
-                // return cardBreed(snapshot.data!);
-                return GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 1,
-                        crossAxisSpacing: 8.0,
-                        mainAxisSpacing: 8.0),
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (BuildContext ctxt, int index) {
-                      return cardBreed(snapshot.data![index]);
-                    });
+                if (snapshot.data!.isNotEmpty) {
+                  return GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 1,
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0),
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        return cardBreed(snapshot.data![index]);
+                      });
+                } else {
+                  return Center(
+                    child: Text(
+                      'Tidak ada hasil ditemukan',
+                      style:
+                          GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+                    ),
+                  );
+                }
               } else {
-                return const Center(
-                  child: Text('Tidak ada hasil ditemukan'),
+                return Center(
+                  child: Text(
+                    'Tidak ada hasil ditemukan',
+                    style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+                  ),
                 );
               }
             } else {

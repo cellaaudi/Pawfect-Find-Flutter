@@ -90,20 +90,34 @@ class _ChoosePage extends State<ChoosePage> {
 
   // method untuk fetch data breeds dari database
   Future<List<Breed>> fetchBreeds() async {
-    final response = await http.post(
-        Uri.parse('http://localhost/ta/Pawfect-Find-PHP/breed.php'),
-        body: {'search': _searchText});
+    try {
+      final response = await http.post(
+          Uri.parse('http://localhost/ta/Pawfect-Find-PHP/breed.php'),
+          body: {'search': _searchText});
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> json = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
 
-      List<Breed> breeds = List<Breed>.from(
-        json['data'].map((breed) => Breed.fromJson(breed)),
-      );
+        if (json['result'] == 'Success') {
+          List<Breed> breeds = List<Breed>.from(
+            json['data'].map((breed) => Breed.fromJson(breed)),
+          );
 
-      return breeds;
-    } else {
-      throw Exception("Gagal membaca API");
+          return breeds;
+        } else {
+          throw Exception("Gagal menampilkan data: ${json['message']}.");
+        }
+      } else {
+        throw Exception(
+            "Gagal menampilkan data: Status ${response.statusCode}.");
+      }
+    } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Terjadi kesalahan: $ex."),
+        duration: Duration(seconds: 3),
+      ));
+
+      throw Exception("Terjadi kesalahan: $ex");
     }
   }
 
@@ -165,22 +179,34 @@ class _ChoosePage extends State<ChoosePage> {
             return Center(
               child: Text(
                 'Error: ${snapshot.error}',
-                style: GoogleFonts.nunito(fontSize: 14, color: Colors.grey),
+                style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
               ),
             );
           } else if (snapshot.hasData) {
-            return ListView.separated(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (BuildContext ctxt, int index) {
-                return cardBreed(snapshot.data![index]);
-              },
-              separatorBuilder: (BuildContext ctxt, int index) {
-                return Divider();
-              },
-            );
+            if (snapshot.data!.isNotEmpty) {
+              return ListView.separated(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (BuildContext ctxt, int index) {
+                  return cardBreed(snapshot.data![index]);
+                },
+                separatorBuilder: (BuildContext ctxt, int index) {
+                  return Divider();
+                },
+              );
+            } else {
+              return Center(
+                child: Text(
+                  'Tidak ada hasil ditemukan',
+                  style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+                ),
+              );
+            }
           } else {
-            return const Center(
-              child: Text('Tidak ada hasil ditemukan'),
+            return Center(
+              child: Text(
+                'Tidak ada hasil ditemukan',
+                style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+              ),
             );
           }
         } else {
@@ -189,6 +215,92 @@ class _ChoosePage extends State<ChoosePage> {
           );
         }
       });
+
+  // method build body
+  Widget buildBody() => Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            RichText(
+              text: TextSpan(children: [
+                TextSpan(
+                    text:
+                        'Pilih maksimal 5 ras anjing yang kamu inginkan. Pawfect Find akan membantu memberitahumu seberapa cocok ras tersebut dengan kamu.',
+                    style: GoogleFonts.nunito(fontSize: 16))
+              ]),
+            ),
+            SizedBox(
+              height: 16.0,
+            ),
+            Text(
+              'Daftar Ras Anjing',
+              style: GoogleFonts.nunito(
+                  fontWeight: FontWeight.w800, fontSize: 18.0),
+            ),
+            SizedBox(
+              height: 8.0,
+            ),
+            Container(
+              child: Row(
+                children: [
+                  Expanded(
+                      child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.search),
+                        hintText: 'Cari ras anjing ...',
+                        border: OutlineInputBorder()),
+                  ))
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 8.0,
+            ),
+            Expanded(child: displayBreeds()),
+            SizedBox(
+              height: 16.0,
+            ),
+            Row(
+              children: [
+                Expanded(
+                    child: RichText(
+                        text: TextSpan(
+                            text:
+                                "Ras anjing dipilih: ${selectedBreeds.isNotEmpty ? selectedBreeds.values.join(", ") : '-'}",
+                            style: GoogleFonts.nunito(fontSize: 16.0))))
+              ],
+            ),
+            SizedBox(
+              height: 16.0,
+            ),
+            Row(
+              children: [
+                Expanded(
+                    child: ElevatedButton(
+                        onPressed: btnNext
+                            ? () async {
+                                List<String> strSelectedBreeds = selectedBreeds
+                                    .keys
+                                    .map((id) => id.toString())
+                                    .toList();
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setStringList(
+                                    'quiz_selectedbreeds', strSelectedBreeds);
+                                Navigator.pushNamed(context, 'quiz');
+                              }
+                            : null,
+                        child: Text(
+                          'Berikutnya (${selectedBreeds.length}/5)',
+                          style: GoogleFonts.nunito(),
+                        )))
+              ],
+            )
+          ],
+        ),
+      );
 
   @override
   void initState() {
@@ -226,96 +338,11 @@ class _ChoosePage extends State<ChoosePage> {
                     fontSize: 20.0, fontWeight: FontWeight.w800),
               ),
             ),
-            body: Center(
+            body: Align(
+              alignment: Alignment.topCenter,
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: 500.0),
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RichText(
-                        text: TextSpan(children: [
-                          TextSpan(
-                              text:
-                                  'Pilih maksimal 5 ras anjing yang kamu inginkan. Pawfect Find akan membantu memberitahumu seberapa cocok ras tersebut dengan kamu.',
-                              style: GoogleFonts.nunito())
-                        ]),
-                      ),
-                      SizedBox(
-                        height: 16.0,
-                      ),
-                      Text(
-                        'Daftar Ras Anjing',
-                        style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.w800, fontSize: 18.0),
-                      ),
-                      SizedBox(
-                        height: 8.0,
-                      ),
-                      Container(
-                        child: Row(
-                          children: [
-                            Expanded(
-                                child: TextField(
-                              controller: _searchController,
-                              decoration: InputDecoration(
-                                  prefixIcon: Icon(Icons.search),
-                                  hintText: 'Cari ras anjing ...',
-                                  border: OutlineInputBorder()),
-                            ))
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 8.0,
-                      ),
-                      Expanded(child: displayBreeds()),
-                      SizedBox(
-                        height: 16.0,
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                              child: RichText(
-                                  text: TextSpan(
-                                      text:
-                                          "Ras anjing dipilih: ${selectedBreeds.isNotEmpty ? selectedBreeds.values.join(", ") : '-'}",
-                                      style:
-                                          GoogleFonts.nunito(fontSize: 16.0))))
-                        ],
-                      ),
-                      SizedBox(
-                        height: 16.0,
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                              child: ElevatedButton(
-                                  onPressed: btnNext
-                                      ? () async {
-                                          List<String> strSelectedBreeds =
-                                              selectedBreeds.keys
-                                                  .map((id) => id.toString())
-                                                  .toList();
-                                          final prefs = await SharedPreferences
-                                              .getInstance();
-                                          prefs.setStringList(
-                                              'quiz_selectedbreeds',
-                                              strSelectedBreeds);
-                                          Navigator.pushNamed(
-                                              context, 'quiz_choices');
-                                        }
-                                      : null,
-                                  child: Text(
-                                    'Berikutnya (${selectedBreeds.length}/5)',
-                                    style: GoogleFonts.nunito(),
-                                  )))
-                        ],
-                      )
-                    ],
-                  ),
-                ),
+                child: buildBody(),
               ),
             )));
   }

@@ -15,13 +15,13 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPage extends State<HistoryPage> {
   // Shared Preferences
-  int idUser = 0;
+  int? idUser;
 
   // method shared preferences id user
   void getUserID() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      idUser = prefs.getInt('id_user') ?? 0;
+      idUser = prefs.getInt('id_user');
     });
   }
 
@@ -41,30 +41,20 @@ class _HistoryPage extends State<HistoryPage> {
 
           return fetchedHist;
         } else {
-          return [];
+          throw Exception("Gagal menampilkan data: ${json['message']}.");
         }
       } else {
-        return [];
+        throw Exception(
+            "Gagal menampilkan data: Status ${response.statusCode}.");
       }
     } catch (ex) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-          'Terjadi kesalahan: $ex',
-          style: GoogleFonts.nunito(),
-        ),
+        content: Text('Terjadi kesalahan: $ex'),
         duration: Duration(seconds: 3),
       ));
       throw Exception("Terjadi kesalahan: $ex");
     }
   }
-
-  // method untuk belum ada riwayat
-  Widget noHistory() => Center(
-        child: Text(
-          'Belum ada riwayat rekomendasi.',
-          style: GoogleFonts.nunito(fontSize: 16),
-        ),
-      );
 
   // method untuk tile history
   Widget tileHistory(History history) => InkWell(
@@ -113,52 +103,67 @@ class _HistoryPage extends State<HistoryPage> {
           )));
 
   // method untuk data history
-  Widget buildHistoryList() => FutureBuilder<List<History>>(
-      future: fetchHistory(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Error: ${snapshot.error}',
-                style: GoogleFonts.nunito(fontSize: 16),
-              ),
-            );
-          } else if (snapshot.hasData) {
-            List<History> histories = snapshot.data!;
-
-            if (histories.isNotEmpty) {
-              return SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: histories.length,
-                    itemBuilder: (context, index) {
-                      History history = histories[index];
-
-                      return tileHistory(history);
-                    },
-                    separatorBuilder: (context, index) {
-                      return Divider();
-                    },
+  Widget buildHistoryList() => idUser == null
+      ? Center(
+          child: CircularProgressIndicator(),
+        )
+      : FutureBuilder<List<History>>(
+          future: fetchHistory(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Error: ${snapshot.error}',
+                    style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
                   ),
-                ),
-              );
+                );
+              } else if (snapshot.hasData) {
+                List<History> histories = snapshot.data!;
+
+                if (histories.isNotEmpty) {
+                  return SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: histories.length,
+                        itemBuilder: (context, index) {
+                          History history = histories[index];
+
+                          return tileHistory(history);
+                        },
+                        separatorBuilder: (context, index) {
+                          return Divider();
+                        },
+                      ),
+                    ),
+                  );
+                } else {
+                  return Center(
+                    child: Text(
+                      'Belum ada riwayat rekomendasi.',
+                      style:
+                          GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+                    ),
+                  );
+                }
+              } else {
+                return Center(
+                  child: Text(
+                    'Belum ada riwayat rekomendasi.',
+                    style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+                  ),
+                );
+              }
             } else {
-              return noHistory();
+              return Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ));
             }
-          } else {
-            return noHistory();
-          }
-        } else {
-          return Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(
-                child: CircularProgressIndicator(),
-              ));
-        }
-      });
+          });
 
   @override
   void initState() {
