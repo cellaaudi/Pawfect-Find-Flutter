@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:pawfect_find/class/breed.dart';
@@ -13,13 +14,13 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPage extends State<DetailPage> {
   // Shared Preferences
-  int idBreed = 0;
+  int? idBreed;
 
   // method shared preferences id breed
   void getBreedID() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      idBreed = prefs.getInt('id_breed') ?? 0;
+      idBreed = prefs.getInt('id_breed');
     });
   }
 
@@ -32,13 +33,24 @@ class _DetailPage extends State<DetailPage> {
 
       if (response.statusCode == 200) {
         Map<String, dynamic> json = jsonDecode(response.body);
-        Breed result = Breed.fromJson(json['data']);
 
-        return result;
+        if (json['result'] == 'Success') {
+          Breed result = Breed.fromJson(json['data']);
+
+          return result;
+        } else {
+          throw Exception("Gagal menampilkan data: ${json['message']}.");
+        }
       } else {
-        throw Exception("Gagal menampilkan detail ras anjing.");
+        throw Exception(
+            "Gagal menampilkan data: Status ${response.statusCode}.");
       }
     } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Terjadi kesalahan: $ex."),
+        duration: Duration(seconds: 3),
+      ));
+
       throw Exception("Terjadi kesalahan: $ex");
     }
   }
@@ -128,87 +140,111 @@ class _DetailPage extends State<DetailPage> {
         ],
       );
 
-  // method untuk build body
-  Widget displayBody() => SingleChildScrollView(
-      padding: EdgeInsets.all(16),
-      child: FutureBuilder<Breed>(
-          future: fetchBreed(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text(
-                    'Error: ${snapshot.error}',
-                    style: GoogleFonts.nunito(fontSize: 16),
-                  ),
-                );
-              } else if (snapshot.hasData) {
-                Breed breed = snapshot.data!;
+  // method tile data
+  Widget tileData(criterias, int index) => ListTile(
+        leading: CircleAvatar(
+          child: Text(
+            "${index + 1}",
+            style: GoogleFonts.nunito(),
+          ),
+        ),
+        title: Text(
+          criterias['criteria'],
+          style: GoogleFonts.nunito(fontSize: 16),
+        ),
+      );
 
-                return Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GridView(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2, childAspectRatio: 1),
-                        shrinkWrap: true,
-                        children: [
-                          imgDog(breed.imgPuppy, "muda", breed.breed),
-                          imgDog(breed.imgAdult, "dewasa", breed.breed)
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 16.0,
-                      ),
-                      Text(
-                        breed.breed.toString(),
+  // method untuk build body
+  Widget displayBody() => idBreed == null
+      ? Center(
+          child: CircularProgressIndicator(),
+        )
+      : SingleChildScrollView(
+          padding: EdgeInsets.all(16),
+          child: FutureBuilder<Breed>(
+              future: fetchBreed(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error: ${snapshot.error}',
                         style: GoogleFonts.nunito(
-                            fontSize: 24.0, fontWeight: FontWeight.w800),
+                            fontSize: 16, color: Colors.grey),
                       ),
-                      const SizedBox(height: 16.0),
-                      textDog(breed.group, "Kelompok"),
-                      dblDog(breed.heightMin, breed.heightMax, "Tinggi", "cm"),
-                      dblDog(breed.weightMin, breed.weightMax, "berat", "kg"),
-                      dblDog(breed.lifeMin, breed.lifeMax, "Kemungkinan Umur",
-                          "tahun"),
-                      textDog(breed.origin, "Negara Asal"),
-                      textDog(breed.colour, "Warna"),
-                      textDog(breed.attention, "Perhatian Khusus"),
-                      Text(
-                        'Kriteria',
-                        style: GoogleFonts.nunito(fontSize: 12.0),
-                      ),
-                      if (breed.criterias!.isNotEmpty)
-                        for (var c in breed.criterias!)
-                          Text(
-                            " - ${c['criteria']}",
-                            style: GoogleFonts.nunito(
-                                fontSize: 16.0, fontWeight: FontWeight.w600),
-                          )
-                      else
-                        Center(
-                          child: Text(
-                            "Belum ada kriteria.",
-                            style: GoogleFonts.nunito(
-                                fontSize: 16.0, color: Colors.grey),
+                    );
+                  } else if (snapshot.hasData) {
+                    Breed breed = snapshot.data!;
+
+                    return Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GridView(
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2, childAspectRatio: 1),
+                            shrinkWrap: true,
+                            children: [
+                              imgDog(breed.imgPuppy, "muda", breed.breed),
+                              imgDog(breed.imgAdult, "dewasa", breed.breed)
+                            ],
                           ),
-                        )
-                    ]);
-              } else {
-                return Center(
-                  child: Text(
-                    'Data tidak ditemukan.',
-                    style: GoogleFonts.nunito(fontSize: 16),
-                  ),
-                );
-              }
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          }));
+                          const SizedBox(
+                            height: 16.0,
+                          ),
+                          Text(
+                            breed.breed.toString(),
+                            style: GoogleFonts.nunito(
+                                fontSize: 24.0, fontWeight: FontWeight.w800),
+                          ),
+                          const SizedBox(height: 16.0),
+                          textDog(breed.group, "Kelompok"),
+                          dblDog(
+                              breed.heightMin, breed.heightMax, "Tinggi", "cm"),
+                          dblDog(
+                              breed.weightMin, breed.weightMax, "berat", "kg"),
+                          dblDog(breed.lifeMin, breed.lifeMax,
+                              "Kemungkinan Umur", "tahun"),
+                          textDog(breed.origin, "Negara Asal"),
+                          textDog(breed.colour, "Warna"),
+                          textDog(breed.attention, "Perhatian Khusus"),
+                          Text(
+                            'Kriteria',
+                            style: GoogleFonts.nunito(fontSize: 12.0),
+                          ),
+                          if (breed.criterias!.isNotEmpty)
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: breed.criterias!.length,
+                              itemBuilder: (context, index) =>
+                                  tileData(breed.criterias![index], index),
+                            )
+                          else
+                            Center(
+                              child: Text(
+                                "Belum ada kriteria.",
+                                style: GoogleFonts.nunito(
+                                    fontSize: 16.0, color: Colors.grey),
+                              ),
+                            )
+                        ]);
+                  } else {
+                    return Center(
+                      child: Text(
+                        'Data tidak ditemukan.',
+                        style: GoogleFonts.nunito(
+                            fontSize: 16, color: Colors.grey),
+                      ),
+                    );
+                  }
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              }));
 
   @override
   void initState() {

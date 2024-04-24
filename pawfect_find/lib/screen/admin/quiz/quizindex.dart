@@ -17,6 +17,49 @@ class _QuizIndexPage extends State<QuizIndexPage> {
   // method refresh
   void _refresh() => setState(() {});
 
+  // method delete alert
+  Future<void> _delMsg(Question data) async => showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+          title: Text(
+            'Hapus Aturan',
+            style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+          ),
+          content: Text(
+            'Apa kamu yakin ingin menghapus "${data.question}" dari daftar pertanyaan?',
+            style: GoogleFonts.nunito(fontSize: 16.0),
+          ),
+          actions: <Widget>[
+            TextButton(
+                style: TextButton.styleFrom(
+                    textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Batal',
+                  style: GoogleFonts.nunito(),
+                )),
+            TextButton(
+                onPressed: () async {
+                  bool deleted = await deleteData(data.id);
+
+                  if (deleted) {
+                    Navigator.pop(context);
+                  }
+                },
+                style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                child: Text(
+                  'Hapus',
+                  style: GoogleFonts.nunito(),
+                ))
+          ],
+        );
+      });
+
   // method fetch data
   Future<List<Question>> fetchData() async {
     try {
@@ -45,6 +88,49 @@ class _QuizIndexPage extends State<QuizIndexPage> {
         duration: Duration(seconds: 3),
       ));
       throw ("Terjadi kesalahan: $e");
+    }
+  }
+
+  // method delete data
+  Future<bool> deleteData(int que_id) async {
+    try {
+      bool deleted = false;
+
+      final response = await http.post(
+          Uri.parse(
+              "http://localhost/ta/Pawfect-Find-PHP/admin/question_delete.php"),
+          body: {
+            'que_id': que_id.toString(),
+          });
+
+          // HARUS E ADA UPDATE SORT JADI GAK BOLONG
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
+
+        if (json['result'] == 'Success') {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Berhasil hapus data."),
+            duration: Duration(seconds: 3),
+          ));
+
+          deleted = true;
+        } else {
+          print(json['message']);
+          throw Exception("Gagal hapus data: ${json['message']}.");
+        }
+      } else {
+        throw Exception("Gagal hapus data: Status ${response.statusCode}.");
+      }
+
+      return deleted;
+    } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Terjadi kesalahan: $ex'),
+        duration: Duration(seconds: 3),
+      ));
+
+      throw Exception('Terjadi kesalahan: $ex');
     }
   }
 
@@ -92,8 +178,7 @@ class _QuizIndexPage extends State<QuizIndexPage> {
                 style: IconButton.styleFrom(foregroundColor: Colors.orange),
               ),
               IconButton(
-                onPressed: () {},
-                // onPressed: () => _delMsg(data).then((value) => _refresh()),
+                onPressed: () => _delMsg(data).then((value) => _refresh()),
                 icon: Icon(Icons.delete_rounded),
                 tooltip: "Hapus data",
                 style: IconButton.styleFrom(foregroundColor: Colors.red),

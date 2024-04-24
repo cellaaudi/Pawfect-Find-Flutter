@@ -43,7 +43,7 @@ class _RuleDetailPage extends State<RuleDetailPage> {
             style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
           ),
           content: Text(
-            'Apa kamu yakin ingin menghapus ${criterias["criteria"]} dari daftar kriteria $strBreed?',
+            'Apa kamu yakin ingin menghapus "${criterias["criteria"]}" dari daftar kriteria $strBreed?',
             style: GoogleFonts.nunito(fontSize: 16.0),
           ),
           actions: <Widget>[

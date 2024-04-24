@@ -19,7 +19,6 @@ import 'package:pawfect_find/screen/admin/rule/ruledetail.dart';
 import 'package:pawfect_find/screen/admin/rule/ruleindex.dart';
 import 'package:pawfect_find/screen/auth/login.dart';
 import 'package:pawfect_find/screen/detail/detail.dart';
-import 'package:pawfect_find/screen/detail/detail_afquiz.dart';
 import 'package:pawfect_find/screen/navbar/breed.dart';
 import 'package:pawfect_find/screen/navbar/history.dart';
 import 'package:pawfect_find/screen/navbar/home.dart';
@@ -103,7 +102,6 @@ class MyApp extends StatelessWidget {
         'choose': (context) => ChoosePage(),
         'quiz_choices': (context) => QuizChoosePage(),
         'result': (context) => ResultPage(),
-        'detail_afquiz': (context) => DetailQuizPage(),
         'detail': (context) => DetailPage(),
 
         // admin only
