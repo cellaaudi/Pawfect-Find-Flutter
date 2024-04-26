@@ -60,7 +60,7 @@ class _HistoryPage extends State<HistoryPage> {
   Widget tileHistory(History history) => InkWell(
       onTap: () async {
         final prefs = await SharedPreferences.getInstance();
-        prefs.setString('id_history', history.id.toString());
+        prefs.setInt('id_history', history.id);
 
         Navigator.pushNamed(context, 'result');
       },

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:pawfect_find/class/history.dart';
 import 'package:pawfect_find/class/recommendation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,28 +20,105 @@ class _ResultPage extends State<ResultPage> {
   String dropdownValue = 'Semua';
   int max = 0;
 
+  // shared pref
+  int? idHistory;
+
   // method untuk ambil history id yang baru
-  Future<String> getHistoryID() async {
+  void getHistoryID() async {
     final prefs = await SharedPreferences.getInstance();
-    String historyId = prefs.getString("id_history") ?? '';
-    return historyId;
+    setState(() {
+      idHistory = prefs.getInt('id_history');
+    });
+  }
+
+  // method fetch history
+  Future<History> fetchHistory() async {
+    try {
+      final response = await http.post(
+          Uri.parse("http://localhost/ta/Pawfect-Find-PHP/history_detail.php"),
+          body: {'history_id': idHistory.toString()});
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
+
+        if (json['result'] == 'Success') {
+          History result = History.fromJson(json['data']);
+
+          return result;
+        } else {
+          throw Exception("Gagal menampilkan data: ${json['message']}.");
+        }
+      } else {
+        throw Exception(
+            "Gagal menampilkan data: Status ${response.statusCode}.");
+      }
+    } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Terjadi kesalahan: $ex'),
+        duration: Duration(seconds: 3),
+      ));
+      throw Exception("Terjadi kesalahan: $ex");
+    }
   }
 
   // method untuk fetch result dari table histories di db
-  Future<List<Recommendation>> fetchResult(String histId) async {
-    final response = await http.post(
-        Uri.parse("http://localhost/ta/Pawfect-Find-PHP/result.php"),
-        body: {'history_id': histId});
+  Future<List<Recommendation>> fetchResult() async {
+    try {
+      final response = await http.post(
+          Uri.parse("http://localhost/ta/Pawfect-Find-PHP/result.php"),
+          body: {'history_id': idHistory.toString()});
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> json = jsonDecode(response.body);
-      List<Recommendation> result = List<Recommendation>.from(
-          json['data'].map((rec) => Recommendation.fromJson(rec)));
-      return result;
-    } else {
-      throw Exception("Failed to read API");
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
+
+        if (json['result'] == 'Success') {
+          List<Recommendation> result = List<Recommendation>.from(
+              json['data'].map((rec) => Recommendation.fromJson(rec)));
+
+          return result;
+        } else {
+          throw Exception("Gagal menampilkan data: ${json['message']}.");
+        }
+      } else {
+        throw Exception(
+            "Gagal menampilkan data: Status ${response.statusCode}.");
+      }
+    } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Terjadi kesalahan: $ex'),
+        duration: Duration(seconds: 3),
+      ));
+      throw Exception("Terjadi kesalahan: $ex");
     }
   }
+
+  // method dropdown
+  Widget ddResult() => DecoratedBox(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: Colors.black45, width: 1.0)),
+        child: DropdownButton<String>(
+          value: dropdownValue,
+          items: <String>['Semua', '5', '10']
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+                value: value,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    value,
+                    style: GoogleFonts.nunito(fontSize: 16.0),
+                  ),
+                ));
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              dropdownValue = newValue!;
+            });
+          },
+          underline: Container(),
+        ),
+      );
 
   // method untuk UI card result
   Widget cardResult(Recommendation recommendation) => InkWell(
@@ -78,70 +156,133 @@ class _ResultPage extends State<ResultPage> {
       ));
 
   // method untuk display body
-  Widget displayResult() => FutureBuilder<String>(
-      future: getHistoryID(),
+  Widget displayResult() => idHistory == null
+      ? Center(
+          child: CircularProgressIndicator(),
+        )
+      : FutureBuilder(
+          future: fetchResult(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Error: ${snapshot.error}',
+                    style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+                  ),
+                );
+              } else if (snapshot.hasData) {
+                listRecs = snapshot.data!;
+
+                if (dropdownValue == 'Semua') {
+                  max = listRecs.length;
+                } else {
+                  max = int.parse(dropdownValue);
+                }
+
+                if (listRecs.isNotEmpty) {
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemBuilder: (BuildContext ctxt, int index) {
+                      if (index < max) {
+                        return cardResult(listRecs[index]);
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    },
+                    itemCount: listRecs.length > max ? max : listRecs.length,
+                    separatorBuilder: (context, index) {
+                      return Divider();
+                    },
+                  );
+                } else {
+                  return Center(
+                    child: Text(
+                      'Tidak ada hasil ditemukan',
+                      style:
+                          GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+                    ),
+                  );
+                }
+              } else {
+                return Center(
+                  child: Text(
+                    'Tidak ada hasil ditemukan',
+                    style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+                  ),
+                );
+              }
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          });
+
+  // method build body
+  Widget buildBody() => FutureBuilder<History>(
+      future: fetchHistory(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
             return Center(
               child: Text(
                 'Error: ${snapshot.error}',
-                style: GoogleFonts.nunito(fontSize: 16),
+                style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+              ),
+            );
+          } else if (snapshot.hasData) {
+            History history = snapshot.data!;
+            List<dynamic> answerList = jsonDecode(history.answer);
+
+            return SingleChildScrollView(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        "Tampilkan hasil:",
+                        style: GoogleFonts.nunito(fontSize: 16.0),
+                      ),
+                      SizedBox(
+                        width: 16.0,
+                      ),
+                      ddResult(),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 16.0,
+                  ),
+                  Text(
+                    "Kriteria yang kamu pilih:",
+                    style: GoogleFonts.nunito(fontSize: 16),
+                  ),
+                  SizedBox(
+                    height: 8.0,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Berdasarkan jawabanmu, ras anjing yang kami rekomendasikan adalah ...',
+                    style: GoogleFonts.nunito(fontSize: 16.0),
+                  ),
+                  SizedBox(
+                    height: 8.0,
+                  ),
+                  displayResult()
+                ],
               ),
             );
           } else {
-            String histId = snapshot.data!;
-
-            if (histId.isNotEmpty) {
-              return FutureBuilder(
-                  future: fetchResult(histId),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      if (snapshot.hasError) {
-                        return Center(
-                          child: Text('Error: ${snapshot.error}'),
-                        );
-                      } else if (snapshot.hasData) {
-                        listRecs = snapshot.data!;
-
-                        if (dropdownValue == 'Semua') {
-                          max = listRecs.length;
-                        } else {
-                          max = int.parse(dropdownValue);
-                        }
-
-                        return ListView.separated(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemBuilder: (BuildContext ctxt, int index) {
-                            if (index < max) {
-                              return cardResult(listRecs[index]);
-                            } else {
-                              return SizedBox.shrink();
-                            }
-                          },
-                          itemCount:
-                              listRecs.length > max ? max : listRecs.length,
-                          separatorBuilder: (context, index) {
-                            return Divider();
-                          },
-                        );
-                      } else {
-                        return const Center(
-                          child: Text('Tidak ada hasil ditemukan'),
-                        );
-                      }
-                    } else {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                  });
-            } else {
-              return const Center(
-                child: Text('ID tidak valid'),
-              );
-            }
+            return Center(
+              child: Text(
+                'Tidak ada hasil ditemukan',
+                style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+              ),
+            );
           }
         } else {
           return const Center(
@@ -153,6 +294,8 @@ class _ResultPage extends State<ResultPage> {
   @override
   void initState() {
     super.initState();
+
+    getHistoryID();
   }
 
   @override
@@ -177,65 +320,7 @@ class _ResultPage extends State<ResultPage> {
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 500.0),
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        "Tampilkan hasil:",
-                        style: GoogleFonts.nunito(fontSize: 16.0),
-                      ),
-                      SizedBox(
-                        width: 16.0,
-                      ),
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            border:
-                                Border.all(color: Colors.black45, width: 1.0)),
-                        child: DropdownButton<String>(
-                          value: dropdownValue,
-                          items: <String>['Semua', '5', '10']
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                                value: value,
-                                child: Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 8.0),
-                                  child: Text(
-                                    value,
-                                    style: GoogleFonts.nunito(fontSize: 16.0),
-                                  ),
-                                ));
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              dropdownValue = newValue!;
-                            });
-                          },
-                          underline: Container(),
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 16.0,
-                  ),
-                  Text(
-                    'Berdasarkan jawabanmu, ras anjing yang kami rekomendasikan adalah ...',
-                    style: GoogleFonts.nunito(fontSize: 16.0),
-                  ),
-                  SizedBox(
-                    height: 8.0,
-                  ),
-                  displayResult()
-                ],
-              ),
-            ),
+            child: buildBody(),
           ),
         ));
   }

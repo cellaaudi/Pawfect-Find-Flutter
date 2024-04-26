@@ -161,10 +161,11 @@ class _QuestionSortPage extends State<QuestionSortPage> {
                 key: ValueKey(question.id),
                 index: index,
                 child: ListTile(
-                  leading: Text(
+                  leading: CircleAvatar(
+                      child: Text(
                     "${index + 1}.",
                     style: GoogleFonts.nunito(fontSize: 16),
-                  ),
+                  )),
                   title: Text(question.question),
                 ));
           },
@@ -216,7 +217,7 @@ class _QuestionSortPage extends State<QuestionSortPage> {
                     Padding(
                       padding: EdgeInsets.all(16),
                       child: Text(
-                        "Tekan dan geser pertanyaan untuk mengubah urutannya.",
+                        "Tahan dan geser pertanyaan untuk mengubah urutannya.",
                         style: GoogleFonts.nunito(fontSize: 16),
                       ),
                     ),

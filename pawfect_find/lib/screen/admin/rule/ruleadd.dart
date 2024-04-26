@@ -352,7 +352,7 @@ class _RuleAddPage extends State<RuleAddPage> {
                             }
                           },
                           child: Text(
-                            "Simpan Aturan Baru",
+                            "Simpan Aturan",
                             style: GoogleFonts.nunito(fontSize: 16),
                           )))
                 ],
@@ -389,7 +389,7 @@ class _RuleAddPage extends State<RuleAddPage> {
             onPressed: () => _backMessage(),
           ),
           title: Text(
-            "Tambah Aturan Baru",
+            "Tambah Aturan",
             style:
                 GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.w800),
           ),

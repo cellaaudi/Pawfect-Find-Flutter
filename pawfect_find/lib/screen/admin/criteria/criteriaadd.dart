@@ -137,7 +137,7 @@ class _CriteriaAddPage extends State<CriteriaAddPage> {
                     child: ElevatedButton(
                         onPressed: () => addData(),
                         child: Text(
-                          "Simpan",
+                          "Simpan Kriteria",
                           style: GoogleFonts.nunito(fontSize: 16),
                         )))
               ],

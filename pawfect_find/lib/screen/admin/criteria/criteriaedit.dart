@@ -165,7 +165,7 @@ class _CriteriaEditPage extends State<CriteriaEditPage> {
                     child: ElevatedButton(
                         onPressed: () => editData(),
                         child: Text(
-                          "Simpan",
+                          "Simpan Pembaruan",
                           style: GoogleFonts.nunito(fontSize: 16),
                         )))
               ],

@@ -173,10 +173,10 @@ class _QuizPage extends State<QuizPage> {
         Map<String, dynamic> result = jsonDecode(response.body);
 
         if (result['result'] == 'Success') {
-          String historyId = result['history_id'].toString();
+          int historyId = result['history_id'];
 
           final prefs = await SharedPreferences.getInstance();
-          prefs.setString('id_history', historyId);
+          prefs.setInt('id_history', historyId);
 
           Navigator.pushNamed(context, "result");
         } else {
@@ -327,10 +327,16 @@ class _QuizPage extends State<QuizPage> {
                         onPressed: () {
                           // hapus data yang sudah masuk pada list saat button "Kembali" diklik
                           if (index > 0) {
+                            final prevQueId = listQuestions[index - 1].id;
+
                             setState(() {
-                              selectedMap.remove(question.id);
-                              isRadioSelected.remove(question.id);
-                              cfValues.remove(question.id);
+                              // hapus pada halaman sebelumnya
+                              userAnswers.removeWhere((answer) => answer.questionId == prevQueId);
+
+                              // hapus pada halaman terakhir
+                              // selectedMap.remove(question.id);
+                              // isRadioSelected.remove(question.id);
+                              // cfValues.remove(question.id);
                               userAnswers.removeWhere(
                                   (answer) => answer.questionId == question.id);
                             });
