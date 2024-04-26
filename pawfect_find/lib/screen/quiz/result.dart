@@ -264,6 +264,22 @@ class _ResultPage extends State<ResultPage> {
                   SizedBox(
                     height: 8.0,
                   ),
+                  answerList.isEmpty
+                      ? Center(
+                          child: Text(
+                            "Tidak ada kriteria terpilih.",
+                            style: GoogleFonts.nunito(
+                                fontSize: 16, color: Colors.grey),
+                          ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: answerList.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              title: Text(answerList[index]['criteria_id'].toString()),
+                            );
+                          }),
                   SizedBox(height: 16),
                   Text(
                     'Berdasarkan jawabanmu, ras anjing yang kami rekomendasikan adalah ...',
