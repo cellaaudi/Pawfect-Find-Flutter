@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:pawfect_find/class/history.dart';
@@ -53,10 +54,6 @@ class _ResultPage extends State<ResultPage> {
             "Gagal menampilkan data: Status ${response.statusCode}.");
       }
     } catch (ex) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Terjadi kesalahan: $ex'),
-        duration: Duration(seconds: 3),
-      ));
       throw Exception("Terjadi kesalahan: $ex");
     }
   }
@@ -119,6 +116,26 @@ class _ResultPage extends State<ResultPage> {
           underline: Container(),
         ),
       );
+
+  // method string chosen criterias
+  Text chosenCriterias(List<dynamic> answers) {
+    if (answers.isEmpty) {
+      return Text(
+        "Tidak ada kriteria terpilih.",
+        style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+        textAlign: TextAlign.center,
+      );
+    }
+
+    String strCrit =
+        answers.map((item) => item['criteria'].toString()).join(' - ');
+
+    return Text(
+      strCrit,
+      style: GoogleFonts.nunito(fontSize: 16),
+      textAlign: TextAlign.center,
+    );
+  }
 
   // method untuk UI card result
   Widget cardResult(Recommendation recommendation) => InkWell(
@@ -239,7 +256,7 @@ class _ResultPage extends State<ResultPage> {
             return SingleChildScrollView(
               padding: EdgeInsets.all(16.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -264,22 +281,9 @@ class _ResultPage extends State<ResultPage> {
                   SizedBox(
                     height: 8.0,
                   ),
-                  answerList.isEmpty
-                      ? Center(
-                          child: Text(
-                            "Tidak ada kriteria terpilih.",
-                            style: GoogleFonts.nunito(
-                                fontSize: 16, color: Colors.grey),
-                          ),
-                        )
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: answerList.length,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              title: Text(answerList[index]['criteria_id'].toString()),
-                            );
-                          }),
+                  Center(
+                    child: chosenCriterias(answerList),
+                  ),
                   SizedBox(height: 16),
                   Text(
                     'Berdasarkan jawabanmu, ras anjing yang kami rekomendasikan adalah ...',
