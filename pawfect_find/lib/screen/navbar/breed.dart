@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:pawfect_find/class/breed.dart';
+import 'package:pawfect_find/screen/detail/detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BreedPage extends StatefulWidget {
@@ -54,7 +55,12 @@ class _BreedPage extends State<BreedPage> {
         final prefs = await SharedPreferences.getInstance();
         prefs.setInt('id_breed', breed.id);
 
-        Navigator.pushNamed(context, 'detail');
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => DetailPage(
+                      fromRec: false,
+                    )));
       },
       child: Card(
         clipBehavior: Clip.antiAlias,

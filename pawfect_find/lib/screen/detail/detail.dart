@@ -5,9 +5,14 @@ import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:pawfect_find/class/breed.dart';
+import 'package:pawfect_find/class/history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailPage extends StatefulWidget {
+  final bool fromRec;
+
+  DetailPage({Key? key, this.fromRec = false}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => _DetailPage();
 }
@@ -15,14 +20,69 @@ class DetailPage extends StatefulWidget {
 class _DetailPage extends State<DetailPage> {
   // Shared Preferences
   int? idBreed;
+  int? idHistory;
+  // List<dynamic>? jsonAnswer;
 
-  // method shared preferences id breed
+  // method shared preferences
   void getBreedID() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       idBreed = prefs.getInt('id_breed');
     });
   }
+
+  void getHistoryID() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      idHistory = prefs.getInt('id_history');
+    });
+  }
+
+  // method fetch history
+  Future<History> fetchHistory() async {
+    try {
+      final response = await http.post(
+          Uri.parse("http://localhost/ta/Pawfect-Find-PHP/history_detail.php"),
+          body: {'history_id': idHistory.toString()});
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
+
+        if (json['result'] == 'Success') {
+          History result = History.fromJson(json['data']);
+
+          return result;
+        } else {
+          throw Exception("Gagal menampilkan data: ${json['message']}.");
+        }
+      } else {
+        throw Exception(
+            "Gagal menampilkan data: Status ${response.statusCode}.");
+      }
+    } catch (ex) {
+      throw Exception("Terjadi kesalahan: $ex");
+    }
+  }
+
+//   Future<List<dynamic>> getJSONAnswer() async {
+//     if (widget.fromRec) {
+//     List<dynamic>? jsonAnswer;
+
+//     final prefs = await SharedPreferences.getInstance();
+//     String? answerPref = prefs.getString('json_answer');
+
+//     if (answerPref != null) {
+//         jsonAnswer = jsonDecode(answerPref);
+//       }
+
+// return jsonAnswer;
+//     // setState(() {
+//     //   if (answerPref != null) {
+//     //     jsonAnswer = jsonDecode(answerPref);
+//     //   }
+//     // });
+//     }
+//   }
 
   // method untuk ambil data breed dari database
   Future<Breed> fetchBreed() async {
@@ -141,7 +201,63 @@ class _DetailPage extends State<DetailPage> {
       );
 
   // method tile data
-  Widget tileData(criterias, int index) => ListTile(
+  Widget tileData(bool fromRec, criterias, int index) {
+    if (fromRec) {
+      return FutureBuilder<History>(
+          future: fetchHistory(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Error: ${snapshot.error}',
+                    style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+                  ),
+                );
+              } else if (snapshot.hasData) {
+                History history = snapshot.data!;
+                List<dynamic> answerList = jsonDecode(history.answer);
+
+                bool isMatch = answerList.any((answer) =>
+                    answer['criteria_id'] == criterias['criteria_id']);
+
+                Color color = isMatch ? Colors.green : Colors.red;
+                Icon icon = isMatch
+                    ? Icon(
+                        Icons.check_rounded,
+                        color: Colors.white,
+                      )
+                    : Icon(
+                        Icons.close_rounded,
+                        color: Colors.white,
+                      );
+
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: color,
+                    child: icon,
+                  ),
+                  title: Text(
+                    criterias['criteria'],
+                    style: GoogleFonts.nunito(fontSize: 16, color: color),
+                  ),
+                );
+              } else {
+                return Center(
+                  child: Text(
+                    'Data tidak ditemukan.',
+                    style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+                  ),
+                );
+              }
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          });
+    } else {
+      return ListTile(
         leading: CircleAvatar(
           child: Text(
             "${index + 1}",
@@ -153,6 +269,8 @@ class _DetailPage extends State<DetailPage> {
           style: GoogleFonts.nunito(fontSize: 16),
         ),
       );
+    }
+  }
 
   // method untuk build body
   Widget displayBody() => idBreed == null
@@ -210,7 +328,9 @@ class _DetailPage extends State<DetailPage> {
                           textDog(breed.colour, "Warna"),
                           textDog(breed.attention, "Perhatian Khusus"),
                           Text(
-                            'Kriteria',
+                            widget.fromRec
+                                ? 'Kriteria yang sesuai dengan jawabanmu'
+                                : 'Kriteria',
                             style: GoogleFonts.nunito(fontSize: 12.0),
                           ),
                           if (breed.criterias!.isNotEmpty)
@@ -218,8 +338,10 @@ class _DetailPage extends State<DetailPage> {
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
                               itemCount: breed.criterias!.length,
-                              itemBuilder: (context, index) =>
-                                  tileData(breed.criterias![index], index),
+                              itemBuilder: (context, index) => tileData(
+                                  widget.fromRec,
+                                  breed.criterias![index],
+                                  index),
                             )
                           else
                             Center(
@@ -251,6 +373,11 @@ class _DetailPage extends State<DetailPage> {
     super.initState();
 
     getBreedID();
+    getHistoryID();
+
+    // if (widget.fromRec) {
+    //   getJSONAnswer();
+    // }
   }
 
   @override
@@ -262,6 +389,9 @@ class _DetailPage extends State<DetailPage> {
             onPressed: () async {
               final prefs = await SharedPreferences.getInstance();
               prefs.remove('id_breed');
+              if (widget.fromRec) {
+                prefs.remove('json_answer');
+              }
 
               Navigator.pop(context);
             }),

@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:pawfect_find/class/history.dart';
 import 'package:pawfect_find/class/recommendation.dart';
+import 'package:pawfect_find/screen/detail/detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ResultPage extends StatefulWidget {
@@ -44,6 +45,9 @@ class _ResultPage extends State<ResultPage> {
 
         if (json['result'] == 'Success') {
           History result = History.fromJson(json['data']);
+
+          // final prefs = await SharedPreferences.getInstance();
+          // prefs.setString('json_answer', result.answer);
 
           return result;
         } else {
@@ -143,7 +147,12 @@ class _ResultPage extends State<ResultPage> {
         final prefs = await SharedPreferences.getInstance();
         prefs.setInt('id_breed', recommendation.breed_id);
 
-        Navigator.pushNamed(context, 'detail');
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => DetailPage(
+                      fromRec: true,
+                    )));
       },
       child: ListTile(
         leading: FittedBox(
