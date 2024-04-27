@@ -29,6 +29,49 @@ class _QuestionDetailPage extends State<QuestionDetailPage> {
     });
   }
 
+  // method delete alert
+  Future<void> _delMsg(String choice, int id) async => showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+          title: Text(
+            'Hapus Pilihan Jawaban',
+            style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+          ),
+          content: Text(
+            'Apa kamu yakin ingin menghapus $choice dari pilihan jawaban?',
+            style: GoogleFonts.nunito(fontSize: 16.0),
+          ),
+          actions: <Widget>[
+            TextButton(
+                style: TextButton.styleFrom(
+                    textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Batal',
+                  style: GoogleFonts.nunito(),
+                )),
+            TextButton(
+                onPressed: () async {
+                  bool deleted = await deleteData(id);
+
+                  if (deleted) {
+                    Navigator.pop(context);
+                  }
+                },
+                style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    textStyle: TextStyle(fontWeight: FontWeight.w600)),
+                child: Text(
+                  'Hapus',
+                  style: GoogleFonts.nunito(),
+                ))
+          ],
+        );
+      });
+
   // method fetch data
   Future<Question> fetchData() async {
     try {
@@ -64,6 +107,48 @@ class _QuestionDetailPage extends State<QuestionDetailPage> {
       ));
 
       throw Exception("Terjadi kesalahan: $ex");
+    }
+  }
+
+  // method delete data
+  Future<bool> deleteData(int choice_id) async {
+    try {
+      bool deleted = false;
+
+      final response = await http.post(
+          Uri.parse(
+              "http://localhost/ta/Pawfect-Find-PHP/admin/choice_delete.php"),
+          body: {
+            'que_id': idQue.toString(),
+            'choice_id': choice_id.toString(),
+          });
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
+
+        if (json['result'] == 'Success') {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Berhasil hapus data."),
+            duration: Duration(seconds: 3),
+          ));
+
+          deleted = true;
+        } else {
+          print(json['message']);
+          throw Exception("Gagal hapus data: ${json['message']}.");
+        }
+      } else {
+        throw Exception("Gagal hapus data: Status ${response.statusCode}.");
+      }
+
+      return deleted;
+    } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Terjadi kesalahan: $ex'),
+        duration: Duration(seconds: 3),
+      ));
+
+      throw Exception('Terjadi kesalahan: $ex');
     }
   }
 
@@ -125,12 +210,8 @@ class _QuestionDetailPage extends State<QuestionDetailPage> {
                 style: IconButton.styleFrom(foregroundColor: Colors.orange),
               ),
               IconButton(
-                onPressed: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  prefs.setInt('id_choice', choice['choice_id']);
-
-                  // Navigator.pushNamed(context, 'que_detail');
-                },
+                onPressed: () => _delMsg(choice['choice'], choice['choice_id'])
+                    .then((value) => _refresh()),
                 icon: Icon(Icons.delete_rounded),
                 tooltip: "Hapus data",
                 style: IconButton.styleFrom(foregroundColor: Colors.red),

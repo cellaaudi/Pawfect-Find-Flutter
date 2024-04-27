@@ -103,8 +103,6 @@ class _QuizIndexPage extends State<QuizIndexPage> {
             'que_id': que_id.toString(),
           });
 
-          // HARUS E ADA UPDATE SORT JADI GAK BOLONG
-
       if (response.statusCode == 200) {
         Map<String, dynamic> json = jsonDecode(response.body);
 

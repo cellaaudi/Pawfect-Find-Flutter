@@ -64,26 +64,6 @@ class _DetailPage extends State<DetailPage> {
     }
   }
 
-//   Future<List<dynamic>> getJSONAnswer() async {
-//     if (widget.fromRec) {
-//     List<dynamic>? jsonAnswer;
-
-//     final prefs = await SharedPreferences.getInstance();
-//     String? answerPref = prefs.getString('json_answer');
-
-//     if (answerPref != null) {
-//         jsonAnswer = jsonDecode(answerPref);
-//       }
-
-// return jsonAnswer;
-//     // setState(() {
-//     //   if (answerPref != null) {
-//     //     jsonAnswer = jsonDecode(answerPref);
-//     //   }
-//     // });
-//     }
-//   }
-
   // method untuk ambil data breed dari database
   Future<Breed> fetchBreed() async {
     try {
@@ -374,10 +354,6 @@ class _DetailPage extends State<DetailPage> {
 
     getBreedID();
     getHistoryID();
-
-    // if (widget.fromRec) {
-    //   getJSONAnswer();
-    // }
   }
 
   @override
