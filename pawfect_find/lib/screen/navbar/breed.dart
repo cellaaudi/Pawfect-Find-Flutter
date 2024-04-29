@@ -70,11 +70,24 @@ class _BreedPage extends State<BreedPage> {
         child: Stack(
           alignment: Alignment.centerLeft,
           children: [
-            Ink.image(
-              image: NetworkImage(
-                  "http://localhost/ta/Pawfect-Find-PHP/${breed.imgAdult}"),
+            Image.network(
+              breed.imgAdult,
               fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Center(child: CircularProgressIndicator(),);
+              },
+              errorBuilder: (context, error, trace) {
+                return Image.asset(
+                  "assets/logos/logo-black.png",
+                  fit: BoxFit.cover,
+                );
+              },
             ),
+            // Ink.image(
+            //   image: NetworkImage(breed.imgAdult),
+            //   fit: BoxFit.cover,
+            // ),
             Container(
               decoration: BoxDecoration(
                   gradient: LinearGradient(

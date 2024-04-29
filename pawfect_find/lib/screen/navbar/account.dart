@@ -109,6 +109,10 @@ class _AccountPage extends State<AccountPage> {
                         child: Image.network(
                           user?.photoURL ?? "",
                           fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(child: CircularProgressIndicator(),);
+                          },
                           errorBuilder: (context, error, trace) {
                             return Image.asset(
                               "assets/logos/logo-black.png",
@@ -204,9 +208,7 @@ class _AccountPage extends State<AccountPage> {
             onPressed: () async => await _logoutMsg(context),
             icon: Icon(Icons.logout_rounded),
             tooltip: "Keluar",
-            style: IconButton.styleFrom(
-              foregroundColor: Colors.red
-            ),
+            style: IconButton.styleFrom(foregroundColor: Colors.red),
           )
         ],
       ),

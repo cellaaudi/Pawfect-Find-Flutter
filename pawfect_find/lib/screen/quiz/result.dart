@@ -163,8 +163,18 @@ class _ResultPage extends State<ResultPage> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                 child: Image.network(
-                  "http://localhost/ta/Pawfect-Find-PHP/${recommendation.imgAdult}",
+                  recommendation.imgAdult,
                   fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(child: CircularProgressIndicator(),);
+                  },
+                  errorBuilder: (context, error, trace) {
+                    return Image.asset(
+                      "assets/logos/logo-black.png",
+                      fit: BoxFit.cover,
+                    );
+                  },
                 ),
               )),
         ),

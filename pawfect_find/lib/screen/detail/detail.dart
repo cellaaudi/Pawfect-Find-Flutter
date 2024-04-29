@@ -104,12 +104,19 @@ class _DetailPage extends State<DetailPage> {
       child: Stack(
         alignment: Alignment.centerLeft,
         children: [
-          Container(
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: NetworkImage(
-                        "http://localhost/ta/Pawfect-Find-PHP/$path"),
-                    fit: BoxFit.cover)),
+          Image.network(
+            path,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Center(child: CircularProgressIndicator(),);
+            },
+            errorBuilder: (context, error, trace) {
+              return Image.asset(
+                "assets/logos/logo-black.png",
+                fit: BoxFit.cover,
+              );
+            },
           ),
           Container(
             decoration: BoxDecoration(

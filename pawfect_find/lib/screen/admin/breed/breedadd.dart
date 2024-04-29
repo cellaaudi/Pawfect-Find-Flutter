@@ -318,7 +318,7 @@ class _BreedAddPage extends State<BreedAddPage> {
                     : kIsWeb
                         ? Image.memory(
                             imgByte!,
-                            fit: BoxFit.cover,
+                            fit: BoxFit.cover
                           )
                         : Image.file(
                             imgPath,
