@@ -33,10 +33,12 @@ Future main() async {
   if (kIsWeb) {
     await Firebase.initializeApp(
         options: FirebaseOptions(
-            apiKey: "AIzaSyD0diqklhO6VR6_VUNkGaaSdcCRkRDfOyk",
-            appId: "1:961868821442:web:5b4e57ed0f7e7a564e1c5b",
-            messagingSenderId: "961868821442",
-            projectId: "pawfect-find-firebase"));
+      apiKey: "AIzaSyD0diqklhO6VR6_VUNkGaaSdcCRkRDfOyk",
+      appId: "1:961868821442:web:5b4e57ed0f7e7a564e1c5b",
+      messagingSenderId: "961868821442",
+      projectId: "pawfect-find-firebase",
+      storageBucket: "gs://pawfect-find-firebase.appspot.com",
+    ));
   }
 
   await Firebase.initializeApp();

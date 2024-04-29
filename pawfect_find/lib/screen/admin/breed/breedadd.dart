@@ -1,14 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
-// import 'dart:html' as html;
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class BreedAddPage extends StatefulWidget {
   const BreedAddPage({super.key});
@@ -38,8 +38,6 @@ class _BreedAddPage extends State<BreedAddPage> {
   File? adultImg;
   Uint8List? puppyByte;
   Uint8List? adultByte;
-  // List<int>? puppyFile;
-  // List<int>? adultFile;
 
   // method enable button
   bool isFilled() =>
@@ -59,7 +57,6 @@ class _BreedAddPage extends State<BreedAddPage> {
   // method pick img
   pickImage(bool isPuppy) async {
     final ImagePicker picker = ImagePicker();
-    // final reader = html.FileReader();
 
     XFile? img;
     img = await picker.pickImage(
@@ -72,148 +69,92 @@ class _BreedAddPage extends State<BreedAddPage> {
         if (isPuppy) {
           puppyImg = File(img!.path);
           puppyByte = inByte;
-          // puppyFile =
-          //     Base64Decoder().convert(reader.result.toString().split(",").last);
         } else {
           adultImg = File(img!.path);
           adultByte = inByte;
-          // adultFile =
-          //     Base64Decoder().convert(reader.result.toString().split(",").last);
         }
       });
     }
   }
 
+  Future<String> upImgFirebase(Uint8List imgByte) async {
+    try {
+      // buat nama file unik
+      String name = DateTime.now().millisecondsSinceEpoch.toString();
+
+      Reference ref = FirebaseStorage.instance.ref().child('images/$name');
+
+      final metadata = SettableMetadata(contentType: 'image/jpeg');
+
+      // upload
+      UploadTask uploadTask = ref.putData(imgByte, metadata);
+      TaskSnapshot taskSnapshot = await uploadTask;
+
+      // ambil url
+      String imgUrl = await taskSnapshot.ref.getDownloadURL();
+
+      return imgUrl;
+    } catch (ex) {
+      throw Exception("Gagal unggah ke Firebase: $ex");
+    }
+  }
+
   // method tambah data
   Future addData() async {
-    // try {
-    String url = "http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php";
+    if (isFilled()) {
+      try {
+        // upload foto ke firebase
+        String puppyUrl = await upImgFirebase(puppyByte!);
+        String adultUrl = await upImgFirebase(adultByte!);
 
-    var request = http.MultipartRequest('POST', Uri.parse(url));
+        final response = await http.post(
+          Uri.parse("http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php"),
+          body: {
+            'breed': _nameController.text,
+            'group': dropdownValue,
+            'minHeight': _minHeightController.text,
+            'maxHeight': _maxHeightController.text,
+            'minWeight': _minWeightController.text,
+            'maxWeight': _maxWeightController.text,
+            'minLife': _minLifeController.text,
+            'maxLife': _maxLifeController.text,
+            'origin': _originController.text,
+            'colour': _colourController.text,
+            'attention': _attentionController.text,
+            'imgPuppy': puppyUrl,
+            'imgAdult': adultUrl,
+          },
+        );
 
-    request.files.add(http.MultipartFile.fromBytes(
-        'imgPuppy', puppyImg!.readAsBytesSync(),
-        filename: 'imgPuppy'));
+        if (response.statusCode == 200) {
+          Map<String, dynamic> json = jsonDecode(response.body);
 
-    request.files.add(http.MultipartFile.fromBytes(
-        'imgAdult', adultImg!.readAsBytesSync(),
-        filename: 'imgAdult'));
+          if (json['result'] == 'Success') {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Berhasil menambahkan data baru."),
+              duration: Duration(seconds: 3),
+            ));
 
-    var response = await request.send();
-
-    if (response.statusCode == 200) {
-      print(response);
+            Navigator.pop(context);
+          } else {
+            throw Exception("Terjadi kesalahan: ${json['message']}.");
+          }
+        } else {
+          throw Exception("Terjadi kesalahan: Status ${response.statusCode}.");
+        }
+      } catch (ex) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Terjadi kesalahan: $ex."),
+          duration: Duration(seconds: 3),
+        ));
+        throw Exception("Terjadi kesalahan: $ex.");
+      }
     } else {
-      print("not 200");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Data belum semua terisi."),
+        duration: Duration(seconds: 3),
+      ));
     }
-
-    // var pup = await puppyImg!.readAsBytes();
-    // var adl = await adultImg!.readAsBytes();
-
-    // MultipartFile filePup = MultipartFile.fromBytes(pup, filename: "imgPuppy");
-    // MultipartFile fileAdl = MultipartFile.fromBytes(adl, filename: "imgAdult");
-
-    // // MapEntry<String, MultipartFile> pupEntry = MapEntry("imgPuppy", filePup);
-    // // MapEntry<String, MultipartFile> adlEntry = MapEntry("imgAdult", fileAdl);
-
-    // // formData.files.add(pupEntry);
-    // // formData.files.add(adlEntry);
-
-    // var formData = FormData.fromMap({
-    //   'breed': _nameController.text,
-    //   'group': dropdownValue,
-    //   'minHeight': _minHeightController.text,
-    //   'maxHeight': _maxHeightController.text,
-    //   'minWeight': _minWeightController.text,
-    //   'maxWeight': _maxWeightController.text,
-    //   'minLife': _minLifeController.text,
-    //   'maxLife': _maxLifeController.text,
-    //   'origin': _originController.text,
-    //   'colour': _colourController.text,
-    //   'attention': _attentionController.text,
-    //   'imgPuppy': filePup,
-    //   'imgAdult': fileAdl,
-    // });
-
-    // var response = await Dio().post(url, data: formData, options: Options(headers: {
-    //   "Content-Type": "multipart/form-data",
-    // }));
-
-    // if (response.statusCode == 200) {
-    //   print(response);
-    //   // var map = response.data as Map;
-    //   // // var json = jsonDecode(response.data);
-    //   // // print(json);
-    // } else {
-    //   print("Error");
-    // }
-    // } catch (e) {
-    //   throw ("Error: $e");
-    // }
-
-    // var request = http.MultipartRequest("POST",
-    //     Uri.parse("http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php"));
-
-    // request.fields['breed'] = _nameController.text;
-    // request.fields['group'] = dropdownValue;
-    // request.fields['minHeight'] = _minHeightController.text;
-    // request.fields['maxHeight'] = _maxHeightController.text;
-    // request.fields['minWeight'] = _minWeightController.text;
-    // request.fields['maxWeight'] = _maxWeightController.text;
-    // request.fields['minLife'] = _minLifeController.text;
-    // request.fields['maxLife'] = _maxLifeController.text;
-    // request.fields['origin'] = _originController.text;
-    // request.fields['colour'] = _colourController.text;
-    // request.fields['attention'] = _attentionController.text;
-
-    // var picPuppy;
-    // var picAdult;
-
-    // if (kIsWeb) {
-    //   picPuppy =
-    //   // http.MultipartFile("imgPuppy",
-    //   //     puppyImg!.readAsBytes().asStream(), puppyImg!.lengthSync());
-    //   await http.MultipartFile.fromBytes("imgPuppy", puppyByte!.cast());
-    //   print("puppy photo: $picPuppy");
-    //   picAdult =
-    //   // http.MultipartFile("imgAdult",
-    //   //     adultImg!.readAsBytes().asStream(), puppyImg!.lengthSync());
-    //   await http.MultipartFile.fromBytes("imgAdult", adultByte!.cast());
-    //   print("adult photo: $picAdult");
-    // } else {
-    //   picPuppy = await http.MultipartFile.fromPath("imgPuppy", puppyImg!.path);
-    //   picAdult = await http.MultipartFile.fromPath("imgAdult", adultImg!.path);
-    // }
-    // request.files.add(picPuppy);
-    // request.files.add(picAdult);
-
-    // var response = await request.send();
-
-    // if (response.statusCode == 200) {
-    //   var responseBody = await response.stream.bytesToString();
-    //   var json = jsonDecode(responseBody);
-
-    //   if (json['result'] == "Success") {
-    //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //       content: Text("Berhasil menambahkan data baru."),
-    //       duration: Duration(seconds: 3),
-    //     ));
-
-    //     Navigator.pop(context);
-    //   } else {
-    //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //       content: Text("Gagal menambahkan data baru."),
-    //       duration: Duration(seconds: 3),
-    //     ));
-    //     throw Exception("Gagal menambahkan data baru.");
-    //   }
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //     content: Text("Gagal menambahkan data baru."),
-    //     duration: Duration(seconds: 3),
-    //   ));
-    //   throw Exception("Gagal menambahkan data baru.");
-    // }
   }
 
   // method back message
