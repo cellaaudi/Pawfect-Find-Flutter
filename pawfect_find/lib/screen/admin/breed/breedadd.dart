@@ -57,19 +57,13 @@ class _BreedAddPage extends State<BreedAddPage> {
       adultImg != null;
 
   // method pick img
-  pickImage(bool isCam, bool isPuppy) async {
+  pickImage(bool isPuppy) async {
     final ImagePicker picker = ImagePicker();
     // final reader = html.FileReader();
 
     XFile? img;
-
-    if (isCam) {
-      img = await picker.pickImage(
-          source: ImageSource.camera, maxHeight: 1080, maxWidth: 1080);
-    } else {
-      img = await picker.pickImage(
-          source: ImageSource.gallery, maxHeight: 1080, maxWidth: 1080);
-    }
+    img = await picker.pickImage(
+        source: ImageSource.gallery, maxHeight: 1080, maxWidth: 1080);
 
     if (img != null) {
       var inByte = await img.readAsBytes();
@@ -93,70 +87,69 @@ class _BreedAddPage extends State<BreedAddPage> {
   // method tambah data
   Future addData() async {
     // try {
-      String url = "http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php";
+    String url = "http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php";
 
-      var request = http.MultipartRequest('POST', Uri.parse(url));
+    var request = http.MultipartRequest('POST', Uri.parse(url));
 
-      request.files.add(
-        http.MultipartFile.fromBytes('imgPuppy', puppyImg!.readAsBytesSync(), filename: 'imgPuppy')
-      );
+    request.files.add(http.MultipartFile.fromBytes(
+        'imgPuppy', puppyImg!.readAsBytesSync(),
+        filename: 'imgPuppy'));
 
-      request.files.add(
-        http.MultipartFile.fromBytes('imgAdult', adultImg!.readAsBytesSync(), filename: 'imgAdult')
-      );
+    request.files.add(http.MultipartFile.fromBytes(
+        'imgAdult', adultImg!.readAsBytesSync(),
+        filename: 'imgAdult'));
 
-      var response = await request.send();
+    var response = await request.send();
 
-      if (response.statusCode == 200) {
-        print(response);
-      } else {
-        print("not 200");
-      }
+    if (response.statusCode == 200) {
+      print(response);
+    } else {
+      print("not 200");
+    }
 
-      // var pup = await puppyImg!.readAsBytes();
-      // var adl = await adultImg!.readAsBytes();
+    // var pup = await puppyImg!.readAsBytes();
+    // var adl = await adultImg!.readAsBytes();
 
-      // MultipartFile filePup = MultipartFile.fromBytes(pup, filename: "imgPuppy");
-      // MultipartFile fileAdl = MultipartFile.fromBytes(adl, filename: "imgAdult");
+    // MultipartFile filePup = MultipartFile.fromBytes(pup, filename: "imgPuppy");
+    // MultipartFile fileAdl = MultipartFile.fromBytes(adl, filename: "imgAdult");
 
-      // // MapEntry<String, MultipartFile> pupEntry = MapEntry("imgPuppy", filePup);
-      // // MapEntry<String, MultipartFile> adlEntry = MapEntry("imgAdult", fileAdl);
+    // // MapEntry<String, MultipartFile> pupEntry = MapEntry("imgPuppy", filePup);
+    // // MapEntry<String, MultipartFile> adlEntry = MapEntry("imgAdult", fileAdl);
 
-      // // formData.files.add(pupEntry);
-      // // formData.files.add(adlEntry);
+    // // formData.files.add(pupEntry);
+    // // formData.files.add(adlEntry);
 
-      // var formData = FormData.fromMap({
-      //   'breed': _nameController.text,
-      //   'group': dropdownValue,
-      //   'minHeight': _minHeightController.text,
-      //   'maxHeight': _maxHeightController.text,
-      //   'minWeight': _minWeightController.text,
-      //   'maxWeight': _maxWeightController.text,
-      //   'minLife': _minLifeController.text,
-      //   'maxLife': _maxLifeController.text,
-      //   'origin': _originController.text,
-      //   'colour': _colourController.text,
-      //   'attention': _attentionController.text,
-      //   'imgPuppy': filePup,
-      //   'imgAdult': fileAdl,
-      // });
+    // var formData = FormData.fromMap({
+    //   'breed': _nameController.text,
+    //   'group': dropdownValue,
+    //   'minHeight': _minHeightController.text,
+    //   'maxHeight': _maxHeightController.text,
+    //   'minWeight': _minWeightController.text,
+    //   'maxWeight': _maxWeightController.text,
+    //   'minLife': _minLifeController.text,
+    //   'maxLife': _maxLifeController.text,
+    //   'origin': _originController.text,
+    //   'colour': _colourController.text,
+    //   'attention': _attentionController.text,
+    //   'imgPuppy': filePup,
+    //   'imgAdult': fileAdl,
+    // });
 
-      // var response = await Dio().post(url, data: formData, options: Options(headers: {
-      //   "Content-Type": "multipart/form-data",
-      // }));
+    // var response = await Dio().post(url, data: formData, options: Options(headers: {
+    //   "Content-Type": "multipart/form-data",
+    // }));
 
-      // if (response.statusCode == 200) {
-      //   print(response);
-      //   // var map = response.data as Map;
-      //   // // var json = jsonDecode(response.data);
-      //   // // print(json);
-      // } else {
-      //   print("Error");
-      // }
+    // if (response.statusCode == 200) {
+    //   print(response);
+    //   // var map = response.data as Map;
+    //   // // var json = jsonDecode(response.data);
+    //   // // print(json);
+    // } else {
+    //   print("Error");
+    // }
     // } catch (e) {
     //   throw ("Error: $e");
     // }
-
 
     // var request = http.MultipartRequest("POST",
     //     Uri.parse("http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php"));
@@ -407,29 +400,15 @@ class _BreedAddPage extends State<BreedAddPage> {
           children: [
             Expanded(
                 child: OutlinedButton.icon(
-                    icon: Icon(Icons.photo_camera_rounded),
-                    onPressed: () async {
-                      if (age == "muda") {
-                        pickImage(true, true);
-                      } else {
-                        pickImage(true, false);
-                      }
-                    },
-                    label: Text("Kamera"))),
-            SizedBox(
-              width: 16,
-            ),
-            Expanded(
-                child: OutlinedButton.icon(
               icon: Icon(Icons.photo_library_rounded),
               onPressed: () async {
                 if (age == "muda") {
-                  pickImage(false, true);
+                  pickImage(true);
                 } else {
-                  pickImage(false, false);
+                  pickImage(false);
                 }
               },
-              label: Text("Galeri"),
+              label: Text("Ambil dari Galeri"),
             ))
           ],
         ),
@@ -520,11 +499,8 @@ class _BreedAddPage extends State<BreedAddPage> {
                 Expanded(
                     child: ElevatedButton(
                         onPressed: isFilled() ? () => addData() : null,
-                        // onPressed: isFilled() ? () => {
-
-                        // } : null,
                         child: Text(
-                          "Tambah Ras Anjing (1/2)",
+                          "Simpan Ras Anjing",
                           style: GoogleFonts.nunito(fontSize: 16),
                         )))
               ],
