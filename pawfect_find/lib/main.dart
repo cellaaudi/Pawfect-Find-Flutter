@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pawfect_find/screen/admin/breed/breedadd.dart';
+import 'package:pawfect_find/screen/admin/breed/breededit.dart';
 import 'package:pawfect_find/screen/admin/breed/breedindex.dart';
 import 'package:pawfect_find/screen/admin/criteria/criteriaadd.dart';
 import 'package:pawfect_find/screen/admin/criteria/criteriaedit.dart';
@@ -107,7 +108,7 @@ class MyApp extends StatelessWidget {
         // admin only
         'breed_index': (context) => BreedIndexPage(),
         'breed_add': (context) => BreedAddPage(),
-        'breed_add_2': (context) => BreedAddPage(),
+        'breed_edit': (context) => BreedEditPage(),
         'criteria_index': (context) => CriteriaIndexPage(),
         'criteria_add': (context) => CriteriaAddPage(),
         'criteria_edit': (context) => CriteriaEditPage(),

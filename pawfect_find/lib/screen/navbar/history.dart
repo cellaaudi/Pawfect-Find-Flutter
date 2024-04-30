@@ -40,6 +40,8 @@ class _HistoryPage extends State<HistoryPage> {
               json['data'].map((hist) => History.fromJson(hist)));
 
           return fetchedHist;
+        } else if (json['result'] == 'Empty') {
+          return [];
         } else {
           throw Exception("Gagal menampilkan data: ${json['message']}.");
         }

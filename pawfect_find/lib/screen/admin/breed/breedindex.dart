@@ -59,7 +59,9 @@ class _BreedIndexPage extends State<BreedIndexPage> {
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
-                    return Center(child: CircularProgressIndicator(),);
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
                   },
                   errorBuilder: (context, error, trace) {
                     return Image.asset(
@@ -97,12 +99,11 @@ class _BreedIndexPage extends State<BreedIndexPage> {
             ),
             IconButton(
               onPressed: () async {
-                // final prefs = await SharedPreferences.getInstance();
-                // prefs.setInt('id_criteria', data.id);
-                // prefs.setString('str_criteria', data.criteria);
+                final prefs = await SharedPreferences.getInstance();
+                prefs.setInt('id_breed', breed.id);
 
-                // Navigator.pushNamed(context, 'criteria_edit')
-                //     .then((value) => _refresh());
+                Navigator.pushNamed(context, 'breed_edit')
+                    .then((value) => _refresh());
               },
               icon: Icon(Icons.edit_rounded),
               tooltip: "Perbarui data",
