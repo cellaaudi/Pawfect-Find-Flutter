@@ -157,23 +157,18 @@ class _QuestionSortPage extends State<QuestionSortPage> {
           itemBuilder: (context, index) {
             var question = queList[index];
 
-            return ReorderableDragStartListener(
-                key: ValueKey(question.id),
-                index: index,
-                child: ListTile(
-                  leading: CircleAvatar(
-                      child: Text(
-                    "${index + 1}.",
-                    style: GoogleFonts.nunito(fontSize: 16),
-                  )),
-                  title: Text(question.question),
-                ));
+            return ListTile(
+              key: ValueKey(question.id),
+              leading: CircleAvatar(
+                  child: Text(
+                "${index + 1}.",
+                style: GoogleFonts.nunito(fontSize: 16),
+              )),
+              title: Text(question.question),
+            );
           },
           itemCount: queList.length,
           onReorder: _onReorder,
-          shrinkWrap: true,
-          physics: ClampingScrollPhysics(),
-          buildDefaultDragHandles: false,
         );
 
   @override
