@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pawfect_find/class/breed.dart';
 import 'package:pawfect_find/screen/detail/detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,7 +51,7 @@ class _BreedIndexPage extends State<BreedIndexPage> {
                 )),
             TextButton(
                 onPressed: () async {
-                  bool deleted = await deleteData(data.id);
+                  bool deleted = await deleteData(data);
 
                   if (deleted) {
                     Navigator.pop(context);
@@ -66,6 +67,22 @@ class _BreedIndexPage extends State<BreedIndexPage> {
           ],
         );
       });
+
+  // method delete foto lama di firebase
+  Future<void> deleteFirebaseImg(String imgUrl) async {
+    try {
+      if (imgUrl.isNotEmpty) {
+        Reference ref = FirebaseStorage.instance.refFromURL(imgUrl);
+        await ref.delete();
+      }
+    } catch (ex) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Terjadi kesalahan: $ex."),
+        duration: Duration(seconds: 3),
+      ));
+      throw Exception("Terjadi kesalahan: $ex.");
+    }
+  }
 
   // method untuk ambil semua data
   Future<List<Breed>> fetchData() async {
@@ -87,15 +104,18 @@ class _BreedIndexPage extends State<BreedIndexPage> {
   }
 
   // method delete data
-  Future<bool> deleteData(int breed_id) async {
+  Future<bool> deleteData(Breed data) async {
     try {
       bool deleted = false;
+
+      await deleteFirebaseImg(data.imgPuppy);
+      await deleteFirebaseImg(data.imgAdult);
 
       final response = await http.post(
           Uri.parse(
               "http://localhost/ta/Pawfect-Find-PHP/admin/breed_delete.php"),
           body: {
-            'breed_id': breed_id.toString(),
+            'breed_id': data.id.toString(),
           });
 
       if (response.statusCode == 200) {
