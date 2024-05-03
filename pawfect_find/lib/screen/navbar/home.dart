@@ -1,12 +1,8 @@
-import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'package:pawfect_find/class/history.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -151,40 +147,6 @@ class _HomePage extends State<HomePage> {
             SizedBox(
               height: 16.0,
             ),
-            cardBg(
-                Colors.red,
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "PERHATIAN",
-                          style: GoogleFonts.nunito(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white),
-                        )
-                      ],
-                    ),
-                    Divider(color: Colors.white),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                            child: RichText(
-                                text: TextSpan(
-                                    text:
-                                        "Hasil rekomendasi yang diberikan hanya sebagai bantuan pertama bagimu untuk menentukan ras anjing yang akan dipelihara.",
-                                    style: GoogleFonts.nunito(
-                                        fontSize: 16, color: Colors.white))))
-                      ],
-                    )
-                  ],
-                )),
           ],
         ),
       );

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:pawfect_find/class/criteria.dart';
 import 'package:pawfect_find/class/rule.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -148,35 +147,53 @@ class _RuleDetailPage extends State<RuleDetailPage> {
   }
 
   // method tile data
-  Widget tileData(criterias, int index) => ListTile(
-      leading: CircleAvatar(
-        child: Text(
-          "${index + 1}",
-          style: GoogleFonts.nunito(),
-        ),
-      ),
-      title: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            criterias['criteria'],
-            style: GoogleFonts.nunito(fontSize: 16),
+  Widget tileData(int breed_id, criterias, int index) => ListTile(
+        leading: CircleAvatar(
+          child: Text(
+            "${index + 1}",
+            style: GoogleFonts.nunito(),
           ),
-          Text(
-            "Certainty Factor: ${criterias['cf']}",
-            style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
-          )
-        ],
-      ),
-      trailing: IconButton(
-        onPressed: () {
-          _delMsg(criterias).then((value) => _refresh());
-        },
-        icon: Icon(Icons.delete_rounded),
-        tooltip: "Hapus data",
-        style: IconButton.styleFrom(foregroundColor: Colors.red),
-      ));
+        ),
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              criterias['criteria'],
+              style: GoogleFonts.nunito(fontSize: 16),
+            ),
+            Text(
+              "Certainty Factor: ${criterias['cf']}",
+              style: GoogleFonts.nunito(fontSize: 16, color: Colors.grey),
+            )
+          ],
+        ),
+        trailing: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                prefs.setInt('id_breed', breed_id);
+                prefs.setInt('id_criteria', criterias['criteria_id']);
+
+                Navigator.pushNamed(context, 'rule_edit')
+                    .then((value) => _refresh());
+              },
+              icon: Icon(Icons.edit_rounded),
+              tooltip: "Perbarui data",
+              style: IconButton.styleFrom(foregroundColor: Colors.blue),
+            ),
+            IconButton(
+              onPressed: () => _delMsg(criterias).then((value) => _refresh()),
+              icon: Icon(Icons.delete_rounded),
+              tooltip: "Hapus data",
+              style: IconButton.styleFrom(foregroundColor: Colors.red),
+            ),
+          ],
+        ),
+      );
 
   // method build body
   Widget buildBody() => idBreed == null
@@ -242,7 +259,7 @@ class _RuleDetailPage extends State<RuleDetailPage> {
                             shrinkWrap: true,
                             physics: NeverScrollableScrollPhysics(),
                             itemBuilder: (context, index) =>
-                                tileData(rule.criterias![index], index),
+                                tileData(rule.breedId, rule.criterias![index], index),
                             separatorBuilder: (context, index) => Divider(),
                             itemCount: rule.criterias!.length)
                       else

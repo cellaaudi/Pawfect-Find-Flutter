@@ -331,7 +331,8 @@ class _QuizPage extends State<QuizPage> {
 
                             setState(() {
                               // hapus pada halaman sebelumnya
-                              userAnswers.removeWhere((answer) => answer.questionId == prevQueId);
+                              userAnswers.removeWhere(
+                                  (answer) => answer.questionId == prevQueId);
 
                               // hapus pada halaman terakhir
                               // selectedMap.remove(question.id);
