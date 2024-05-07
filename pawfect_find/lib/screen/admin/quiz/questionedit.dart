@@ -80,8 +80,8 @@ class _QuestionEditPage extends State<QuestionEditPage> {
     if (_queController.text.isNotEmpty) {
       try {
         final response = await http.post(
-            Uri.parse(
-                'http://localhost/ta/Pawfect-Find-PHP/admin/question_edit.php'),
+            Uri.https(
+                'cellaaudi.000webhostapp.com', '/admin/question_edit.php'),
             body: {'id': idQue.toString(), 'question': _queController.text});
 
         if (response.statusCode == 200) {

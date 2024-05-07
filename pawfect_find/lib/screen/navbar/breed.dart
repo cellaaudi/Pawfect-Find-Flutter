@@ -20,7 +20,7 @@ class _BreedPage extends State<BreedPage> {
   Future<List<Breed>> fetchBreeds() async {
     try {
       final response = await http.post(
-          Uri.parse('http://localhost/ta/Pawfect-Find-PHP/breed.php'),
+          Uri.https('cellaaudi.000webhostapp.com', '/breed.php'),
           body: {'search': _searchText});
 
       if (response.statusCode == 200) {

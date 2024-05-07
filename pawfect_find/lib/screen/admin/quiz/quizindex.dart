@@ -64,7 +64,7 @@ class _QuizIndexPage extends State<QuizIndexPage> {
   Future<List<Question>> fetchData() async {
     try {
       final response = await http
-          .get(Uri.parse("http://localhost/ta/Pawfect-Find-PHP/question.php"));
+          .get(Uri.https("cellaaudi.000webhostapp.com", "/question.php"));
 
       if (response.statusCode == 200) {
         Map<String, dynamic> json = jsonDecode(response.body);
@@ -97,8 +97,8 @@ class _QuizIndexPage extends State<QuizIndexPage> {
       bool deleted = false;
 
       final response = await http.post(
-          Uri.parse(
-              "http://localhost/ta/Pawfect-Find-PHP/admin/question_delete.php"),
+          Uri.https(
+              "cellaaudi.000webhostapp.com", "/admin/question_delete.php"),
           body: {
             'que_id': que_id.toString(),
           });

@@ -38,8 +38,8 @@ class _CriteriaEditPage extends State<CriteriaEditPage> {
     if (_criteriaController.text.isNotEmpty) {
       try {
         final response = await http.post(
-            Uri.parse(
-                'http://localhost/ta/Pawfect-Find-PHP/admin/criteria_edit.php'),
+            Uri.https(
+                'cellaaudi.000webhostapp.com', '/admin/criteria_edit.php'),
             body: {
               'id': idCriteria.toString(),
               'criteria': _criteriaController.text,

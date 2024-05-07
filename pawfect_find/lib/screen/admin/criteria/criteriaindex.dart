@@ -63,7 +63,7 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
   // method untuk ambil semua data
   Future<List<Criteria>> fetchData() async {
     final response = await http.post(
-        Uri.parse('http://localhost/ta/Pawfect-Find-PHP/admin/criteria.php'));
+        Uri.https('cellaaudi.000webhostapp.com', '/admin/criteria.php'));
 
     if (response.statusCode == 200) {
       Map<String, dynamic> json = jsonDecode(response.body);
@@ -85,8 +85,8 @@ class _CriteriaIndexPage extends State<CriteriaIndexPage> {
   // method hapus data
   Future<bool> deleteData(int id) async {
     final response = await http.post(
-        Uri.parse(
-            "http://localhost/ta/Pawfect-Find-PHP/admin/criteria_delete.php"),
+        Uri.https(
+            "cellaaudi.000webhostapp.com", "/admin/criteria_delete.php"),
         body: {'id': id.toString()});
 
     if (response.statusCode == 200) {

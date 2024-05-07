@@ -29,7 +29,7 @@ class _HistoryPage extends State<HistoryPage> {
   Future<List<History>> fetchHistory() async {
     try {
       final response = await http.post(
-          Uri.parse("http://localhost/ta/Pawfect-Find-PHP/history.php"),
+          Uri.https("cellaaudi.000webhostapp.com", "/history.php"),
           body: {'user_id': idUser.toString()});
 
       if (response.statusCode == 200) {

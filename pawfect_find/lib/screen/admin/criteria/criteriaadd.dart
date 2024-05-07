@@ -23,8 +23,8 @@ class _CriteriaAddPage extends State<CriteriaAddPage> {
     if (_criteriaController.text.isNotEmpty) {
       try {
         final response = await http.post(
-            Uri.parse(
-                'http://localhost/ta/Pawfect-Find-PHP/admin/criteria_add.php'),
+            Uri.https(
+                'cellaaudi.000webhostapp.com', '/admin/criteria_add.php'),
             body: {'criteria': _criteriaController.text});
 
         if (response.statusCode == 200) {
