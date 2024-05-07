@@ -21,7 +21,7 @@ class _RuleIndexPage extends State<RuleIndexPage> {
   Future<List<Rule>> fetchData() async {
     try {
       final response = await http.post(
-          Uri.https('cellaaudi.000webhostapp.com', '/admin/rule.php'));
+          Uri.parse('http://localhost/ta/Pawfect-Find-PHP/admin/rule.php'));
 
       if (response.statusCode == 200) {
         Map<String, dynamic> json = jsonDecode(response.body);

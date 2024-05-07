@@ -59,7 +59,7 @@ class _QuestionSortPage extends State<QuestionSortPage> {
   Future<void> fetchData() async {
     try {
       final response = await http
-          .get(Uri.https("cellaaudi.000webhostapp.com", "/question.php"));
+          .get(Uri.parse("http://localhost/ta/Pawfect-Find-PHP/question.php"));
 
       if (response.statusCode == 200) {
         Map<String, dynamic> json = jsonDecode(response.body);
@@ -100,8 +100,8 @@ class _QuestionSortPage extends State<QuestionSortPage> {
       }
 
       final response = await http.post(
-          Uri.https(
-              "cellaaudi.000webhostapp.com", "/admin/question_edit_sort.php"),
+          Uri.parse(
+              "http://localhost/ta/Pawfect-Find-PHP/admin/question_edit_sort.php"),
           body: {
             'newOrder': jsonEncode(newOrder),
           });

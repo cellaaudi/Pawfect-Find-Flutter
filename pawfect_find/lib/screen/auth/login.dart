@@ -21,7 +21,7 @@ class _LoginPage extends State<LoginPage> {
   // method ke database user
   Future<bool> afterLogin(String? uid, String? name, String? email) async {
     final response = await http.post(
-        Uri.https("cellaaudi.000webhostapp.com", "/login.php"),
+        Uri.parse("http://localhost/ta/Pawfect-Find-PHP/login.php"),
         body: {'uid': uid, 'name': name, 'email': email});
 
     if (response.statusCode == 200) {

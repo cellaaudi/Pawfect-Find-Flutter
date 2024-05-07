@@ -90,8 +90,8 @@ class _QuestionAddPage extends State<QuestionAddPage> {
   // get next sort
   Future<void> getNext() async {
     try {
-      final response = await http.get(Uri.https(
-          "cellaaudi.000webhostapp.com", "/admin/question_sort.php"));
+      final response = await http.get(Uri.parse(
+          "http://localhost/ta/Pawfect-Find-PHP/admin/question_sort.php"));
 
       if (response.statusCode == 200) {
         Map<String, dynamic> json = jsonDecode(response.body);
@@ -115,7 +115,7 @@ class _QuestionAddPage extends State<QuestionAddPage> {
   // get criterias
   Future<List<Criteria>> fetchCriterias() async {
     final response = await http.post(
-        Uri.https('cellaaudi.000webhostapp.com', '/admin/criteria.php'));
+        Uri.parse('http://localhost/ta/Pawfect-Find-PHP/admin/criteria.php'));
 
     if (response.statusCode == 200) {
       Map<String, dynamic> json = jsonDecode(response.body);
@@ -146,8 +146,8 @@ class _QuestionAddPage extends State<QuestionAddPage> {
             _ansController.map((controller) => controller.text).toList();
 
         final response = await http.post(
-            Uri.https(
-                'cellaaudi.000webhostapp.com', '/admin/question_add.php'),
+            Uri.parse(
+                'http://localhost/ta/Pawfect-Find-PHP/admin/question_add.php'),
             body: {
               'sort': sort.toString(),
               'question': _queController.text,

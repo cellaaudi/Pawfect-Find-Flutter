@@ -99,7 +99,7 @@ class _BreedEditPage extends State<BreedEditPage> {
   Future<Breed> fetchData() async {
     try {
       final response = await http.post(
-          Uri.https("cellaaudi.000webhostapp.com", "/detail.php"),
+          Uri.parse("http://localhost/ta/Pawfect-Find-PHP/detail.php"),
           body: {
             'breed_id': idBreed.toString(),
           });
@@ -207,8 +207,8 @@ class _BreedEditPage extends State<BreedEditPage> {
         }
 
         final response = await http.post(
-          Uri.https(
-              "cellaaudi.000webhostapp.com", "/admin/breed_edit.php"),
+          Uri.parse(
+              "http://localhost/ta/Pawfect-Find-PHP/admin/breed_edit.php"),
           body: {
             'id': idBreed.toString(),
             'breed': _nameController.text,

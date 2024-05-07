@@ -109,7 +109,7 @@ class _BreedAddPage extends State<BreedAddPage> {
         String adultUrl = await upImgFirebase(adultByte!);
 
         final response = await http.post(
-          Uri.https("cellaaudi.000webhostapp.com", "/admin/breed_add.php"),
+          Uri.parse("http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php"),
           body: {
             'breed': _nameController.text,
             'group': dropdownValue,

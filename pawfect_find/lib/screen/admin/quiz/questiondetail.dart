@@ -76,8 +76,8 @@ class _QuestionDetailPage extends State<QuestionDetailPage> {
   Future<Question> fetchData() async {
     try {
       final response = await http.post(
-          Uri.https(
-              "cellaaudi.000webhostapp.com", "/admin/question_detail.php"),
+          Uri.parse(
+              "http://localhost/ta/Pawfect-Find-PHP/admin/question_detail.php"),
           body: {
             'id': idQue.toString(),
           });
@@ -116,8 +116,8 @@ class _QuestionDetailPage extends State<QuestionDetailPage> {
       bool deleted = false;
 
       final response = await http.post(
-          Uri.https(
-              "cellaaudi.000webhostapp.com", "/admin/choice_delete.php"),
+          Uri.parse(
+              "http://localhost/ta/Pawfect-Find-PHP/admin/choice_delete.php"),
           body: {
             'que_id': idQue.toString(),
             'choice_id': choice_id.toString(),

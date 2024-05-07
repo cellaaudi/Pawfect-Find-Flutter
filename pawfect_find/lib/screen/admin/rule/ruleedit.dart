@@ -93,7 +93,7 @@ class _RuleEditPage extends State<RuleEditPage> {
   Future<RuleRow> fetchData() async {
     try {
       final response = await http.post(
-          Uri.https("cellaaudi.000webhostapp.com", "/admin/rule_row.php"),
+          Uri.parse("http://localhost/ta/Pawfect-Find-PHP/admin/rule_row.php"),
           body: {
             'breed_id': idBreed.toString(),
             'crit_id': idCriteria.toString(),
@@ -127,8 +127,8 @@ class _RuleEditPage extends State<RuleEditPage> {
     if (selectedMB != null && selectedMD != null) {
       try {
         final response = await http.post(
-            Uri.https(
-                "cellaaudi.000webhostapp.com", "/admin/rule_edit.php"),
+            Uri.parse(
+                "http://localhost/ta/Pawfect-Find-PHP/admin/rule_edit.php"),
             body: {
               'breed_id': idBreed.toString(),
               'crit_id': idCriteria.toString(),

@@ -37,7 +37,7 @@ class _ResultPage extends State<ResultPage> {
   Future<History> fetchHistory() async {
     try {
       final response = await http.post(
-          Uri.https("cellaaudi.000webhostapp.com", "/history_detail.php"),
+          Uri.parse("http://localhost/ta/Pawfect-Find-PHP/history_detail.php"),
           body: {'history_id': idHistory.toString()});
 
       if (response.statusCode == 200) {
@@ -66,7 +66,7 @@ class _ResultPage extends State<ResultPage> {
   Future<List<Recommendation>> fetchResult() async {
     try {
       final response = await http.post(
-          Uri.https("cellaaudi.000webhostapp.com", "/result.php"),
+          Uri.parse("http://localhost/ta/Pawfect-Find-PHP/result.php"),
           body: {'history_id': idHistory.toString()});
 
       if (response.statusCode == 200) {

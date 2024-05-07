@@ -77,8 +77,8 @@ class _RuleDetailPage extends State<RuleDetailPage> {
   Future<Rule> fetchData() async {
     try {
       final response = await http.post(
-          Uri.https(
-              'cellaaudi.000webhostapp.com', '/admin/rule_detail.php'),
+          Uri.parse(
+              'http://localhost/ta/Pawfect-Find-PHP/admin/rule_detail.php'),
           body: {'id': idBreed.toString()});
 
       if (response.statusCode == 200) {
@@ -111,8 +111,8 @@ class _RuleDetailPage extends State<RuleDetailPage> {
       bool deleted = false;
 
       final response = await http.post(
-          Uri.https(
-              "cellaaudi.000webhostapp.com", "/admin/rule_delete.php"),
+          Uri.parse(
+              "http://localhost/ta/Pawfect-Find-PHP/admin/rule_delete.php"),
           body: {
             'breed_id': idBreed.toString(),
             'criteria_id': criteria_id.toString(),

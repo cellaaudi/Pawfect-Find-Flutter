@@ -116,7 +116,7 @@ class _QuizPage extends State<QuizPage> {
   Future<List<Question>> fetchQuestions() async {
     try {
       final response = await http
-          .get(Uri.https("cellaaudi.000webhostapp.com", "/question.php"));
+          .get(Uri.parse("http://localhost/ta/Pawfect-Find-PHP/question.php"));
 
       if (response.statusCode == 200) {
         Map<String, dynamic> json = jsonDecode(response.body);
@@ -150,15 +150,15 @@ class _QuizPage extends State<QuizPage> {
 
       if (selectedBreeds == null) {
         response = await http.post(
-            Uri.https("cellaaudi.000webhostapp.com", "/answer.php"),
+            Uri.parse("http://localhost/ta/Pawfect-Find-PHP/answer.php"),
             body: {
               'answersJson': jsonEncode(answers),
               'user_id': idUser.toString()
             });
       } else {
         response = await http.post(
-            Uri.https(
-                "cellaaudi.000webhostapp.com", "/answer_afchoose.php"),
+            Uri.parse(
+                "http://localhost/ta/Pawfect-Find-PHP/answer_afchoose.php"),
             body: {
               'answersJson': jsonEncode(answers),
               'selBreeds': jsonEncode(selectedBreeds),

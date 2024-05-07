@@ -74,7 +74,7 @@ class _AnswerAddPage extends State<AnswerAddPage> {
   // get criterias
   Future<List<Criteria>> fetchCriterias() async {
     final response = await http.post(
-        Uri.https('cellaaudi.000webhostapp.com', '/admin/criteria.php'));
+        Uri.parse('http://localhost/ta/Pawfect-Find-PHP/admin/criteria.php'));
 
     if (response.statusCode == 200) {
       Map<String, dynamic> json = jsonDecode(response.body);
@@ -102,8 +102,8 @@ class _AnswerAddPage extends State<AnswerAddPage> {
     if (_ansController.text.isNotEmpty && selectedCrit != null) {
       try {
         final response = await http.post(
-            Uri.https(
-                'cellaaudi.000webhostapp.com', '/admin/choice_add.php'),
+            Uri.parse(
+                'http://localhost/ta/Pawfect-Find-PHP/admin/choice_add.php'),
             body: {
               'que_id': idQue.toString(),
               'crit_id': selectedCrit.toString(),

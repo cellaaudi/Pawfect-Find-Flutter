@@ -92,7 +92,7 @@ class _ChoosePage extends State<ChoosePage> {
   Future<List<Breed>> fetchBreeds() async {
     try {
       final response = await http.post(
-          Uri.https('cellaaudi.000webhostapp.com', '/breed.php'),
+          Uri.parse('http://localhost/ta/Pawfect-Find-PHP/breed.php'),
           body: {'search': _searchText});
 
       if (response.statusCode == 200) {

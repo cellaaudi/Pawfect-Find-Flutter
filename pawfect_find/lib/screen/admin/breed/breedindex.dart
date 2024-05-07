@@ -87,7 +87,7 @@ class _BreedIndexPage extends State<BreedIndexPage> {
   // method untuk ambil semua data
   Future<List<Breed>> fetchData() async {
     final response = await http.post(
-        Uri.https('cellaaudi.000webhostapp.com', '/breed.php'),
+        Uri.parse('http://localhost/ta/Pawfect-Find-PHP/breed.php'),
         body: {'search': _searchText});
 
     if (response.statusCode == 200) {
@@ -112,8 +112,8 @@ class _BreedIndexPage extends State<BreedIndexPage> {
       await deleteFirebaseImg(data.imgAdult);
 
       final response = await http.post(
-          Uri.https(
-              "cellaaudi.000webhostapp.com", "/admin/breed_delete.php"),
+          Uri.parse(
+              "http://localhost/ta/Pawfect-Find-PHP/admin/breed_delete.php"),
           body: {
             'breed_id': data.id.toString(),
           });

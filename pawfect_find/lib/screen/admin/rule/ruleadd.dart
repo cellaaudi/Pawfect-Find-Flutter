@@ -94,8 +94,8 @@ class _RuleAddPage extends State<RuleAddPage> {
   Future<List<Criteria>> fetchCriteriasRule() async {
     try {
       final response = await http.post(
-          Uri.https(
-              'cellaaudi.000webhostapp.com', '/admin/criteria_rule.php'),
+          Uri.parse(
+              'http://localhost/ta/Pawfect-Find-PHP/admin/criteria_rule.php'),
           body: {
             'breed_id': idBreed.toString(),
           });
@@ -131,8 +131,8 @@ class _RuleAddPage extends State<RuleAddPage> {
     if (selectedCrit != null && selectedMB != null && selectedMD != null) {
       try {
         final response = await http.post(
-            Uri.https(
-                "cellaaudi.000webhostapp.com", "/admin/rule_add.php"),
+            Uri.parse(
+                "http://localhost/ta/Pawfect-Find-PHP/admin/rule_add.php"),
             body: {
               'breed_id': idBreed.toString(),
               'criteria_id': selectedCrit.toString(),
