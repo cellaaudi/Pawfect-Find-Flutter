@@ -19,7 +19,7 @@ class _LoginPage extends State<LoginPage> {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   // method ke database user
-  Future afterLogin(String? uid, String? name, String? email) async {
+  Future<bool> afterLogin(String? uid, String? name, String? email) async {
     final response = await http.post(
         Uri.parse("http://localhost/ta/Pawfect-Find-PHP/login.php"),
         body: {'uid': uid, 'name': name, 'email': email});
@@ -33,11 +33,13 @@ class _LoginPage extends State<LoginPage> {
         final prefs = await SharedPreferences.getInstance();
         prefs.setInt('id_user', user.id);
         prefs.setInt('is_admin', user.isAdmin);
+
+        return true;
+      } else {
+        return false;
       }
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error')));
-      throw Exception('Gagal login');
+      return false;
     }
   }
 
@@ -61,10 +63,22 @@ class _LoginPage extends State<LoginPage> {
             await firebaseAuth.signInWithCredential(credential);
 
         if (userCred.user != null) {
-          afterLogin(userCred.user?.uid, userCred.user?.displayName, userCred.user?.email);
+          bool loginSuccess = await afterLogin(userCred.user?.uid, userCred.user?.displayName, userCred.user?.email);
+
+          if (!loginSuccess) {
+            await GoogleSignIn().signOut();
+            FirebaseAuth.instance.signOut();
+          }
+        } else {
+          throw Exception("Gagal terhubung dengan Firebase.");
         }
       }
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Gagal login: $e."),
+        duration: Duration(seconds: 3),
+      ));
+
       throw Exception('Gagal login: $e');
     }
   }
