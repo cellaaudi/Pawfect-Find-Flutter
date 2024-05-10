@@ -439,7 +439,7 @@ class _BreedAddPage extends State<BreedAddPage> {
               children: [
                 Expanded(
                     child: ElevatedButton(
-                        onPressed: isFilled() ? () => addData() : null,
+                        onPressed: () => addData(),
                         child: Text(
                           "Simpan Ras Anjing",
                           style: GoogleFonts.nunito(fontSize: 16),

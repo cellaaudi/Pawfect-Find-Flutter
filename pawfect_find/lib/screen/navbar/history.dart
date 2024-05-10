@@ -79,7 +79,9 @@ class _HistoryPage extends State<HistoryPage> {
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
-                      return Center(child: CircularProgressIndicator(),);
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
                     },
                     errorBuilder: (context, error, trace) {
                       return Image.asset(
@@ -115,11 +117,15 @@ class _HistoryPage extends State<HistoryPage> {
           )));
 
   // method untuk data history
-  Widget buildHistoryList() => idUser == null
-      ? Center(
-          child: CircularProgressIndicator(),
-        )
-      : FutureBuilder<List<History>>(
+  Widget buildHistoryList() {
+    if (idUser == null) {
+      getUserID();
+
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
+      return FutureBuilder<List<History>>(
           future: fetchHistory(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
@@ -176,6 +182,8 @@ class _HistoryPage extends State<HistoryPage> {
                   ));
             }
           });
+    }
+  }
 
   @override
   void initState() {

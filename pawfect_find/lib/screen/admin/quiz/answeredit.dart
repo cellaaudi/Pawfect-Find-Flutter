@@ -161,17 +161,17 @@ class _AnswerAddPage extends State<AnswerEditPage> {
 
           if (json['result'] == "Success") {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text("Berhasil menambahkan data baru."),
+              content: Text("Berhasil memperbarui data."),
               duration: Duration(seconds: 3),
             ));
 
             Navigator.pop(context);
           } else {
-            throw Exception("Gagal menambahkan data baru: ${json['message']}");
+            throw Exception("Gagal memperbarui data: ${json['message']}");
           }
         } else {
           throw Exception(
-              'Gagal menambahkan data baru: Status ${response.statusCode}.');
+              'Gagal memperbarui data: Status ${response.statusCode}.');
         }
       } catch (ex) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(

@@ -56,6 +56,11 @@ class _AccountPage extends State<AccountPage> {
                   await GoogleSignIn().signOut();
                   FirebaseAuth.instance.signOut();
 
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text("Logout berhasil."),
+                    duration: Duration(seconds: 3),
+                  ));
+
                   Navigator.pop(context);
                 },
                 style: TextButton.styleFrom(
@@ -89,6 +94,8 @@ class _AccountPage extends State<AccountPage> {
     User? user = auth.currentUser;
 
     if (isAdmin == null) {
+      getRole();
+
       return Center(child: CircularProgressIndicator());
     } else {
       return SingleChildScrollView(
