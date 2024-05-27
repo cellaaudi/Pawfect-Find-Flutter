@@ -61,6 +61,15 @@ class _BreedEditPage extends State<BreedEditPage> {
       _colourController.text.isNotEmpty &&
       _attentionController.text.isNotEmpty;
 
+  // check double input
+  bool isDouble() =>
+      double.tryParse(_minHeightController.text) != null &&
+      double.tryParse(_maxHeightController.text) != null &&
+      double.tryParse(_minWeightController.text) != null &&
+      double.tryParse(_maxWeightController.text) != null &&
+      double.tryParse(_minLifeController.text) != null &&
+      double.tryParse(_maxLifeController.text) != null;
+
   // method shared preferences
   Future<int?> getBreedID() async {
     final prefs = await SharedPreferences.getInstance();
@@ -181,75 +190,82 @@ class _BreedEditPage extends State<BreedEditPage> {
   // method edit data
   Future updateData(String? dbPuppy, String? dbAdult) async {
     if (isFilled()) {
-      try {
-        String puppyUrl = '';
-        String adultUrl = '';
+      if (isDouble()) {
+        try {
+          String puppyUrl = '';
+          String adultUrl = '';
 
-        // Hapus foto lama jika ada perubahan
-        if (isPuppyChanged && dbPuppy != null) {
-          await deleteFirebaseImg(dbPuppy);
-        }
-        if (isAdultChanged && dbAdult != null) {
-          await deleteFirebaseImg(dbAdult);
-        }
-
-        // upload foto ke firebase
-        if (isPuppyChanged) {
-          puppyUrl = await upImgFirebase(puppyByte!);
-        } else {
-          puppyUrl = dbPuppy ?? '';
-        }
-
-        if (isAdultChanged) {
-          adultUrl = await upImgFirebase(adultByte!);
-        } else {
-          adultUrl = dbAdult ?? '';
-        }
-
-        final response = await http.post(
-          Uri.parse(
-              "http://localhost/ta/Pawfect-Find-PHP/admin/breed_edit.php"),
-          body: {
-            'id': idBreed.toString(),
-            'breed': _nameController.text,
-            'group': dropdownValue,
-            'minHeight': _minHeightController.text,
-            'maxHeight': _maxHeightController.text,
-            'minWeight': _minWeightController.text,
-            'maxWeight': _maxWeightController.text,
-            'minLife': _minLifeController.text,
-            'maxLife': _maxLifeController.text,
-            'origin': _originController.text,
-            'colour': _colourController.text,
-            'attention': _attentionController.text,
-            'imgPuppy': puppyUrl,
-            'imgAdult': adultUrl,
-          },
-        );
-
-        if (response.statusCode == 200) {
-          Map<String, dynamic> json = jsonDecode(response.body);
-
-          if (json['result'] == 'Success') {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text("Berhasil memperbarui data."),
-              duration: Duration(seconds: 3),
-            ));
-
-            Navigator.pop(context);
-          } else {
-            throw Exception("Gagal memperbarui data: ${json['message']}.");
+          // Hapus foto lama jika ada perubahan
+          if (isPuppyChanged && dbPuppy != null) {
+            await deleteFirebaseImg(dbPuppy);
           }
-        } else {
-          throw Exception(
-              "Gagal memperbarui data: Status ${response.statusCode}.");
+          if (isAdultChanged && dbAdult != null) {
+            await deleteFirebaseImg(dbAdult);
+          }
+
+          // upload foto ke firebase
+          if (isPuppyChanged) {
+            puppyUrl = await upImgFirebase(puppyByte!);
+          } else {
+            puppyUrl = dbPuppy ?? '';
+          }
+
+          if (isAdultChanged) {
+            adultUrl = await upImgFirebase(adultByte!);
+          } else {
+            adultUrl = dbAdult ?? '';
+          }
+
+          final response = await http.post(
+            Uri.parse(
+                "http://localhost/ta/Pawfect-Find-PHP/admin/breed_edit.php"),
+            body: {
+              'id': idBreed.toString(),
+              'breed': _nameController.text,
+              'group': dropdownValue,
+              'minHeight': _minHeightController.text,
+              'maxHeight': _maxHeightController.text,
+              'minWeight': _minWeightController.text,
+              'maxWeight': _maxWeightController.text,
+              'minLife': _minLifeController.text,
+              'maxLife': _maxLifeController.text,
+              'origin': _originController.text,
+              'colour': _colourController.text,
+              'attention': _attentionController.text,
+              'imgPuppy': puppyUrl,
+              'imgAdult': adultUrl,
+            },
+          );
+
+          if (response.statusCode == 200) {
+            Map<String, dynamic> json = jsonDecode(response.body);
+
+            if (json['result'] == 'Success') {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text("Berhasil memperbarui data."),
+                duration: Duration(seconds: 3),
+              ));
+
+              Navigator.pop(context);
+            } else {
+              throw Exception("Gagal memperbarui data: ${json['message']}.");
+            }
+          } else {
+            throw Exception(
+                "Gagal memperbarui data: Status ${response.statusCode}.");
+          }
+        } catch (ex) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Terjadi kesalahan: $ex."),
+            duration: Duration(seconds: 3),
+          ));
+          throw Exception("Terjadi kesalahan: $ex.");
         }
-      } catch (ex) {
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Terjadi kesalahan: $ex."),
+          content: Text("Data harus berupa angka."),
           duration: Duration(seconds: 3),
         ));
-        throw Exception("Terjadi kesalahan: $ex.");
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

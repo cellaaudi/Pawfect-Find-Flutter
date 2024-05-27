@@ -54,6 +54,15 @@ class _BreedAddPage extends State<BreedAddPage> {
       puppyImg != null &&
       adultImg != null;
 
+  // check double input
+  bool isDouble() =>
+      double.tryParse(_minHeightController.text) != null &&
+      double.tryParse(_maxHeightController.text) != null &&
+      double.tryParse(_minWeightController.text) != null &&
+      double.tryParse(_maxWeightController.text) != null &&
+      double.tryParse(_minLifeController.text) != null &&
+      double.tryParse(_maxLifeController.text) != null;
+
   // method pick img
   pickImage(bool isPuppy) async {
     final ImagePicker picker = ImagePicker();
@@ -103,52 +112,61 @@ class _BreedAddPage extends State<BreedAddPage> {
   // method tambah data
   Future addData() async {
     if (isFilled()) {
-      try {
-        // upload foto ke firebase
-        String puppyUrl = await upImgFirebase(puppyByte!);
-        String adultUrl = await upImgFirebase(adultByte!);
+      if (isDouble()) {
+        try {
+          // upload foto ke firebase
+          String puppyUrl = await upImgFirebase(puppyByte!);
+          String adultUrl = await upImgFirebase(adultByte!);
 
-        final response = await http.post(
-          Uri.parse("http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php"),
-          body: {
-            'breed': _nameController.text,
-            'group': dropdownValue,
-            'minHeight': _minHeightController.text,
-            'maxHeight': _maxHeightController.text,
-            'minWeight': _minWeightController.text,
-            'maxWeight': _maxWeightController.text,
-            'minLife': _minLifeController.text,
-            'maxLife': _maxLifeController.text,
-            'origin': _originController.text,
-            'colour': _colourController.text,
-            'attention': _attentionController.text,
-            'imgPuppy': puppyUrl,
-            'imgAdult': adultUrl,
-          },
-        );
+          final response = await http.post(
+            Uri.parse(
+                "http://localhost/ta/Pawfect-Find-PHP/admin/breed_add.php"),
+            body: {
+              'breed': _nameController.text,
+              'group': dropdownValue,
+              'minHeight': _minHeightController.text,
+              'maxHeight': _maxHeightController.text,
+              'minWeight': _minWeightController.text,
+              'maxWeight': _maxWeightController.text,
+              'minLife': _minLifeController.text,
+              'maxLife': _maxLifeController.text,
+              'origin': _originController.text,
+              'colour': _colourController.text,
+              'attention': _attentionController.text,
+              'imgPuppy': puppyUrl,
+              'imgAdult': adultUrl,
+            },
+          );
 
-        if (response.statusCode == 200) {
-          Map<String, dynamic> json = jsonDecode(response.body);
+          if (response.statusCode == 200) {
+            Map<String, dynamic> json = jsonDecode(response.body);
 
-          if (json['result'] == 'Success') {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text("Berhasil menambahkan data baru."),
-              duration: Duration(seconds: 3),
-            ));
+            if (json['result'] == 'Success') {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text("Berhasil menambahkan data baru."),
+                duration: Duration(seconds: 3),
+              ));
 
-            Navigator.pop(context);
+              Navigator.pop(context);
+            } else {
+              throw Exception("Terjadi kesalahan: ${json['message']}.");
+            }
           } else {
-            throw Exception("Terjadi kesalahan: ${json['message']}.");
+            throw Exception(
+                "Terjadi kesalahan: Status ${response.statusCode}.");
           }
-        } else {
-          throw Exception("Terjadi kesalahan: Status ${response.statusCode}.");
+        } catch (ex) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Terjadi kesalahan: $ex."),
+            duration: Duration(seconds: 3),
+          ));
+          throw Exception("Terjadi kesalahan: $ex.");
         }
-      } catch (ex) {
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Terjadi kesalahan: $ex."),
+          content: Text("Data harus berupa angka."),
           duration: Duration(seconds: 3),
         ));
-        throw Exception("Terjadi kesalahan: $ex.");
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
