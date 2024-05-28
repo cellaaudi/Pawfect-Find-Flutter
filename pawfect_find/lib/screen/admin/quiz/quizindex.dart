@@ -25,7 +25,7 @@ class _QuizIndexPage extends State<QuizIndexPage> {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
           title: Text(
-            'Hapus Aturan',
+            'Hapus Pertanyaan',
             style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
           ),
           content: Text(

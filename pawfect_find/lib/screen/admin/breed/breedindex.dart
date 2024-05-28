@@ -33,7 +33,7 @@ class _BreedIndexPage extends State<BreedIndexPage> {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
           title: Text(
-            'Hapus Aturan',
+            'Hapus Ras Anjing',
             style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
           ),
           content: Text(
